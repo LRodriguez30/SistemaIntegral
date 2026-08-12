@@ -1,0 +1,45 @@
+<div class="relative min-h-screen transition-all duration-300 ease-out" [class.opacity-0]="transitioning()"
+  [class.scale-95]="transitioning()">
+
+  <!-- LOADER -->
+  @if (loaderVisible()) {
+
+  <div class="fixed inset-0 z-[9999]
+           flex items-center justify-center
+           bg-white/80 backdrop-blur-md
+           transition-opacity duration-300 ease-out" [class.opacity-100]="!transitioning()"
+    [class.opacity-0]="transitioning()">
+
+    <div class="flex flex-col items-center gap-5
+             transition-all duration-300 ease-out">
+
+      <!-- ICONO PASOS -->
+      <img src="Marca Pasos Ico.svg" alt="PASOS logo" class="w-16 h-16 object-contain animate-pulse" />
+
+      <!-- SPINNER -->
+      <div class="w-7 h-7
+               border-2
+               border-zinc-200
+               border-t-black
+               rounded-full
+               animate-spin"></div>
+
+      <!-- MENSAJE -->
+      <p class="text-sm
+               font-medium
+               text-zinc-600">
+        {{ loader.message() || 'Cargando...' }}
+      </p>
+
+    </div>
+
+  </div>
+
+  }
+
+  <!-- APP -->
+  @if (!booting()) {
+  <router-outlet></router-outlet>
+  }
+
+</div>

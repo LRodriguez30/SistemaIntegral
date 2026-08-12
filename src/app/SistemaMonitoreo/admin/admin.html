@@ -1,0 +1,386 @@
+<!-- OVERLAY MOBILE -->
+@if (sidebarOpen) {
+
+<div
+  class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+  (click)="closeSidebar()">
+</div>
+
+}
+
+
+<!-- APP LAYOUT -->
+<div class="h-screen w-full bg-zinc-50 text-zinc-950 overflow-hidden flex">
+
+
+  <!-- SIDEBAR -->
+  <aside
+    class="fixed md:relative z-50
+           top-0 left-0
+           h-full
+           w-72
+           flex-shrink-0
+           bg-white
+           border-r border-zinc-200
+           flex flex-col
+           transform transition-transform duration-300 ease-in-out"
+    [class.-translate-x-full]="!sidebarOpen"
+    [class.translate-x-0]="sidebarOpen"
+    [class.md:translate-x-0]="true"
+  >
+
+    <!-- SIDEBAR HEADER -->
+    <div
+      class="h-16 flex-shrink-0
+             flex items-center justify-between
+             px-5
+             border-b border-zinc-200">
+
+      <div class="flex items-center gap-3">
+
+        <!-- LOGO -->
+        <div
+          routerLink="/"
+          class="cursor-pointer
+                 flex items-center justify-center">
+
+          <img
+            ngSrc="Marca Pasos Ico.svg"
+            width="32"
+            height="32"
+            alt="PASOS logo"
+          />
+
+        </div>
+
+        <!-- TEXTO -->
+        <div class="flex flex-col leading-tight">
+
+          <span
+            class="font-bold
+                   text-sm
+                   tracking-tight
+                   text-zinc-950">
+
+            PASOS
+
+          </span>
+
+          <span
+            class="text-[11px]
+                   text-zinc-500
+                   tracking-wider
+                   uppercase">
+
+            Administración
+
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- CLOSE MOBILE -->
+      <button
+        class="md:hidden
+               w-9 h-9
+               rounded-lg
+               border border-zinc-200
+               text-zinc-500
+               hover:text-zinc-950
+               hover:bg-zinc-100
+               flex items-center justify-center
+               transition
+               cursor-pointer"
+        (click)="closeSidebar()">
+
+        <iconify-icon icon="lucide:x"></iconify-icon>
+
+      </button>
+
+    </div>
+
+
+    <!-- SIDEBAR NAV -->
+    <nav
+      class="flex-1
+             min-h-0
+             overflow-y-auto
+             overflow-x-hidden
+             p-3
+             space-y-2">
+
+      <!-- POSTGRES -->
+      @for (section of postgresNav; track section.label) {
+
+      <div class="mt-2">
+
+        <!-- SECTION -->
+        <div
+          class="flex items-center gap-2
+                 px-2 py-1
+                 text-zinc-400
+                 text-xs
+                 font-semibold
+                 uppercase
+                 tracking-wider">
+
+          <iconify-icon
+            [icon]="section.icon">
+          </iconify-icon>
+
+          {{ section.label }}
+
+        </div>
+
+
+        <!-- ITEMS -->
+        <div class="mt-1 space-y-1">
+
+          @for (item of section.children; track item.label) {
+
+          <a
+            [routerLink]="item.route"
+            routerLinkActive="nav-active-link"
+            (click)="closeSidebar()"
+            class="flex items-center gap-3
+                   px-3 py-2.5
+                   rounded-xl
+                   text-zinc-600
+                   hover:bg-zinc-100
+                   hover:text-zinc-950
+                   transition-all duration-200">
+
+            <iconify-icon
+              [icon]="item.icon"
+              class="text-[18px] flex-shrink-0">
+            </iconify-icon>
+
+            <span class="truncate">
+              {{ item.label }}
+            </span>
+
+          </a>
+
+          }
+
+        </div>
+
+      </div>
+
+      }
+
+
+      <!-- MONGO -->
+      <div class="pt-4 border-t border-zinc-200">
+
+        @for (section of mongoNav; track section.label) {
+
+        <div class="mt-2">
+
+          <!-- SECTION -->
+          <div
+            class="flex items-center gap-2
+                   px-2 py-1
+                   text-zinc-400
+                   text-xs
+                   font-semibold
+                   uppercase
+                   tracking-wider">
+
+            <iconify-icon
+              [icon]="section.icon">
+            </iconify-icon>
+
+            {{ section.label }}
+
+          </div>
+
+
+          <!-- ITEMS -->
+          <div class="mt-1 space-y-1">
+
+            @for (item of section.children; track item.label) {
+
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="nav-active-link"
+              (click)="closeSidebar()"
+              class="flex items-center gap-3
+                     px-3 py-2.5
+                     rounded-xl
+                     text-zinc-600
+                     hover:bg-zinc-100
+                     hover:text-zinc-950
+                     transition-all duration-200">
+
+              <iconify-icon
+                [icon]="item.icon"
+                class="text-[18px] flex-shrink-0">
+              </iconify-icon>
+
+              <span class="truncate">
+                {{ item.label }}
+              </span>
+
+            </a>
+
+            }
+
+          </div>
+
+        </div>
+
+        }
+
+      </div>
+
+    </nav>
+
+  </aside>
+
+
+  <!-- MAIN AREA -->
+  <div class="flex-1 min-w-0 h-full flex flex-col">
+
+
+    <!-- TOPBAR -->
+    <header
+      class="h-16
+             flex-shrink-0
+             bg-white
+             border-b border-zinc-200
+             flex items-center
+             justify-between
+             gap-3
+             px-4 md:px-6">
+
+
+      <!-- LEFT -->
+      <div class="flex items-center gap-3 min-w-0">
+
+        <!-- MENU MOBILE -->
+        <button
+          class="md:hidden
+                 w-10 h-10
+                 rounded-xl
+                 border border-zinc-200
+                 text-zinc-500
+                 hover:text-zinc-950
+                 hover:bg-zinc-100
+                 flex items-center justify-center
+                 transition
+                 cursor-pointer"
+          (click)="toggleSidebar()">
+
+          <iconify-icon icon="lucide:menu"></iconify-icon>
+
+        </button>
+
+
+        <!-- TITLE -->
+        <div class="min-w-0">
+
+          <div
+            class="text-sm md:text-[18px]
+                   font-semibold
+                   text-zinc-950
+                   tracking-tight
+                   truncate">
+
+            Panel Maestro
+
+          </div>
+
+          <div
+            class="md:hidden
+                   text-[11px]
+                   text-zinc-500
+                   truncate">
+
+            Administración
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- USER -->
+      <div class="flex items-center gap-3 min-w-0">
+
+        <!-- USER INFO -->
+        <div
+          class="hidden sm:block
+                 text-right
+                 leading-tight
+                 min-w-0">
+
+          <div
+            class="text-sm
+                   font-semibold
+                   text-zinc-950
+                   truncate
+                   max-w-[160px]">
+
+            {{ userName() }}
+
+          </div>
+
+          <div
+            class="text-[11px]
+                   text-zinc-500
+                   truncate">
+
+            {{ userRole() }}
+
+          </div>
+
+        </div>
+
+
+        <!-- AVATAR -->
+        <div
+          class="w-10 h-10
+                 rounded-full
+                 overflow-hidden
+                 border-2 border-zinc-200
+                 flex-shrink-0
+                 bg-zinc-100">
+
+          <img
+            [src]="getAvatar()"
+            alt="Avatar"
+            class="w-full h-full object-cover"
+          />
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- CONTENT -->
+    <main
+      class="flex-1
+             min-h-0
+             overflow-y-auto
+             overflow-x-hidden
+             bg-zinc-50
+             p-4 md:p-6">
+
+      <div class="min-w-0">
+
+        <router-outlet></router-outlet>
+
+      </div>
+
+    </main>
+
+
+  </div>
+
+</div>

@@ -1,0 +1,179 @@
+<!-- FAQ -->
+<section id="faq" class="bg-white border-t border-zinc-200">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 py-20 reveal">
+
+        <!-- ENCABEZADO -->
+        <div class="mb-10">
+            <span class="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold">
+                Preguntas frecuentes
+            </span>
+
+            <h2 class="text-4xl lg:text-5xl font-black mt-3">
+                Dudas sobre PASOS
+            </h2>
+
+            <p class="text-zinc-600 text-lg leading-relaxed mt-5 max-w-3xl">
+                Encuentra respuestas sobre pagos, productos, disponibilidad, puntos de venta,
+                seguridad y atención. Si no encuentras tu duda, puedes escribirnos por
+                WhatsApp o Facebook.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+
+            <!-- ÍNDICE -->
+            <aside class="lg:sticky lg:top-32 h-fit rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+
+                <h3 class="text-sm font-black uppercase tracking-[0.18em] text-zinc-500 mb-4">
+                    Categorías
+                </h3>
+
+                <nav class="space-y-2 max-h-[360px] overflow-y-auto pr-2">
+                    @for (category of faqCategories; track category.id) {
+                    <a (click)="scrollToFaq(category.id)" class="block px-4 py-3 rounded-xl text-sm font-semibold text-zinc-600
+                 hover:bg-white hover:text-black hover:shadow-sm
+                 transition cursor-pointer active:scale-[0.98]">
+                        {{ category.title }}
+                    </a>
+                    }
+                </nav>
+
+            </aside>
+
+            <!-- PANEL DERECHO -->
+            <div class="space-y-5">
+
+                <!-- BUSCADOR -->
+                <div class="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+
+                    <label for="faqSearch" class="block text-sm font-black text-zinc-900 mb-3">
+                        Buscar una pregunta
+                    </label>
+
+                    <div class="relative">
+                        <iconify-icon icon="lucide:search"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-xl">
+                        </iconify-icon>
+
+                        <input id="faqSearch" type="text" [value]="faqSearch" (input)="onFaqSearch($event)"
+                            placeholder="Ej: tarjeta, ubicación, tallas, WhatsApp..." class="w-full rounded-xl border border-zinc-300 bg-white py-4 pl-12 pr-4
+                 text-sm text-zinc-800 outline-none transition
+                 focus:border-black focus:ring-2 focus:ring-black/10">
+                    </div>
+
+                </div>
+
+                <!-- CONTENEDOR DE PREGUNTAS -->
+                <div class="rounded-2xl border border-zinc-200 overflow-hidden">
+
+                    <div class="max-h-[520px] overflow-y-auto scroll-smooth">
+
+                        @if (filteredFaqCategories.length > 0) {
+
+                        @for (category of filteredFaqCategories; track category.id) {
+
+                        <section [id]="category.id" class="p-6 lg:p-8 border-b border-zinc-200 scroll-mt-32">
+
+                            <div class="mb-6">
+                                <span class="text-xs uppercase tracking-[0.2em] text-zinc-400 font-semibold">
+                                    {{ category.label }}
+                                </span>
+
+                                <h3 class="text-2xl font-black mt-2">
+                                    {{ category.title }}
+                                </h3>
+                            </div>
+
+                            <div class="divide-y divide-zinc-200">
+
+                                @for (faq of category.questions; track faq.question; let i = $index) {
+
+                                <article class="py-5" [id]="category.id + '-' + i">
+
+                                    <button (click)="scrollToFaq(category.id + '-' + i)"
+                                        class="text-left w-full group cursor-pointer">
+
+                                        <div class="flex gap-4">
+
+                                            <span class="text-sm font-black text-zinc-400 min-w-8">
+                                                {{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }} </span>
+
+                                                    <div>
+                                                        <h4 class="text-lg font-black text-zinc-900"
+                                                            [innerHTML]="highlightText(faq.question)">
+                                                        </h4>
+
+                                                        <p class="text-zinc-600 leading-relaxed mt-3"
+                                                            [innerHTML]="highlightText(faq.answer)">
+                                                        </p>
+                                                    </div>
+                                        </div>
+
+                                    </button>
+
+                                </article>
+
+                                }
+
+                            </div>
+
+                        </section>
+
+                        }
+
+                        } @else {
+
+                        <div class="p-8 lg:p-12 text-center">
+
+                            <div class="w-14 h-14 mx-auto rounded-2xl bg-zinc-100 border border-zinc-200
+                        flex items-center justify-center mb-5">
+                                <iconify-icon icon="lucide:search-x" class="text-2xl text-zinc-500"></iconify-icon>
+                            </div>
+
+                            <h3 class="text-2xl font-black text-zinc-900">
+                                Parece que no hay preguntas relacionadas
+                            </h3>
+
+                            <p class="text-zinc-600 leading-relaxed mt-4 max-w-xl mx-auto">
+                                No encontramos una respuesta que coincida con tu búsqueda.
+                                Puedes escribirnos por WhatsApp o Facebook para resolver tu duda directamente.
+                            </p>
+
+                            <div class="flex justify-center flex-wrap gap-3 mt-7">
+
+                                <a href="https://wa.me/50582692155?text=Hola%20PASOS.%20Tengo%20una%20consulta%20que%20podr%C3%ADa%20ser%20de%20ayuda%20para%20m%C3%AD%20y%20para%20otros%20clientes.%20Mi%20pregunta%20es%3A%20"
+                                    target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-black text-white
+                                    text-sm font-semibold transition hover:bg-zinc-800 active:scale-95 cursor-pointer">
+
+                                    <iconify-icon icon="ic:baseline-whatsapp" class="text-xl"></iconify-icon>
+
+                                    WhatsApp
+                                </a>
+
+                                <a href="https://www.facebook.com/share/1DrVq8eGr5/" target="_blank"
+                                    rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-zinc-300
+                                    text-sm font-semibold transition hover:bg-zinc-50 active:scale-95 cursor-pointer">
+
+                                    <iconify-icon icon="ic:baseline-facebook" class="text-xl"></iconify-icon>
+
+                                    Facebook
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>

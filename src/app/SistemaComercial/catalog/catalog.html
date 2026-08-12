@@ -1,0 +1,2529 @@
+@if (isOpen()) {
+
+<div class="fixed inset-0 z-50 flex items-center justify-center px-4">
+
+    <!-- BACKDROP -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-md cursor-pointer" (click)="closeDetail()"
+        [class.opacity-0]="isClosing()">
+    </div>
+
+    <!-- MODAL -->
+    <div class="relative bg-white w-full max-w-6xl max-h-[88vh]
+        rounded-[2rem] shadow-2xl overflow-hidden animate-modalIn" [class.opacity-0]="isClosing()"
+        [class.scale-95]="isClosing()">
+
+        <button (click)="closeDetail()" class="absolute top-5 right-5 z-20 w-10 h-10 rounded-full
+            bg-white text-zinc-500 hover:text-black hover:bg-zinc-100
+            shadow-sm transition cursor-pointer active:scale-95">
+            ✕
+        </button>
+
+        <div class="max-h-[88vh] overflow-y-auto custom-scrollbar">
+
+            <section class="grid grid-cols-1 lg:grid-cols-2">
+
+                <!-- IZQUIERDA: PRODUCTO -->
+                <div class="bg-zinc-50 border-r border-zinc-200 p-6 lg:p-10">
+
+                    <div class="rounded-[2rem] bg-white border border-zinc-200 overflow-hidden shadow-sm">
+                        <div class="bg-zinc-100 flex items-center justify-center">
+                            <img [src]="selectedProduct()?.image" [alt]="selectedProduct()?.name"
+                                (error)="$any($event.target).src = 'Not Found.png'"
+                                class="w-full aspect-square object-contain transition duration-500 hover:scale-[1.03]" />
+                        </div>
+                    </div>
+
+                    <div class="mt-7">
+                        <h2 class="text-3xl lg:text-4xl font-black leading-tight">
+                            {{ selectedProduct()?.name }}
+                        </h2>
+
+                        <div class="mt-4 max-h-28 overflow-y-auto custom-scrollbar pr-2">
+                            <p class="text-zinc-600 leading-relaxed">
+                                {{ selectedProduct()?.description }}
+                            </p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 mt-5">
+                            @for (t of selectedProduct()?.tags; track t) {
+                            <span class="text-xs px-3 py-1 rounded-full bg-white border border-zinc-200 text-zinc-600">
+                                {{ t }}
+                            </span>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- DERECHA: COMPRA / DETALLES -->
+                <div class="p-6 lg:p-10">
+
+                    <span class="text-xs uppercase tracking-[0.25em] text-zinc-400 font-black">
+                        Detalle del producto
+                    </span>
+
+                    <div class="mt-5 flex items-end justify-between gap-4">
+                        <div>
+                            <p class="text-sm text-zinc-500">
+                                Precio
+                            </p>
+
+                            <p class="text-4xl font-black mt-1">
+                                {{ selectedProduct()?.price }} C$
+                            </p>
+                        </div>
+
+                        <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                            bg-zinc-100 border border-zinc-200 text-xs font-black text-zinc-700">
+                            <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+                            Disponible
+                        </span>
+                    </div>
+
+                    <div class="mt-8">
+
+                        <p class="text-sm font-black text-zinc-800">
+                            Selecciona tu talla
+                        </p>
+
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            @for (s of sizes; track s) {
+                            <button type="button" (click)="selectSize(s)"
+                                class="w-12 h-12 rounded-2xl border text-sm font-black transition cursor-pointer active:scale-95"
+                                [class.bg-black]="selectedSize() === s" [class.text-white]="selectedSize() === s"
+                                [class.border-black]="selectedSize() === s" [class.bg-white]="selectedSize() !== s"
+                                [class.text-zinc-700]="selectedSize() !== s"
+                                [class.border-zinc-200]="selectedSize() !== s"
+                                [class.hover:bg-zinc-100]="selectedSize() !== s">
+                                {{ s }}
+                            </button>
+                            }
+                        </div>
+
+                    </div>
+
+                    <div class="mt-7 rounded-[1.8rem] bg-black text-white p-6 overflow-hidden relative">
+
+                        <div class="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-white/10"></div>
+
+                        <div class="relative">
+                            <p class="text-xs uppercase tracking-[0.25em] text-zinc-300 font-black">
+                                Promoción activa
+                            </p>
+
+                            <div class="flex items-end gap-2 mt-3">
+                                <span class="text-6xl font-black leading-none">2</span>
+                                <span class="text-3xl font-black leading-none pb-2">x</span>
+                                <span class="text-6xl font-black leading-none">1</span>
+                            </div>
+
+                            <p class="text-sm text-zinc-300 mt-4">
+                                Disponible en modelos seleccionados por tiempo limitado.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 group/cards">
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4
+        transition-all duration-300 ease-out
+        rotate-[-2deg] hover:rotate-0 hover:-translate-y-2 hover:shadow-xl
+        group-hover/cards:scale-[0.98] hover:scale-105">
+
+                            <div
+                                class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center mb-4">
+                                <iconify-icon icon="mdi:shield-check-outline" class="text-2xl"></iconify-icon>
+                            </div>
+
+                            <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                                Garantía
+                            </p>
+
+                            <p class="font-black mt-1">
+                                Defecto de fábrica
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4
+        transition-all duration-300 ease-out
+        rotate-[2deg] hover:rotate-0 hover:-translate-y-2 hover:shadow-xl
+        group-hover/cards:scale-[0.98] hover:scale-105">
+
+                            <div
+                                class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center mb-4">
+                                <iconify-icon icon="mdi:swap-horizontal-circle-outline" class="text-2xl"></iconify-icon>
+                            </div>
+
+                            <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                                Cambio
+                            </p>
+
+                            <p class="font-black mt-1">
+                                Según disponibilidad
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4
+        transition-all duration-300 ease-out
+        rotate-[1.5deg] hover:rotate-0 hover:-translate-y-2 hover:shadow-xl
+        group-hover/cards:scale-[0.98] hover:scale-105">
+
+                            <div
+                                class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center mb-4">
+                                <iconify-icon icon="mdi:truck-delivery-outline" class="text-2xl"></iconify-icon>
+                            </div>
+
+                            <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                                Entrega
+                            </p>
+
+                            <p class="font-black mt-1">
+                                A coordinar
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4
+        transition-all duration-300 ease-out
+        rotate-[-1.5deg] hover:rotate-0 hover:-translate-y-2 hover:shadow-xl
+        group-hover/cards:scale-[0.98] hover:scale-105">
+
+                            <div
+                                class="w-11 h-11 rounded-2xl bg-black text-white flex items-center justify-center mb-4">
+                                <iconify-icon icon="mdi:credit-card-check-outline" class="text-2xl"></iconify-icon>
+                            </div>
+
+                            <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                                Pago
+                            </p>
+
+                            <p class="font-black mt-1">
+                                Efectivo o tarjeta
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </div>
+
+    <!-- CART FLOAT BAR -->
+    <div class="absolute left-1/2 z-30 w-full max-w-xl px-5
+    -translate-x-1/2 pointer-events-none
+    transition-all duration-200 ease-out" [class.bottom-0]="!cartBarOpen()" [class.translate-y-1/2]="!cartBarOpen()"
+        [class.bottom-16]="cartBarOpen()" [class.translate-y-0]="cartBarOpen()" [class.opacity-0]="isClosing()"
+        [class.opacity-100]="!isClosing()">
+
+        <div class="relative pointer-events-auto">
+
+            <!-- PIN BUTTON -->
+            <button type="button" (click)="toggleCartBar()" class="absolute left-1/2 top-0 z-20
+            -translate-x-1/2 -translate-y-1/2
+            w-12 h-12 rounded-full bg-black text-white
+            flex items-center justify-center
+            border-4 border-white shadow-xl
+            hover:bg-zinc-800 transition cursor-pointer active:scale-95">
+
+                <iconify-icon [icon]="cartBarOpen() ? 'mdi:chevron-down' : 'mdi:cart-plus'" class="text-2xl">
+                </iconify-icon>
+
+            </button>
+
+            <!-- PANEL -->
+            <div class="rounded-[1.6rem] bg-white/95 backdrop-blur border border-zinc-200
+            shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+            p-4 pt-7 transition-all duration-300 ease-out origin-bottom"
+                [class.opacity-0]="!cartBarOpen() || isClosing()" [class.translate-y-4]="!cartBarOpen() || isClosing()"
+                [class.scale-95]="!cartBarOpen() || isClosing()" [class.opacity-100]="cartBarOpen() && !isClosing()"
+                [class.translate-y-0]="cartBarOpen() && !isClosing()" [class.scale-100]="cartBarOpen() && !isClosing()"
+                [class.pointer-events-none]="!cartBarOpen() || isClosing()"
+                [class.pointer-events-auto]="cartBarOpen() && !isClosing()">
+
+                <div class="flex items-center justify-between gap-4">
+
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-black">
+                            Total del producto
+                        </p>
+
+                        <p class="text-2xl font-black mt-1">
+                            {{ selectedProduct()?.price }} C$
+                        </p>
+                    </div>
+
+                    <button (click)="addToCart()" [disabled]="!selectedSize()" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full
+                    bg-black text-white font-bold transition active:scale-95 cursor-pointer
+                    hover:bg-zinc-800
+                    disabled:bg-zinc-300 disabled:cursor-not-allowed disabled:active:scale-100">
+
+                        <iconify-icon icon="mdi:cart-plus" class="text-xl"></iconify-icon>
+                        Agregar
+
+                    </button>
+
+                </div>
+
+                @if (!selectedSize()) {
+                <p class="text-xs text-zinc-500 mt-3">
+                    Selecciona una talla para agregar este producto.
+                </p>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+}
+
+@if (cartOpen()) {
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-md cursor-pointer animate-fadeIn" (click)="closeCart()">
+    </div>
+
+    <div class="relative bg-white w-full sm:max-w-6xl sm:mx-4
+        h-[90vh] sm:max-h-[86vh]
+        rounded-t-[2rem] sm:rounded-[2rem]
+        shadow-[0_25px_80px_rgba(0,0,0,0.35)]
+        overflow-hidden animate-modalIn">
+
+        <button (click)="closeCart()" class="absolute top-5 right-5 z-30 w-10 h-10 rounded-full
+            flex items-center justify-center
+            bg-zinc-100 text-zinc-500
+            hover:bg-black hover:text-white
+            transition cursor-pointer active:scale-95">
+            ✕
+        </button>
+
+        <section class="grid grid-cols-1 lg:grid-cols-[1.25fr_0.75fr] h-full overflow-hidden">
+
+            <!-- IZQUIERDA: PRODUCTOS -->
+            <div class="bg-zinc-50 border-r border-zinc-200 flex flex-col min-h-0">
+
+                <!-- HEADER FIJO -->
+                <div class="shrink-0 p-5 sm:p-8 pb-5 bg-zinc-50 border-b border-zinc-200">
+
+                    <div class="pr-12">
+                        <span class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+                            Productos agregados
+                        </span>
+
+                        <h2 class="text-3xl sm:text-4xl font-black mt-2">
+                            Carrito
+                        </h2>
+
+                        <p class="text-sm text-zinc-500 mt-2">
+                            Revisa tallas, cantidades y productos antes de solicitar el pedido.
+                        </p>
+                    </div>
+
+                    @if (cart().length > 0) {
+                    <button type="button" (click)="clearCart()" class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full
+                        border border-zinc-300 text-sm font-bold text-zinc-600
+                        hover:bg-black hover:text-white hover:border-black
+                        transition cursor-pointer active:scale-95">
+
+                        <iconify-icon icon="mdi:cart-remove" class="text-lg"></iconify-icon>
+                        Vaciar carrito
+                    </button>
+                    }
+
+                </div>
+
+                <!-- LISTA CON SCROLL -->
+                <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-5 sm:p-8">
+
+                    @if (cart().length === 0) {
+
+                    <div class="border border-dashed border-zinc-300 rounded-[1.8rem] p-10 text-center bg-white">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-zinc-100 flex items-center justify-center">
+                            <iconify-icon icon="mdi:cart-outline" class="text-4xl text-zinc-500"></iconify-icon>
+                        </div>
+
+                        <p class="font-black mt-5 text-xl">
+                            Tu carrito está vacío
+                        </p>
+
+                        <p class="text-sm text-zinc-500 mt-2">
+                            Agrega un modelo desde el catálogo para verlo aquí.
+                        </p>
+                    </div>
+
+                    } @else {
+
+                    <div class="space-y-4">
+
+                        @for (item of cart(); track item.product.id + '-' + item.size; let i = $index) {
+
+                        <div class="group rounded-[1.8rem] border border-zinc-200 bg-white
+                            shadow-sm hover:shadow-lg transition-all duration-300
+                            p-4 sm:p-5">
+
+                            <div class="flex gap-4">
+
+                                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-zinc-100 overflow-hidden shrink-0">
+                                    <img [src]="item.product.image"
+                                        (error)="$any($event.target).src = 'Not Found.png'"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+
+                                    <div class="flex items-start justify-between gap-3">
+
+                                        <div class="min-w-0">
+                                            <h3 class="font-black text-lg sm:text-xl leading-tight truncate">
+                                                {{ item.product.name }}
+                                            </h3>
+
+                                            @if (item.combo) {
+                                            <p class="text-xs text-zinc-500 mt-2">
+                                                Paquete especial · precio promocional
+                                            </p>
+                                            } @else {
+                                            <p class="text-xs text-zinc-500 mt-2">
+                                                Selecciona talla
+                                            </p>
+                                            }
+                                        </div>
+
+                                        <button (click)="removeFromCart(i)" class="w-9 h-9 rounded-full bg-zinc-100 text-zinc-500
+                                            hover:bg-black hover:text-white transition cursor-pointer shrink-0">
+                                            <iconify-icon icon="mdi:trash-can-outline" class="text-lg"></iconify-icon>
+                                        </button>
+
+                                    </div>
+
+                                    @if (!item.combo) {
+                                    <div class="mt-3 flex flex-wrap gap-2">
+                                        @for (s of sizes; track s) {
+                                        <button type="button" (click)="changeCartItemSize(i, s)"
+                                            class="w-9 h-9 rounded-xl border text-xs font-black transition cursor-pointer active:scale-95"
+                                            [class.bg-black]="item.size === s"
+                                            [class.text-white]="item.size === s"
+                                            [class.border-black]="item.size === s"
+                                            [class.bg-white]="item.size !== s"
+                                            [class.text-zinc-600]="item.size !== s"
+                                            [class.border-zinc-200]="item.size !== s"
+                                            [class.hover:bg-zinc-100]="item.size !== s">
+                                            {{ s }}
+                                        </button>
+                                        }
+                                    </div>
+                                    }
+
+                                    <div class="mt-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+
+                                        <div class="inline-flex items-center w-fit rounded-full border border-zinc-200 bg-zinc-50 p-1">
+
+                                            <button (click)="decreaseQuantity(i)" class="w-8 h-8 rounded-full bg-white border border-zinc-200
+                                                hover:bg-black hover:text-white transition cursor-pointer">
+                                                -
+                                            </button>
+
+                                            <span class="w-10 text-center text-sm font-black">
+                                                {{ item.quantity }}
+                                            </span>
+
+                                            <button (click)="increaseQuantity(i)" class="w-8 h-8 rounded-full bg-white border border-zinc-200
+                                                hover:bg-black hover:text-white transition cursor-pointer">
+                                                +
+                                            </button>
+
+                                        </div>
+
+                                        <div class="sm:text-right">
+                                            <p class="text-xs text-zinc-500">
+                                                Subtotal
+                                            </p>
+
+                                            <p class="font-black text-lg">
+                                                {{ item.product.price * item.quantity }} C$
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        }
+
+                    </div>
+
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- DERECHA: RESUMEN + CUPONES -->
+            <aside class="bg-white border-t border-zinc-200 lg:border-t-0 lg:border-l lg:border-zinc-200
+                flex flex-col min-h-0">
+
+                <!-- HEADER FIJO -->
+                <div class="shrink-0 p-5 sm:p-8 pb-5 bg-white border-b border-zinc-200">
+
+                    <div class="pr-12 lg:pr-0">
+                        <span class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+                            Resumen
+                        </span>
+
+                        <h3 class="text-3xl font-black mt-2">
+                            Total del pedido
+                        </h3>
+
+                        <p class="text-sm text-zinc-500 mt-2">
+                            Aplica cupones y confirma el monto final.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- CONTENIDO CON SCROLL -->
+                <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-5 sm:p-8">
+
+                    @if (cart().length > 0) {
+
+                    <div class="rounded-[2rem] border border-zinc-200 bg-zinc-50 p-5 space-y-4">
+
+                        <div class="flex justify-between items-center text-sm text-zinc-600">
+                            <span>Subtotal</span>
+                            <span class="font-semibold text-zinc-900">
+                                {{ subtotal() | number:'1.2-2' }} C$
+                            </span>
+                        </div>
+
+                        @if (totalDiscount() > 0) {
+                        <div class="rounded-2xl bg-white border border-zinc-200 p-4 space-y-2">
+                            <div class="flex justify-between items-center text-sm">
+                                <span class="font-bold text-zinc-700">
+                                    Descuentos aplicados
+                                </span>
+
+                                <span class="font-black text-zinc-900">
+                                    -{{ totalDiscount() | number:'1.2-2' }} C$
+                                </span>
+                            </div>
+
+                            <div class="space-y-1">
+                                @for (item of cart(); track item.product.id + '-' + item.size) {
+                                @if (item.discount > 0) {
+                                <div class="flex justify-between items-center text-xs text-zinc-500">
+                                    <span>
+                                        {{ item.combo ? item.product.name : 'Talla ' + item.size }} × {{ item.quantity }}
+                                    </span>
+
+                                    <span class="font-semibold">
+                                        -{{ item.discount * item.quantity | number:'1.2-2' }} C$
+                                    </span>
+                                </div>
+                                }
+                                }
+                            </div>
+                        </div>
+                        }
+
+                        <div class="flex justify-between items-center text-sm text-zinc-600">
+                            <span>Comisión por Pedido</span>
+                            <span class="font-semibold text-zinc-900">
+                                {{ comision() | number:'1.2-2' }} C$
+                            </span>
+                        </div>
+
+                        @if (couponDiscount() > 0) {
+                        <div class="flex justify-between items-center text-sm text-zinc-600">
+                            <span>Cupón</span>
+                            <span class="font-semibold text-zinc-900">
+                                -{{ couponDiscount() | number:'1.2-2' }} C$
+                            </span>
+                        </div>
+                        }
+
+                        <div class="border-t border-dashed pt-5 flex justify-between items-end gap-4">
+                            <div>
+                                <p class="text-sm text-zinc-500">
+                                    Total a pagar
+                                </p>
+
+                                <p class="text-3xl font-black">
+                                    {{ total() | number:'1.2-2' }} C$
+                                </p>
+                            </div>
+
+                            <span class="text-xs sm:text-sm font-bold px-3 py-2 rounded-full bg-white border border-zinc-200 text-zinc-700 whitespace-nowrap">
+                                {{ cartCount() }} artículo(s)
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 rounded-[2rem] bg-white border border-zinc-200 p-5">
+
+                        <button type="button" (click)="toggleCouponBox()"
+                            class="w-full flex items-center justify-between gap-3 text-left cursor-pointer">
+
+                            <div>
+                                <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                                    Cupón promocional
+                                </p>
+
+                                <p class="text-sm text-zinc-500 mt-1">
+                                    @if (appliedCoupon()) {
+                                    {{ appliedCoupon()?.label }}
+                                    } @else {
+                                    Aplicar código de descuento
+                                    }
+                                </p>
+                            </div>
+
+                            <iconify-icon [icon]="couponBoxOpen() ? 'mdi:chevron-up' : 'mdi:chevron-down'"
+                                class="text-2xl text-zinc-500">
+                            </iconify-icon>
+
+                        </button>
+
+                        @if (couponBoxOpen()) {
+
+                        @if (!appliedCoupon()) {
+                        <div class="flex gap-2 mt-4">
+
+                            <input type="text"
+                                [value]="promoCode()"
+                                (input)="promoCode.set($any($event.target).value)"
+                                placeholder="Ej: PASOS10"
+                                class="flex-1 rounded-xl border border-zinc-200 px-4 py-3 text-sm
+                                outline-none focus:border-black transition">
+
+                            <button type="button" (click)="applyCoupon()"
+                                class="px-4 py-3 rounded-xl bg-black text-white text-sm font-bold
+                                hover:bg-zinc-800 transition cursor-pointer active:scale-95">
+                                Aplicar
+                            </button>
+
+                        </div>
+                        } @else {
+
+                        <div class="mt-4 rounded-xl bg-zinc-50 border border-zinc-200 p-4 flex items-center justify-between gap-4">
+
+                            <div>
+                                <p class="text-sm font-black text-zinc-900">
+                                    {{ appliedCoupon()?.code }}
+                                </p>
+
+                                <p class="text-xs text-zinc-500 mt-1">
+                                    {{ appliedCoupon()?.label }}
+                                </p>
+                            </div>
+
+                            <button type="button" (click)="removeCoupon()"
+                                class="px-4 py-2 rounded-full border border-zinc-300 text-xs font-bold
+                                hover:bg-black hover:text-white hover:border-black
+                                transition cursor-pointer active:scale-95">
+                                Quitar
+                            </button>
+
+                        </div>
+
+                        }
+
+                        }
+
+                    </div>
+
+                    <button (click)="openDelivery()" class="mt-6 w-full bg-zinc-950 text-white py-4 rounded-2xl
+                        font-bold hover:bg-zinc-800 transition
+                        shadow-[0_12px_35px_rgba(0,0,0,0.15)]
+                        active:scale-[0.98] cursor-pointer">
+
+                        Solicitar pedido
+
+                    </button>
+
+                    } @else {
+
+                    <div class="rounded-[2rem] border border-dashed border-zinc-300 bg-zinc-50 p-8 text-center">
+                        <p class="font-black">
+                            Sin resumen disponible
+                        </p>
+
+                        <p class="text-sm text-zinc-500 mt-2">
+                            Agrega productos para calcular el total.
+                        </p>
+                    </div>
+
+                    }
+
+                </div>
+
+            </aside>
+
+        </section>
+
+    </div>
+
+</div>
+}
+
+@if (deliveryOpen()) {
+<div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md cursor-pointer" (click)="closeDelivery()">
+    </div>
+
+    <div class="relative bg-white w-full sm:max-w-4xl sm:mx-4
+        h-[88vh] sm:h-auto sm:max-h-[82vh]
+        rounded-t-[2rem] sm:rounded-[2rem]
+        shadow-[0_25px_80px_rgba(0,0,0,0.35)]
+        overflow-hidden animate-modalIn flex flex-col">
+
+        <button (click)="closeDelivery()" class="absolute top-5 right-5 z-10 w-10 h-10 cursor-pointer rounded-full
+            bg-zinc-100 text-zinc-500 hover:bg-black hover:text-white transition">
+            ✕
+        </button>
+
+        <div class="p-6 sm:p-8 lg:p-10 overflow-y-auto custom-scrollbar pb-28">
+
+            <span class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+                Entrega
+            </span>
+
+            <h2 class="text-3xl sm:text-4xl font-black mt-2">
+                @if (deliveryMode() === 'delivery') {
+                ¿Dónde entregamos tu pedido?
+                } @else {
+                ¿Dónde retirarás tu pedido?
+                }
+            </h2>
+
+            <p class="text-sm text-zinc-500 mt-2">
+                @if (deliveryMode() === 'delivery') {
+                Marca tu ubicación dentro de una zona de cobertura.
+                } @else {
+                Selecciona el local donde deseas retirar tu pedido.
+                }
+            </p>
+
+            <!-- MODO -->
+            <div class="grid grid-cols-2 gap-3 mt-6">
+
+                <button type="button" (click)="selectDeliveryMode('delivery')"
+                    class="rounded-2xl border p-4 text-left transition cursor-pointer active:scale-[0.98]"
+                    [class.border-black]="deliveryMode() === 'delivery'"
+                    [class.bg-zinc-100]="deliveryMode() === 'delivery'"
+                    [class.border-zinc-200]="deliveryMode() !== 'delivery'">
+
+                    <p class="font-black">Delivery</p>
+                    <p class="text-xs text-zinc-500 mt-1">
+                        Entrega en zona de cobertura.
+                    </p>
+                </button>
+
+                <button type="button" (click)="selectDeliveryMode('pickup')"
+                    class="rounded-2xl border p-4 text-left transition cursor-pointer active:scale-[0.98]"
+                    [class.border-black]="deliveryMode() === 'pickup'" [class.bg-zinc-100]="deliveryMode() === 'pickup'"
+                    [class.border-zinc-200]="deliveryMode() !== 'pickup'">
+
+                    <p class="font-black">Retiro en tienda</p>
+                    <p class="text-xs text-zinc-500 mt-1">
+                        Recoge en un local disponible.
+                    </p>
+                </button>
+
+            </div>
+
+            <!-- DELIVERY -->
+            @if (deliveryMode() === 'delivery') {
+
+            <div class="mt-6 transition-all duration-300">
+
+                <div id="deliveryMap" class="w-full h-[320px] rounded-[1.5rem] overflow-hidden border border-zinc-200">
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+                @for (zone of deliveryZones; track zone.name) {
+                <button type="button" (click)="selectCoverageZone(zone)"
+                    class="rounded-2xl border p-4 text-left transition cursor-pointer active:scale-[0.98]"
+                    [class.border-black]="selectedDeliveryZone()?.name === zone.name"
+                    [class.bg-zinc-100]="selectedDeliveryZone()?.name === zone.name"
+                    [class.border-zinc-200]="selectedDeliveryZone()?.name !== zone.name">
+
+                    <p class="font-black text-sm">
+                        {{ zone.name }}
+                    </p>
+
+                    <p class="text-xs text-zinc-500 mt-1">
+                        C${{ zone.cost }} · {{ zone.time }}
+                    </p>
+                </button>
+                }
+            </div>
+
+            @if (selectedDeliveryZone()) {
+            <div class="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                    Zona seleccionada
+                </p>
+
+                <p class="font-black mt-2">
+                    {{ selectedDeliveryZone()?.name }}
+                </p>
+
+                <p class="text-sm text-zinc-500 mt-1">
+                    Envío: C${{ selectedDeliveryZone()?.cost }} · {{ selectedDeliveryZone()?.time }}
+                </p>
+            </div>
+            } @else {
+            <p class="text-sm text-zinc-500 mt-4">
+                Selecciona una zona de cobertura o marca una ubicación válida dentro del mapa.
+            </p>
+            }
+
+            }
+
+            <!-- PICKUP -->
+            @if (deliveryMode() === 'pickup') {
+
+            <div class="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-zinc-400 font-bold">
+                    Retiro en local
+                </p>
+
+                <p class="font-black mt-2">
+                    Selecciona desde qué local retirarás tu pedido.
+                </p>
+
+                <p class="text-sm text-zinc-500 mt-1">
+                    No se aplica costo de envío.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                @for (branch of pickupBranches; track branch.name) {
+                <button type="button" (click)="selectPickupBranch(branch)"
+                    class="rounded-2xl border p-4 text-left transition cursor-pointer active:scale-[0.98]"
+                    [class.border-black]="selectedPickupBranch()?.name === branch.name"
+                    [class.bg-zinc-100]="selectedPickupBranch()?.name === branch.name"
+                    [class.border-zinc-200]="selectedPickupBranch()?.name !== branch.name">
+
+                    <p class="font-black">
+                        {{ branch.name }}
+                    </p>
+
+                    <p class="text-xs text-zinc-500 mt-1">
+                        {{ branch.address }}
+                    </p>
+
+                    <p class="text-xs text-zinc-400 mt-2">
+                        {{ branch.time }}
+                    </p>
+                </button>
+                }
+            </div>
+
+            }
+
+            <!-- FECHA Y HORA -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8 pb-15">
+
+                <div>
+                    <label class="text-sm font-bold text-zinc-700">
+                        Día de entrega
+                    </label>
+
+                    <input type="date" [value]="deliveryDate()" (input)="deliveryDate.set($any($event.target).value)"
+                        class="mt-2 w-full rounded-2xl border border-zinc-200 px-4 py-3
+                        outline-none focus:border-black transition">
+                </div>
+
+                <div>
+                    <label class="text-sm font-bold text-zinc-700">
+                        Hora de entrega
+                    </label>
+
+                    <input type="time" [value]="deliveryTime()" (input)="deliveryTime.set($any($event.target).value)"
+                        class="mt-2 w-full rounded-2xl border border-zinc-200 px-4 py-3
+                        outline-none focus:border-black transition">
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- DELIVERY FLOAT ACTION -->
+        <div class="absolute left-1/2 z-30 w-full max-w-xl px-5
+            -translate-x-1/2 pointer-events-none
+            transition-all duration-200 ease-out" [class.bottom-0]="!deliveryActionOpen()"
+            [class.translate-y-1/2]="!deliveryActionOpen()" [class.bottom-16]="deliveryActionOpen()"
+            [class.translate-y-0]="deliveryActionOpen()">
+
+            <div class="relative pointer-events-auto">
+
+                <button type="button" (click)="toggleDeliveryAction()" class="absolute left-1/2 top-0 z-20
+                    -translate-x-1/2 -translate-y-1/2
+                    w-12 h-12 rounded-full bg-black text-white
+                    flex items-center justify-center
+                    border-4 border-white shadow-xl
+                    hover:bg-zinc-800 transition cursor-pointer active:scale-95">
+
+                    <iconify-icon [icon]="deliveryActionOpen() ? 'mdi:chevron-down' : 'mdi:arrow-right'"
+                        class="text-2xl">
+                    </iconify-icon>
+
+                </button>
+
+                <div class="rounded-[1.6rem] bg-white/95 backdrop-blur border border-zinc-200
+                    shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+                    p-4 pt-7 transition-all duration-300 ease-out origin-bottom"
+                    [class.opacity-0]="!deliveryActionOpen()" [class.translate-y-4]="!deliveryActionOpen()"
+                    [class.scale-95]="!deliveryActionOpen()" [class.opacity-100]="deliveryActionOpen()"
+                    [class.translate-y-0]="deliveryActionOpen()" [class.scale-100]="deliveryActionOpen()"
+                    [class.pointer-events-none]="!deliveryActionOpen()"
+                    [class.pointer-events-auto]="deliveryActionOpen()">
+
+                    <button [disabled]="!isDeliveryValid()" (click)="continueToPayment()" class="group w-full bg-black text-white py-4 rounded-2xl
+                        font-bold hover:bg-zinc-800 transition cursor-pointer
+                        disabled:bg-zinc-300 disabled:cursor-not-allowed
+                        disabled:hover:bg-zinc-300
+                        active:scale-[0.98]
+                        flex items-center justify-center gap-2">
+
+                        Continuar al pago
+
+                        <iconify-icon icon="mdi:arrow-right"
+                            class="text-xl transition-transform duration-300 group-hover:translate-x-1 group-disabled:translate-x-0">
+                        </iconify-icon>
+
+                    </button>
+
+                    @if (!isDeliveryValid()) {
+                    <p class="text-xs text-zinc-500 mt-3 text-center">
+                        @if (deliveryMode() === 'delivery') {
+                        Selecciona una zona válida, fecha y hora.
+                        } @else {
+                        Selecciona local de retiro, fecha y hora.
+                        }
+                    </p>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+}
+
+@if (paymentOpen()) {
+<div class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-md cursor-pointer animate-fadeIn"
+        (click)="requestClosePayment()">
+    </div>
+
+    <div class="relative bg-white w-full sm:max-w-5xl sm:mx-4
+        h-[90vh] sm:max-h-[86vh]
+        rounded-t-[2rem] sm:rounded-[2rem]
+        shadow-[0_25px_80px_rgba(0,0,0,0.35)]
+        overflow-hidden animate-modalIn flex flex-col">
+
+        <button (click)="requestClosePayment()" class="absolute top-5 right-5 z-30 w-10 h-10 rounded-full
+            flex items-center justify-center
+            bg-zinc-100 text-zinc-500
+            hover:bg-black hover:text-white
+            transition cursor-pointer active:scale-95">
+            ✕
+        </button>
+
+        <section class="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] h-full overflow-hidden">
+
+            <!-- PANEL IZQUIERDO -->
+            <aside class="relative bg-zinc-950 text-white p-6 sm:p-8 lg:p-10
+                flex flex-col justify-between overflow-hidden">
+
+                <div class="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-white/10"></div>
+                <div class="absolute -bottom-20 -left-20 w-56 h-56 rounded-full bg-white/5"></div>
+
+                <div class="relative pr-12">
+                    <span class="text-xs uppercase tracking-[0.22em] text-zinc-400 font-black">
+                        Pago seguro
+                    </span>
+
+                    <h2 class="text-3xl sm:text-4xl font-black mt-3 leading-tight">
+                        @if (cashOrderConfirmed() || cardOrderConfirmed()) {
+                        Pedido confirmado
+                        } @else if (selectedPaymentMethod() === 'cash') {
+                        Pago en efectivo
+                        } @else if (selectedPaymentMethod() === 'card') {
+                        Pago con tarjeta
+                        } @else {
+                        Elige tu forma de pago
+                        }
+                    </h2>
+
+                    <p class="text-zinc-400 mt-4 leading-relaxed">
+                        @if (cashOrderConfirmed() || cardOrderConfirmed()) {
+                        Tu pedido ya fue registrado y será preparado según la entrega seleccionada.
+                        } @else if (selectedPaymentMethod() === 'cash') {
+                        Indica con qué moneda pagarás y el efectivo aproximado para facilitar la entrega.
+                        } @else if (selectedPaymentMethod() === 'card') {
+                        Completa los datos visuales de la tarjeta. Este flujo no procesa pagos reales.
+                        } @else {
+                        Puedes pagar al recibir tu pedido o completar un formulario visual de tarjeta.
+                        }
+                    </p>
+                </div>
+
+                <div class="relative mt-10">
+
+                    @if (selectedPaymentMethod() === 'card' && !cardOrderConfirmed()) {
+
+                    <div class="card-perspective">
+
+                        <button type="button" (click)="toggleCardFlip()"
+                            class="relative w-full h-56 cursor-pointer text-left">
+
+                            <div class="card-3d" [class.card-flipped]="cardFlipped()">
+
+                                <div class="card-face rounded-[1.8rem] border border-white/15
+                                    bg-gradient-to-br from-zinc-800 to-black
+                                    shadow-[0_30px_70px_rgba(0,0,0,0.45)]
+                                    p-6">
+
+                                    <div class="flex justify-between items-start">
+                                        <div class="w-12 h-9 rounded-lg bg-zinc-300"></div>
+
+                                        <span class="text-xl font-black tracking-widest">
+                                            VISA
+                                        </span>
+                                    </div>
+
+                                    <div class="mt-10 text-xl tracking-[0.25em] font-semibold">
+                                        {{ cardNumber() || '•••• •••• •••• ••••' }}
+                                    </div>
+
+                                    <div class="mt-8 flex justify-between text-xs uppercase tracking-widest text-zinc-400">
+                                        <div>
+                                            <p>Titular</p>
+                                            <p class="text-white mt-1">
+                                                {{ cardName() || 'Nombre y Apellido' }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <p>Expira</p>
+                                            <p class="text-white mt-1">
+                                                {{ cardExpiry() || 'MM/AA' }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <p class="absolute bottom-4 right-6 text-[10px] text-zinc-500">
+                                        Click para ver CVV
+                                    </p>
+
+                                </div>
+
+                                <div class="card-face card-back rounded-[1.8rem] border border-white/15
+                                    bg-gradient-to-br from-zinc-950 via-zinc-900 to-black
+                                    shadow-[0_30px_70px_rgba(0,0,0,0.45)]
+                                    overflow-hidden">
+
+                                    <div class="h-12 bg-black mt-6"></div>
+
+                                    <div class="px-6 pt-5">
+
+                                        <p class="text-[8px] uppercase tracking-[0.16em] text-zinc-500 mb-2">
+                                            Authorized Signature
+                                        </p>
+
+                                        <div class="flex items-center gap-3">
+
+                                            <div class="flex-1 h-9 rounded-md bg-white overflow-hidden relative">
+                                                <div class="absolute inset-0 opacity-40"
+                                                    style="background-image: repeating-linear-gradient(135deg, #e5e7eb 0px, #e5e7eb 3px, #ffffff 3px, #ffffff 7px);">
+                                                </div>
+                                            </div>
+
+                                            <div class="w-20 h-9 rounded-md bg-white text-black
+                                                flex items-center justify-center
+                                                font-mono text-base font-black tracking-[0.18em]">
+                                                {{ cardCvv() || '•••' }}
+                                            </div>
+
+                                        </div>
+
+                                        <div class="mt-5 flex items-end justify-between">
+                                            <div class="space-y-1">
+                                                <div class="h-1 w-24 rounded-full bg-zinc-700"></div>
+                                                <div class="h-1 w-16 rounded-full bg-zinc-700"></div>
+                                                <div class="h-1 w-20 rounded-full bg-zinc-700"></div>
+                                            </div>
+
+                                            <span class="text-xl font-black tracking-widest text-white">
+                                                VISA
+                                            </span>
+                                        </div>
+
+                                    </div>
+
+                                    <p class="absolute bottom-4 right-6 text-[10px] text-zinc-500">
+                                        Click para volver
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </button>
+
+                    </div>
+
+                    } @else {
+
+                    <div class="rounded-[1.8rem] border border-white/10 bg-white/5 p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center">
+                            <iconify-icon
+                                [icon]="selectedPaymentMethod() === 'cash' ? 'mdi:cash' : 'mdi:truck-delivery-outline'"
+                                class="text-3xl">
+                            </iconify-icon>
+                        </div>
+
+                        <p class="text-sm text-zinc-400 mt-5 leading-relaxed">
+                            @if (cashOrderConfirmed() || cardOrderConfirmed()) {
+                            Gracias por tu compra. Tu pedido será preparado y enviado según la información seleccionada.
+                            } @else {
+                            Total actual del pedido:
+                            }
+                        </p>
+
+                        @if (!cashOrderConfirmed() && !cardOrderConfirmed()) {
+                        <p class="text-4xl font-black mt-3">
+                            {{ total() | number:'1.2-2' }} C$
+                        </p>
+                        }
+                    </div>
+
+                    }
+
+                </div>
+
+            </aside>
+
+            <!-- PANEL DERECHO -->
+            <div class="bg-white flex flex-col min-h-0">
+
+                <div class="shrink-0 p-6 sm:p-8 lg:p-10 pb-5 border-b border-zinc-200 bg-white">
+
+                    @if (selectedPaymentMethod()) {
+                    <button type="button" (click)="backToPaymentMethods()"
+                        class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-zinc-500
+                        hover:text-black transition cursor-pointer">
+
+                        <iconify-icon icon="mdi:arrow-left"></iconify-icon>
+                        Volver a métodos de pago
+
+                    </button>
+                    } @else {
+                    <button type="button" (click)="backToDelivery()"
+                        class="mb-5 inline-flex items-center gap-2 text-sm font-bold text-zinc-500
+                        hover:text-black transition cursor-pointer">
+
+                        <iconify-icon icon="mdi:arrow-left"></iconify-icon>
+                        Volver a ubicación de entrega
+
+                    </button>
+                    }
+
+                    <div class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+                        Finalizar compra
+                    </div>
+
+                    <h3 class="text-3xl font-black mt-2">
+                        @if (!selectedPaymentMethod()) {
+                        Método de pago
+                        } @else if (selectedPaymentMethod() === 'cash') {
+                        Detalles del efectivo
+                        } @else {
+                        Datos de tarjeta
+                        }
+                    </h3>
+
+                    <p class="text-sm text-zinc-500 mt-2">
+                        @if (!selectedPaymentMethod()) {
+                        Selecciona la opción que prefieras para completar tu pedido.
+                        } @else if (selectedPaymentMethod() === 'cash') {
+                        Esta información ayuda a preparar el cambio al momento de entregar.
+                        } @else {
+                        Solo se aceptan tarjetas Visa en este formulario visual.
+                        }
+                    </p>
+
+                </div>
+
+                <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 sm:p-8 lg:p-10">
+
+                    @if (!selectedPaymentMethod()) {
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <button type="button" (click)="selectPaymentMethod('cash')"
+                            class="group rounded-[1.8rem] border border-zinc-200 bg-white p-6 text-left
+                            hover:border-black hover:shadow-xl transition-all duration-300 cursor-pointer active:scale-[0.98]">
+
+                            <div class="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center
+                                group-hover:bg-black group-hover:text-white transition">
+                                <iconify-icon icon="mdi:cash" class="text-3xl"></iconify-icon>
+                            </div>
+
+                            <h4 class="text-2xl font-black mt-5">
+                                Efectivo
+                            </h4>
+
+                            <p class="text-sm text-zinc-500 mt-3 leading-relaxed">
+                                Paga cuando recibas el pedido. Ideal para entregas locales.
+                            </p>
+
+                            <div class="mt-6 flex items-center justify-between border-t border-zinc-100 pt-5">
+                                <span class="text-xs font-bold text-zinc-400 uppercase tracking-[0.16em]">
+                                    Al recibir
+                                </span>
+
+                                <iconify-icon icon="mdi:arrow-right" class="text-2xl text-zinc-400 group-hover:text-black transition">
+                                </iconify-icon>
+                            </div>
+
+                        </button>
+
+                        <button type="button" (click)="selectPaymentMethod('card')"
+                            class="group rounded-[1.8rem] border border-zinc-200 bg-white p-6 text-left
+                            hover:border-black hover:shadow-xl transition-all duration-300 cursor-pointer active:scale-[0.98]">
+
+                            <div class="w-14 h-14 rounded-2xl bg-zinc-100 flex items-center justify-center
+                                group-hover:bg-black group-hover:text-white transition">
+                                <iconify-icon icon="mdi:credit-card-outline" class="text-3xl"></iconify-icon>
+                            </div>
+
+                            <h4 class="text-2xl font-black mt-5">
+                                Tarjeta
+                            </h4>
+
+                            <p class="text-sm text-zinc-500 mt-3 leading-relaxed">
+                                Completa una tarjeta visual para simular el pago.
+                            </p>
+
+                            <div class="mt-6 flex items-center justify-between border-t border-zinc-100 pt-5">
+                                <span class="text-xs font-bold text-zinc-400 uppercase tracking-[0.16em]">
+                                    Visa
+                                </span>
+
+                                <iconify-icon icon="mdi:arrow-right" class="text-2xl text-zinc-400 group-hover:text-black transition">
+                                </iconify-icon>
+                            </div>
+
+                        </button>
+
+                    </div>
+
+                    }
+
+                    @if (selectedPaymentMethod() === 'cash') {
+
+                    @if (!cashOrderConfirmed()) {
+
+                    <div class="rounded-[1.8rem] bg-zinc-50 border border-zinc-200 p-5">
+                        <div class="flex justify-between text-sm text-zinc-600">
+                            <span>Total a pagar al repartidor</span>
+                            <span class="font-black text-zinc-900">
+                                {{ total() | number:'1.2-2' }} C$
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-7">
+
+                        <label class="text-sm font-black text-zinc-800">
+                            ¿Con qué moneda pagarás?
+                        </label>
+
+                        <div class="grid grid-cols-2 gap-3 mt-3">
+
+                            <button type="button" (click)="selectCashCurrency('cordobas')"
+                                class="rounded-2xl border p-4 text-left transition cursor-pointer active:scale-[0.98]"
+                                [class.border-black]="cashCurrency() === 'cordobas'"
+                                [class.bg-zinc-100]="cashCurrency() === 'cordobas'"
+                                [class.border-zinc-200]="cashCurrency() !== 'cordobas'">
+
+                                <p class="font-black">Córdobas</p>
+                                <p class="text-xs text-zinc-500 mt-1">Pago en moneda nacional</p>
+                            </button>
+
+                            <button type="button" (click)="selectCashCurrency('dolares')"
+                                class="rounded-2xl border p-4 text-left transition cursor-pointer active:scale-[0.98]"
+                                [class.border-black]="cashCurrency() === 'dolares'"
+                                [class.bg-zinc-100]="cashCurrency() === 'dolares'"
+                                [class.border-zinc-200]="cashCurrency() !== 'dolares'">
+
+                                <p class="font-black">Dólares</p>
+                                <p class="text-xs text-zinc-500 mt-1">Pago en $</p>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    @if (cashCurrency()) {
+
+                    <div class="mt-7 rounded-[1.8rem] border border-zinc-200 bg-white p-5">
+
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-black text-zinc-900">
+                                    Billetes con los que pagarás
+                                </p>
+
+                                <p class="text-xs text-zinc-500 mt-1">
+                                    Total indicado:
+                                    {{ cashCurrency() === 'cordobas' ? 'C$' : '$' }}{{ cashBillsTotal() }}
+                                </p>
+                            </div>
+
+                            <div class="flex gap-2">
+                                <button type="button" (click)="removeLastCashBill()" [disabled]="cashBills().length === 0"
+                                    class="text-xs px-3 py-1.5 rounded-full border border-zinc-200
+                                    text-zinc-500 hover:text-black hover:bg-zinc-100 transition cursor-pointer
+                                    disabled:opacity-40 disabled:cursor-not-allowed">
+                                    Quitar
+                                </button>
+
+                                <button type="button" (click)="resetCashBills()" [disabled]="cashBills().length === 0"
+                                    class="text-xs px-3 py-1.5 rounded-full border border-zinc-200
+                                    text-zinc-500 hover:text-black hover:bg-zinc-100 transition cursor-pointer
+                                    disabled:opacity-40 disabled:cursor-not-allowed">
+                                    Reiniciar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+
+                            @for (bill of cashCurrency() === 'cordobas' ? cordobaBills : dollarBills; track bill) {
+
+                            <button type="button" (click)="addCashBill(bill)"
+                                class="relative overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 p-3 text-left
+                                hover:border-black hover:shadow-md transition cursor-pointer active:scale-[0.98]">
+
+                                <div class="aspect-[2.35/1] rounded-xl bg-white border border-zinc-200 overflow-hidden">
+                                    <img [src]="getCashBillImage(bill)"
+                                        (error)="$any($event.target).style.display = 'none'"
+                                        class="w-full h-full object-contain">
+                                </div>
+
+                                <div class="mt-3 flex items-center justify-between gap-2">
+                                    <span class="text-sm font-black">
+                                        {{ cashCurrency() === 'cordobas' ? 'C$' : '$' }}{{ bill }}
+                                    </span>
+
+                                    @if (cashBillCount(bill) > 0) {
+                                    <span class="text-[11px] px-2 py-1 rounded-full bg-black text-white font-bold">
+                                        x{{ cashBillCount(bill) }}
+                                    </span>
+                                    }
+                                </div>
+
+                            </button>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                    }
+
+                    <button (click)="confirmCashOrder()" [disabled]="!isCashPaymentValid()"
+                        class="mt-7 w-full bg-black text-white py-4 rounded-2xl
+                        font-bold hover:bg-zinc-800 transition cursor-pointer
+                        disabled:bg-zinc-300 disabled:cursor-not-allowed">
+                        Confirmar pedido en efectivo
+                    </button>
+
+                    } @else {
+
+                    <div class="text-center py-10">
+
+                        <div class="w-20 h-20 mx-auto rounded-full bg-zinc-100 flex items-center justify-center">
+                            <iconify-icon icon="mdi:check-bold" class="text-4xl text-zinc-900"></iconify-icon>
+                        </div>
+
+                        <h3 class="text-3xl font-black mt-6">
+                            Gracias por tu compra
+                        </h3>
+
+                        <p class="text-zinc-500 mt-3 leading-relaxed">
+                            Tu pedido fue recibido. Ten paciencia mientras el repartidor llega a tu ubicación.
+                        </p>
+
+                    </div>
+
+                    }
+
+                    }
+
+                    @if (selectedPaymentMethod() === 'card') {
+
+                    @if (!cardOrderConfirmed()) {
+
+                    <div class="space-y-5">
+
+                        <div>
+                            <label class="text-sm font-bold text-zinc-700">
+                                Nombre del titular
+                            </label>
+
+                            <input type="text" [value]="cardName()" (keydown)="allowOnlyCardName($event)"
+                                (input)="formatCardName($any($event.target).value)"
+                                placeholder="Ej: Marlon Estrada"
+                                class="mt-2 w-full rounded-2xl border border-zinc-200 px-4 py-3
+                                outline-none focus:border-black transition">
+
+                            @if (cardName().length > 0 && cardName().trim().split(' ').length !== 2) {
+                            <p class="text-xs text-red-500 mt-2">
+                                Escribe solo nombre y apellido.
+                            </p>
+                            }
+                        </div>
+
+                        <div>
+                            <label class="text-sm font-bold text-zinc-700">
+                                Número de tarjeta
+                            </label>
+
+                            <input type="text" maxlength="19" inputmode="numeric" [value]="cardNumber()"
+                                (keydown)="allowOnlyNumbers($event)"
+                                (input)="formatCardNumber($any($event.target).value)"
+                                placeholder="4000 0000 0000 0000"
+                                class="mt-2 w-full rounded-2xl border border-zinc-200 px-4 py-3
+                                outline-none focus:border-black transition">
+
+                            @if (cardNumber().length > 0 && !isVisaCard()) {
+                            <p class="text-xs text-red-500 mt-2">
+                                Solo se aceptan tarjetas Visa por el momento.
+                            </p>
+                            }
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+
+                            <div>
+                                <label class="text-sm font-bold text-zinc-700">
+                                    Vencimiento
+                                </label>
+
+                                <input type="text" maxlength="5" inputmode="numeric" [value]="cardExpiry()"
+                                    (keydown)="allowOnlyNumbers($event)"
+                                    (input)="formatExpiry($any($event.target).value)"
+                                    placeholder="MM/AA"
+                                    class="mt-2 w-full rounded-2xl border border-zinc-200 px-4 py-3
+                                    outline-none focus:border-black transition">
+                            </div>
+
+                            <div>
+                                <label class="text-sm font-bold text-zinc-700">
+                                    CVV
+                                </label>
+
+                                <input type="password" maxlength="3" inputmode="numeric" [value]="cardCvv()"
+                                    (keydown)="allowOnlyNumbers($event)"
+                                    (input)="formatCvv($any($event.target).value)"
+                                    placeholder="123"
+                                    class="mt-2 w-full rounded-2xl border border-zinc-200 px-4 py-3
+                                    outline-none focus:border-black transition">
+                            </div>
+
+                        </div>
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4">
+                            <div class="flex justify-between text-sm text-zinc-600">
+                                <span>Total a pagar</span>
+                                <span class="font-black text-zinc-900">
+                                    {{ total() | number:'1.2-2' }} C$
+                                </span>
+                            </div>
+                        </div>
+
+                        <button (click)="confirmCardOrder()" [disabled]="!isPaymentValid()"
+                            class="w-full bg-black text-white py-4 rounded-2xl
+                            font-bold hover:bg-zinc-800 transition cursor-pointer
+                            disabled:bg-zinc-300 disabled:cursor-not-allowed">
+                            Confirmar pago con tarjeta
+                        </button>
+
+                    </div>
+
+                    } @else {
+
+                    <div class="text-center py-10">
+
+                        <div class="w-20 h-20 mx-auto rounded-full bg-zinc-100 flex items-center justify-center">
+                            <iconify-icon icon="mdi:check-bold" class="text-4xl text-zinc-900"></iconify-icon>
+                        </div>
+
+                        <h3 class="text-3xl font-black mt-6">
+                            Gracias por tu compra
+                        </h3>
+
+                        <p class="text-zinc-500 mt-3 leading-relaxed">
+                            Tu pago con tarjeta fue registrado correctamente.
+                        </p>
+
+                    </div>
+
+                    }
+
+                    }
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</div>
+}
+
+@if (showExitWarning() && !cashOrderConfirmed() && !cardOrderConfirmed()) {
+<div class="fixed inset-0 z-[70] flex items-center justify-center px-4">
+
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+    <div class="relative bg-white w-full max-w-md rounded-[2rem] p-6 shadow-2xl animate-modalIn">
+
+        <div class="w-14 h-14 rounded-full bg-zinc-100 flex items-center justify-center">
+            <iconify-icon icon="mdi:alert-outline" class="text-3xl text-zinc-700"></iconify-icon>
+        </div>
+
+        <h3 class="text-2xl font-black mt-5">
+            ¿Salir del pago?
+        </h3>
+
+        <p class="text-zinc-500 mt-3 leading-relaxed">
+            Ya escribiste información en el formulario. Si sales ahora, los datos ingresados se perderán.
+        </p>
+
+        <div class="mt-6 grid grid-cols-2 gap-3">
+
+            <button (click)="cancelExitWarning()" class="py-3 rounded-2xl border border-zinc-300 font-bold
+                hover:bg-zinc-100 transition cursor-pointer">
+                Continuar
+            </button>
+
+            <button (click)="confirmExitPayment()" class="py-3 rounded-2xl bg-black text-white font-bold
+                hover:bg-zinc-800 transition cursor-pointer">
+                Salir
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+}
+
+@if (recommendationOpen()) {
+<div class="fixed inset-0 z-[55] flex items-end sm:items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-md cursor-pointer animate-fadeIn"
+        (click)="closeRecommendation()">
+    </div>
+
+    <div class="relative bg-white w-full sm:max-w-xl sm:mx-4
+        rounded-t-[2rem] sm:rounded-[2rem]
+        shadow-[0_25px_80px_rgba(0,0,0,0.35)]
+        overflow-hidden animate-modalIn">
+
+        <button (click)="closeRecommendation()" class="absolute top-5 right-5 z-10 w-10 h-10 rounded-full
+            flex items-center justify-center bg-zinc-100 text-zinc-500
+            hover:bg-black hover:text-white transition cursor-pointer active:scale-95">
+            ✕
+        </button>
+
+        <div class="p-6 sm:p-8">
+
+            <span class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+                Agregado al carrito
+            </span>
+
+            <h2 class="text-3xl font-black mt-2">
+                ¿Quieres ver otro estilo?
+            </h2>
+
+            <p class="text-sm text-zinc-500 mt-2">
+                Te recomendamos una opción que puede interesarte.
+            </p>
+
+            @if (recommendedProduct()) {
+            <div class="mt-7 rounded-[1.8rem] border border-zinc-200 bg-zinc-50 overflow-hidden">
+
+                <div class="bg-zinc-100">
+                    <div class="relative bg-zinc-100 overflow-hidden rounded-b-[2rem]">
+                        <img [src]="getProductImage(recommendedProduct()!)"
+                            (error)="$any($event.target).src = 'Not Found.png'" class="w-full h-[320px] object-contain p-6
+        transition duration-500 hover:scale-105">
+                    </div>
+                </div>
+
+                <div class="p-5">
+
+                    <h3 class="text-2xl font-black">
+                        {{ recommendedProduct()?.name }}
+                    </h3>
+
+                    <p class="text-sm text-zinc-500 mt-2 line-clamp-2">
+                        {{ recommendedProduct()?.description }}
+                    </p>
+
+                    <div class="flex items-center justify-between mt-5">
+                        <span class="font-black text-lg">
+                            {{ recommendedProduct()?.price }} C$
+                        </span>
+
+                        <button type="button" (click)="viewRecommendedProduct()" class="px-4 py-2 rounded-full bg-black text-white
+                            text-sm font-bold hover:bg-zinc-800 transition cursor-pointer active:scale-95">
+                            Ver detalle
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+            }
+
+            <div class="grid grid-cols-2 gap-3 mt-6">
+
+                <button type="button" (click)="continueShoppingFromRecommendation()" class="py-3 rounded-2xl border border-zinc-300 font-bold
+                    hover:bg-zinc-100 transition cursor-pointer">
+                    Buscar más
+                </button>
+
+                <button type="button" (click)="goToCartFromRecommendation()" class="py-3 rounded-2xl bg-black text-white font-bold
+                    hover:bg-zinc-800 transition cursor-pointer">
+                    Ver carrito
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+}
+
+<button (click)="openCart()" class="fixed bottom-5 right-5 md:bottom-8 md:right-8 z-40
+    w-14 h-14 md:w-16 md:h-16 rounded-full
+    bg-zinc-950 text-white shadow-[0_18px_45px_rgba(0,0,0,0.28)]
+    border border-white/10
+    flex items-center justify-center
+    hover:bg-zinc-800 hover:scale-105
+    transition-all duration-300 active:scale-95 cursor-pointer">
+
+    <iconify-icon icon="mdi:cart-outline" class="text-2xl md:text-3xl">
+    </iconify-icon>
+
+    @if (cartCount() > 0) {
+    <span class="absolute -top-1 -right-1 min-w-6 h-6 px-1
+        rounded-full bg-white text-black
+        text-xs font-black flex items-center justify-center
+        border border-zinc-300 shadow-md">
+        {{ cartCount() }}
+    </span>
+    }
+
+</button>
+
+@if (selectedOrder()) {
+<div class="fixed inset-0 z-[65] flex items-end sm:items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-md" (click)="closeOrderDetail()">
+    </div>
+
+    <div class="relative bg-white w-full sm:max-w-3xl sm:mx-4
+    max-h-[85vh] rounded-t-[2rem] sm:rounded-[2rem]
+    shadow-2xl animate-modalIn overflow-hidden">
+
+        <div class="max-h-[85vh] overflow-y-auto custom-scrollbar p-6 sm:p-8">
+
+            <button (click)="closeOrderDetail()" class="absolute cursor-pointer top-5 right-5 w-10 h-10 rounded-full bg-zinc-100
+            text-zinc-500 hover:bg-black hover:text-white transition">
+                ✕
+            </button>
+
+            <h2 class="text-3xl font-black">
+                Pedido #{{ selectedOrder()?.id!.slice(0, 8) }}
+            </h2>
+
+            <p class="text-sm text-zinc-500 mt-2">
+                {{ selectedOrder()?.createdAt | date:'dd/MM/yyyy, h:mm a' }}
+            </p>
+
+            <div class="mt-6 rounded-2xl bg-zinc-50 border border-zinc-200 p-4">
+                <p class="text-xs uppercase tracking-[0.16em] text-zinc-400 font-bold">
+                    Estado actual
+                </p>
+
+                <p class="font-black mt-2">
+                    {{ orderStatusLabel(selectedOrder()?.status!) }}
+                </p>
+
+                <p class="text-sm text-zinc-500 mt-1">
+                    {{ orderStatusMessage(selectedOrder()?.status!) }}
+                </p>
+
+                <div class="mt-4 h-3 rounded-full bg-zinc-200 overflow-hidden">
+                    <div class="h-full bg-black rounded-full" [style.width.%]="orderProgress(selectedOrder()?.status!)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+
+                <div class="rounded-2xl border border-zinc-200 p-4">
+                    <p class="text-xs text-zinc-500 font-bold">Entrega</p>
+                    <p class="font-black mt-1">
+                        {{ selectedOrder()?.delivery?.date }} · {{ selectedOrder()?.delivery?.time }}
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-zinc-200 p-4">
+                    <p class="text-xs text-zinc-500 font-bold">Pago</p>
+                    <p class="font-black mt-1">
+                        {{ selectedOrder()?.payment?.method === 'cash' ? 'Efectivo' : 'Tarjeta' }}
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="mt-6 rounded-2xl border border-dashed border-zinc-200 p-4">
+                <p class="text-xs uppercase tracking-[0.16em] text-zinc-400 font-bold">
+                    Productos
+                </p>
+
+                <div class="mt-4 space-y-3">
+                    @for (item of selectedOrder()?.items; track item.product.id + '-' + item.size) {
+                    <div class="flex items-center justify-between gap-3">
+
+                        <div class="flex items-center gap-3 min-w-0">
+                            <img [src]="getProductImage(item.product)"
+                                class="w-12 h-12 rounded-xl bg-zinc-100 object-cover">
+
+                            <div class="min-w-0">
+                                <p class="font-black truncate">
+                                    {{ item.product.name }}
+                                </p>
+
+                                <p class="text-xs text-zinc-500">
+                                    Talla {{ item.size }} · x{{ item.quantity }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="font-black shrink-0">
+                            {{ item.product.price * item.quantity | number:'1.2-2' }} C$
+                        </p>
+
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 space-y-3">
+
+                <p class="text-xs uppercase tracking-[0.16em] text-zinc-400 font-bold">
+                    Resumen de pago
+                </p>
+
+                <div class="flex justify-between text-sm text-zinc-600">
+                    <span>Subtotal</span>
+                    <span class="font-semibold text-zinc-900">
+                        {{ orderSubtotal(selectedOrder()) | number:'1.2-2' }} C$
+                    </span>
+                </div>
+
+                @if (orderTotalDiscount(selectedOrder()) > 0) {
+                <div class="rounded-2xl bg-white border border-zinc-200 p-3 space-y-2">
+
+                    <div class="flex justify-between text-sm">
+                        <span class="font-bold text-zinc-700">
+                            Descuentos aplicados
+                        </span>
+
+                        <span class="font-black text-zinc-900">
+                            -{{ orderTotalDiscount(selectedOrder()) | number:'1.2-2' }} C$
+                        </span>
+                    </div>
+
+                    @for (item of selectedOrder()?.items; track item.product.id + '-' + item.size) {
+                    @if ((item.discount) > 0) {
+                    <div class="flex justify-between text-xs text-zinc-500">
+                        <span>
+                            {{ item.product.name }} · Talla {{ item.size }} × {{ item.quantity }}
+                        </span>
+
+                        <span class="font-semibold">
+                            -{{ (item.discount) * item.quantity | number:'1.2-2' }} C$
+                        </span>
+                    </div>
+                    }
+                    }
+
+                </div>
+                }
+
+                <div class="flex justify-between text-sm text-zinc-600">
+                    <span>Comisión por Pedido</span>
+                    <span class="font-semibold text-zinc-900">
+                        {{ orderCommission(selectedOrder()) | number:'1.2-2' }} C$
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="mt-6 flex justify-between items-center border-t border-zinc-200 pt-5">
+                <span class="text-sm text-zinc-500">
+                    Total
+                </span>
+
+                <span class="text-2xl font-black">
+                    {{ selectedOrder()?.total | number:'1.2-2' }} C$
+                </span>
+            </div>
+
+            <button type="button" (click)="askAboutOrder(selectedOrder())" class="mt-6 w-full py-4 rounded-2xl bg-black text-white font-bold
+            hover:bg-zinc-800 transition cursor-pointer">
+                Preguntar por este pedido
+            </button>
+
+        </div>
+    </div>
+</div>
+}
+
+@if (ordersModalOpen()) {
+<div class="fixed inset-0 z-[55] flex items-end sm:items-center justify-center">
+
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-md animate-fadeIn cursor-pointer"
+        (click)="closeOrdersModal()">
+    </div>
+
+    <div class="relative bg-white w-full sm:max-w-5xl sm:mx-4
+        h-[88vh] sm:max-h-[84vh]
+        rounded-t-[2rem] sm:rounded-[2rem]
+        shadow-[0_25px_80px_rgba(0,0,0,0.35)]
+        overflow-hidden animate-modalIn flex flex-col">
+
+        <button (click)="closeOrdersModal()" class="absolute top-5 right-5 z-30 w-10 h-10 rounded-full
+            bg-zinc-100 text-zinc-500
+            hover:bg-black hover:text-white
+            transition cursor-pointer active:scale-95">
+            ✕
+        </button>
+
+        <div class="shrink-0 p-6 sm:p-8 border-b border-zinc-200 bg-white pr-16">
+
+            <span class="text-xs uppercase tracking-[0.2em] text-zinc-500 font-bold">
+                Historial de pedidos
+            </span>
+
+            <h2 class="text-3xl sm:text-4xl font-black mt-2">
+                Pedidos recientes
+            </h2>
+
+            <p class="text-sm text-zinc-500 mt-2">
+                Consulta el estado, productos, entrega y total de tus pedidos guardados.
+            </p>
+
+        </div>
+
+        <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-zinc-50 p-5 sm:p-8">
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                @for (order of activeOrders(); track order.id) {
+
+                <article class="rounded-[1.8rem] border border-zinc-200 bg-white p-5
+                    hover:shadow-xl transition-all duration-300">
+
+                    <div class="flex items-start justify-between gap-4">
+
+                        <div class="flex items-start gap-3 min-w-0">
+
+                            <div class="w-12 h-12 rounded-2xl bg-black text-white flex items-center justify-center shrink-0">
+                                <iconify-icon
+                                    [icon]="order.payment.method === 'cash' ? 'mdi:cash' : 'mdi:credit-card-check-outline'"
+                                    class="text-2xl">
+                                </iconify-icon>
+                            </div>
+
+                            <div class="min-w-0">
+                                <p class="text-sm font-black text-zinc-900">
+                                    Pedido #{{ order.id.slice(0, 8) }}
+                                </p>
+
+                                <p class="text-xs text-zinc-500 mt-1">
+                                    {{ order.createdAt | date:'dd/MM/yyyy, h:mm a' }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <span class="text-xs px-3 py-1 rounded-full bg-black text-white font-bold shrink-0">
+                            {{ orderStatusLabel(order.status) }}
+                        </span>
+
+                    </div>
+
+                    <div class="mt-5 rounded-2xl border border-zinc-200 bg-zinc-50 p-4">
+
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-sm font-black text-zinc-900">
+                                    {{ orderStatusLabel(order.status) }}
+                                </p>
+
+                                <p class="text-xs text-zinc-500 mt-1">
+                                    {{ orderStatusMessage(order.status) }}
+                                </p>
+                            </div>
+
+                            <span class="text-xs px-3 py-1 rounded-full bg-white border border-zinc-200 text-zinc-500 font-bold">
+                                {{ orderProgress(order.status) }}%
+                            </span>
+                        </div>
+
+                        <div class="mt-4 h-3 rounded-full bg-zinc-200 overflow-hidden">
+                            <div class="h-full bg-black rounded-full transition-all duration-500"
+                                [style.width.%]="orderProgress(order.status)">
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4">
+                            <p class="text-xs text-zinc-500 font-bold">Total</p>
+                            <p class="font-black mt-1">
+                                {{ order.total | number:'1.2-2' }} C$
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4">
+                            <p class="text-xs text-zinc-500 font-bold">Entrega</p>
+                            <p class="font-black mt-1 text-sm">
+                                {{ order.delivery.date }} · {{ order.delivery.time }}
+                            </p>
+                        </div>
+
+                        <div class="rounded-2xl bg-zinc-50 border border-zinc-200 p-4">
+                            <p class="text-xs text-zinc-500 font-bold">Productos</p>
+                            <p class="font-black mt-1">
+                                {{ order.items.length }}
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="mt-5 flex gap-3">
+
+                        <button type="button" (click)="openOrderDetail(order)" class="flex-1 py-3 rounded-2xl border border-zinc-200 font-bold
+                            hover:bg-zinc-100 transition cursor-pointer">
+                            Ver detalles
+                        </button>
+
+                        <button type="button" (click)="askAboutOrder(order)" class="flex-1 py-3 rounded-2xl bg-black text-white font-bold
+                            hover:bg-zinc-800 transition cursor-pointer active:scale-[0.98]">
+                            Consultar
+                        </button>
+
+                    </div>
+
+                </article>
+
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+}
+
+<!-- CATALOGO -->
+<section id="catalog" class="max-w-7xl mx-auto px-6 lg:px-12 py-20 reveal">
+
+    <!-- HEADER -->
+    <div class="mb-14">
+
+        <span class="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold">
+            Catálogo
+        </span>
+
+        <h2 class="text-4xl lg:text-5xl font-black mt-3">
+            Modelos disponibles
+        </h2>
+
+        <p class="text-zinc-600 text-lg leading-relaxed mt-4 max-w-2xl">
+            Chinelas diseñadas para uso diario: cómodas, ligeras y resistentes para cualquier momento del día.
+        </p>
+
+    </div>
+
+    @if (orders().length > 0) {
+
+    <div class="mt-8 mb-10 rounded-[2rem] border border-zinc-200 bg-white overflow-hidden
+    shadow-[0_18px_45px_rgba(0,0,0,0.06)]">
+
+        <button type="button" (click)="openOrdersModal()" class="w-full p-6 flex items-center justify-between gap-4
+        hover:bg-zinc-50 transition cursor-pointer active:scale-[0.99]">
+
+            <div class="flex items-center gap-4 text-left">
+
+                <div class="w-14 h-14 rounded-2xl bg-black text-white flex items-center justify-center shrink-0">
+                    <iconify-icon icon="mdi:receipt-text-check-outline" class="text-3xl"></iconify-icon>
+                </div>
+
+                <div>
+                    <p class="text-lg font-black text-zinc-900">
+                        Historial de pedidos
+                    </p>
+
+                    <p class="text-sm text-zinc-500 mt-1">
+                        {{ orders().length }} pedido(s) guardado(s) recientemente
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="w-10 h-10 rounded-full bg-zinc-100 flex items-center justify-center">
+                <iconify-icon icon="mdi:arrow-expand" class="text-2xl text-zinc-600">
+                </iconify-icon>
+            </div>
+
+        </button>
+
+        
+    </div>
+
+    }
+    
+
+    <!-- GRID PRODUCTS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+
+        @for (p of products(); track p.id; let i = $index) {
+
+        <article class="group rounded-[2rem] border border-zinc-200 bg-white overflow-hidden
+    hover:shadow-xl transition duration-300 reveal-card
+    flex flex-col h-full" [style.animation-delay]="i * 90 + 'ms'">
+
+            <!-- IMAGE -->
+            <div class="bg-zinc-100 overflow-hidden">
+                <img [src]="getProductImage(p)" [alt]="p.name" (error)="$any($event.target).src = 'Not Found.png'"
+                    class="w-full aspect-square object-cover group-hover:scale-105 transition duration-500" />
+            </div>
+
+            @if (p.colors && p.colors.length > 0) {
+            <div class="bg-white px-6 pt-4 flex items-center justify-center">
+
+                <div class="flex items-center gap-2
+        bg-zinc-100 border border-zinc-200
+        px-3 py-2 rounded-full">
+
+                    @if (p.colors.length > visibleColorsLimit) {
+                    <button type="button" (click)="moveColorsLeft(p)" [disabled]="!canMoveColorsLeft(p)" class="w-7 h-7 rounded-full bg-white border border-zinc-200
+            flex items-center justify-center
+            text-sm font-black text-zinc-600
+            hover:bg-zinc-200 transition cursor-pointer active:scale-95
+            disabled:opacity-35 disabled:cursor-not-allowed">
+                        ‹
+                    </button>
+                    }
+
+                    @for(c of getVisibleColors(p); track $index) {
+                    <button type="button" (click)="selectColor(p, c)" class="relative w-5 h-5 rounded-full border border-white
+    shadow-[0_0_0_1px_rgba(0,0,0,0.18)]
+    overflow-hidden cursor-pointer active:scale-95 transition" [class.ring-2]="getSelectedColor(p).name === c.name"
+                        [class.ring-black]="getSelectedColor(p).name === c.name">
+
+                        @if (!c.secondaryHex && !c.thirdHex) {
+                        <span class="absolute inset-0" [style.background]="c.hex"></span>
+                        }
+
+                        @if (c.secondaryHex && !c.thirdHex) {
+                        <span class="absolute inset-0 grid grid-cols-2">
+                            <span [style.background]="c.hex"></span>
+                            <span [style.background]="c.secondaryHex"></span>
+                        </span>
+                        }
+
+                        @if (c.secondaryHex && c.thirdHex) {
+                        <span class="absolute inset-0 grid grid-cols-3">
+                            <span [style.background]="c.hex"></span>
+                            <span [style.background]="c.secondaryHex"></span>
+                            <span [style.background]="c.thirdHex"></span>
+                        </span>
+                        }
+
+                    </button>
+                    }
+
+                    @if (p.colors.length > visibleColorsLimit) {
+                    <button type="button" (click)="moveColorsRight(p)" [disabled]="!canMoveColorsRight(p)" class="w-7 h-7 rounded-full bg-white border border-zinc-200
+            flex items-center justify-center
+            text-sm font-black text-zinc-600
+            hover:bg-zinc-200 transition cursor-pointer active:scale-95
+            disabled:opacity-35 disabled:cursor-not-allowed">
+                        ›
+                    </button>
+                    }
+
+                </div>
+
+            </div>
+            }
+
+            <!-- INFO -->
+            <div class="p-6 flex flex-col flex-1">
+
+                <div class="min-h-[96px]">
+
+                    <div class="flex items-start justify-between gap-4">
+
+                        <div class="min-w-0">
+                            <p class="text-xs uppercase tracking-[0.25em] text-zinc-400 font-bold mb-2">
+                                {{ p.category }}
+                            </p>
+
+                            <h3 class="text-2xl font-black leading-tight">
+                                {{ p.name }}
+                            </h3>
+                        </div>
+
+                        @if (p.available) {
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                bg-zinc-100 border border-zinc-200 text-xs font-black text-zinc-700 shrink-0">
+                            <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+                            Disponible
+                        </span>
+                        } @else {
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full
+                bg-black text-white border border-black text-xs font-black shrink-0">
+                            <iconify-icon icon="mdi:close-circle-outline" class="text-base"></iconify-icon>
+                            Agotado
+                        </span>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="flex flex-wrap gap-2 mt-4 min-h-[34px]">
+                    @for (t of p.tags; track t) {
+                    <span class="text-xs px-3 py-1 rounded-full bg-zinc-100 border text-zinc-600 h-fit">
+                        {{ t }}
+                    </span>
+                    }
+                </div>
+
+                <p class="text-zinc-600 text-sm mt-3 leading-relaxed line-clamp-3 min-h-[63px]">
+                    {{ p.description }}
+                </p>
+
+                <div class="mt-auto pt-6 flex items-center justify-between gap-4">
+
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.16em] text-zinc-400 font-bold">
+                            Precio
+                        </p>
+
+                        <span class="font-black text-xl">
+                            {{ p.price }} C$
+                        </span>
+                    </div>
+
+                    <button (click)="p.available && selectProduct(p)" [disabled]="!p.available" class="inline-flex items-center gap-2 px-4 py-2 rounded-full
+        bg-black text-white text-sm font-bold
+        hover:bg-zinc-800 transition cursor-pointer active:scale-95
+        disabled:bg-zinc-300 disabled:text-white disabled:cursor-not-allowed
+        disabled:hover:bg-zinc-300">
+
+                        {{ p.available ? 'Ver detalle' : 'Agotado' }}
+
+                        @if (p.available) {
+                        <iconify-icon icon="mdi:arrow-right" class="text-lg"></iconify-icon>
+                        } @else {
+                        <iconify-icon icon="mdi:close-circle-outline" class="text-lg"></iconify-icon>
+                        }
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        }
+
+    </div>
+
+</section>
+
+<section id="combos" class="bg-zinc-50 border-t border-zinc-200 reveal">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 py-20">
+
+        <span class="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold">
+            Combos especiales
+        </span>
+
+        <h2 class="text-4xl lg:text-5xl font-black mt-3">
+            Paquetes pensados para ahorrar
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+
+            @for (combo of combos; track combo.title) {
+
+            <article class="group rounded-[2rem] border border-zinc-200 bg-white overflow-hidden
+    hover:shadow-xl transition duration-300 flex flex-col h-full">
+
+                <div class="bg-zinc-100 overflow-hidden">
+                    <img [src]="combo.image"
+                        class="w-full aspect-square object-cover group-hover:scale-105 transition duration-500">
+                </div>
+
+                <div class="p-6 flex flex-col flex-1">
+
+    <span class="w-fit text-xs px-3 py-1 rounded-full bg-black text-white font-bold">
+        {{ combo.tag }}
+    </span>
+
+    <h3 class="text-3xl font-black mt-5 leading-tight min-h-[72px]">
+        {{ combo.title }}
+    </h3>
+
+    <div class="mt-3 max-h-[96px] overflow-y-auto custom-scrollbar pr-2">
+        <p class="text-zinc-600 leading-relaxed">
+            {{ combo.description }}
+        </p>
+    </div>
+
+    <div class="mt-auto pt-6">
+
+        <div class="flex items-end gap-3">
+            <span class="text-3xl font-black">
+                {{ combo.price }} C$
+            </span>
+
+            <span class="text-zinc-400 line-through font-bold">
+                {{ combo.oldPrice }} C$
+            </span>
+        </div>
+
+        <button type="button" (click)="addComboToCart(combo)" class="mt-7 w-full inline-flex items-center justify-center gap-2
+            bg-black text-white py-4 rounded-2xl font-bold
+            hover:bg-zinc-800 transition cursor-pointer active:scale-[0.98]">
+
+            <iconify-icon icon="mdi:cart-plus" class="text-xl"></iconify-icon>
+            Agregar combo
+
+        </button>
+
+    </div>
+
+</div>
+
+            </article>
+
+            }
+
+        </div>
+
+    </div>
+
+</section>
+
+<section id="best-sellers" class="bg-white border-t border-zinc-200 reveal">
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 py-20">
+
+        <div class="max-w-3xl">
+            <span class="text-sm uppercase tracking-[0.2em] text-zinc-500 font-semibold">
+                Más vendidos
+            </span>
+
+            <h2 class="text-4xl lg:text-5xl font-black mt-3">
+                Favoritos de clientes
+            </h2>
+
+            <p class="text-zinc-600 text-lg leading-relaxed mt-4">
+                Tres estilos destacados por su comodidad, diseño y preferencia dentro del catálogo PASOS.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+
+            @for (p of bestSellers(); track p.id; let i = $index) {
+
+            <article class="group relative flex flex-col h-full overflow-hidden rounded-[2rem]
+                bg-white border border-zinc-200
+                shadow-[0_14px_40px_rgba(0,0,0,0.05)]
+                hover:shadow-[0_24px_70px_rgba(0,0,0,0.10)]
+                transition-all duration-500 hover:-translate-y-1">
+
+                <!-- RANKING LINE -->
+                <div class="px-6 pt-6 pb-5 bg-white border-b border-zinc-100">
+
+                    <div class="flex items-start justify-between gap-5">
+
+                        <div>
+                            <p class="text-[11px] uppercase tracking-[0.24em] font-black"
+                                [class.text-amber-600]="i === 0" [class.text-zinc-500]="i === 1"
+                                [class.text-orange-700]="i === 2">
+                                @if (i === 0) {
+                                Primer lugar
+                                } @else if (i === 1) {
+                                Segundo lugar
+                                } @else {
+                                Tercer lugar
+                                }
+                            </p>
+
+                            <h3 class="text-xl font-black mt-2 leading-tight">
+                                @if (i === 0) {
+                                El más elegido
+                                } @else if (i === 1) {
+                                Favorito diario
+                                } @else {
+                                Recomendado
+                                }
+                            </h3>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+
+                            <span class="h-10 w-[3px] rounded-full" [class.bg-amber-500]="i === 0"
+                                [class.bg-zinc-400]="i === 1" [class.bg-orange-700]="i === 2">
+                            </span>
+
+                            <span class="text-4xl font-black leading-none" [class.text-amber-500]="i === 0"
+                                [class.text-zinc-400]="i === 1" [class.text-orange-700]="i === 2">
+                                {{ i + 1 }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- IMAGE -->
+                <div class="relative bg-zinc-100 overflow-hidden">
+
+                    <img [src]="getProductImage(p)" class="w-full aspect-square object-cover
+                        group-hover:scale-105 transition duration-700">
+
+                </div>
+
+                <!-- INFO -->
+                <div class="p-6 flex flex-col flex-1">
+
+                    <div class="min-h-[92px]">
+                        <p class="text-xs uppercase tracking-[0.2em] text-zinc-400 font-bold">
+                            {{ p.category }}
+                        </p>
+
+                        <h3 class="text-2xl font-black mt-2 leading-tight">
+                            {{ p.name }}
+                        </h3>
+                    </div>
+
+                    <p class="text-zinc-600 text-sm mt-3 leading-relaxed line-clamp-2 min-h-[44px]">
+                        {{ p.description }}
+                    </p>
+
+                    <div class="mt-auto pt-6 flex items-center justify-between gap-4">
+
+                        <div>
+                            <p class="text-xs uppercase tracking-[0.16em] text-zinc-400 font-bold">
+                                Precio
+                            </p>
+
+                            <span class="font-black text-xl">
+                                {{ p.price }} C$
+                            </span>
+                        </div>
+
+                        <button type="button" (click)="selectProduct(p)" class="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                            bg-black text-white text-sm font-bold
+                            hover:bg-zinc-800 transition cursor-pointer active:scale-95">
+
+                            Ver detalle
+                            <iconify-icon icon="mdi:arrow-right" class="text-lg"></iconify-icon>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+            }
+
+        </div>
+
+    </div>
+
+</section>
+
+<style>
+    @keyframes cardIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-cardIn {
+        animation: cardIn 0.4s ease-out both;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    .animate-modalIn {
+        animation: modalIn 0.25s ease-out;
+    }
+
+    .card-perspective {
+        perspective: 1200px;
+    }
+
+    .card-3d {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transform: rotate(-3deg);
+        transition: transform 0.7s ease;
+    }
+
+    .card-3d:hover {
+        transform: rotate(0deg) scale(1.02);
+    }
+
+    .card-3d.card-flipped {
+        transform: rotateY(180deg) rotate(-3deg);
+    }
+
+    .card-3d.card-flipped:hover {
+        transform: rotateY(180deg) rotate(0deg) scale(1.02);
+    }
+
+    .card-face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+    }
+
+    .card-back {
+        transform: rotateY(180deg);
+    }
+
+    .orders-collapse {
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transform: translateY(-6px);
+        transition:
+            max-height 0.45s ease,
+            opacity 0.25s ease,
+            transform 0.3s ease;
+    }
+
+    .orders-collapse.orders-open {
+        max-height: 620px;
+        opacity: 1;
+        transform: translateY(0);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .orders-collapse.orders-open::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .orders-collapse.orders-open::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .orders-collapse.orders-open::-webkit-scrollbar-thumb {
+        background: #d4d4d8;
+        border-radius: 999px;
+    }
+
+    .orders-collapse.orders-open::-webkit-scrollbar-thumb:hover {
+        background: #a1a1aa;
+    }
+</style>

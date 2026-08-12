@@ -1,0 +1,299 @@
+<style>
+  @keyframes popIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.92) translateY(12px);
+    }
+
+    70% {
+      opacity: 1;
+      transform: scale(1.02) translateY(-2px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .page-pop {
+    opacity: 0;
+    animation: popIn 600ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  .icon-float {
+    animation: float 3s ease-in-out infinite;
+  }
+</style>
+
+<main class="w-full bg-white text-zinc-950 grid min-h-screen place-items-center px-6">
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <section class="w-full max-w-2xl text-center">
+
+    <!-- ICONIFY ICON -->
+    <div class="flex justify-center mb-6">
+      <iconify-icon icon="mdi:shield-lock-outline" class="text-black icon-float"
+        style="font-size: 96px;"></iconify-icon>
+    </div>
+
+    <!-- ERROR CODE -->
+    <p class="text-4xl font-extrabold text-black">
+      401
+    </p>
+
+    <!-- TITLE -->
+    <h1 class="mt-4 text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-950">
+      Acceso restringido
+    </h1>
+
+    <!-- MESSAGE -->
+    <p class="mt-4 text-base sm:text-lg text-zinc-600 leading-relaxed max-w-xl mx-auto">
+      No tienes permisos para acceder a esta dirección.
+      Inicia sesión con una cuenta autorizada o contacta a un administrador.
+    </p>
+
+    <!-- BUTTONS -->
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+
+      <button (click)="goHome()" class="cursor-pointer inline-flex items-center gap-2
+               bg-black hover:bg-zinc-800
+               text-white font-bold rounded-lg
+               px-6 py-3 transition active:scale-[0.98]">
+
+        <iconify-icon icon="lucide:home" class="text-lg"></iconify-icon>
+
+        <span>Volver al inicio</span>
+
+      </button>
+
+      @if (adminAccounts().length > 0) {
+
+      <button (click)="authenticate()" class="cursor-pointer inline-flex items-center gap-2
+               bg-white hover:bg-zinc-100
+               border border-zinc-300 hover:border-zinc-400
+               text-zinc-950 font-medium rounded-lg
+               px-6 py-3 transition active:scale-[0.98]">
+
+        <iconify-icon icon="lucide:shield-check" class="text-lg text-black"></iconify-icon>
+
+        <span>Autenticarse</span>
+
+      </button>
+
+      }
+
+    </div>
+
+  </section>
+
+
+  <!-- MODAL DE AUTENTICACIÓN -->
+  @if (adminAuthOpen()) {
+
+  <div class="fixed inset-0 z-50
+           flex items-center justify-center
+           bg-black/40 backdrop-blur-sm
+           px-4">
+
+    <!-- MODAL -->
+    <div class="w-full max-w-md
+             bg-white
+             border border-zinc-200
+             rounded-3xl
+             shadow-2xl
+             p-6 sm:p-7">
+
+      <!-- HEADER -->
+      <div class="flex items-start gap-3">
+
+        <div class="w-10 h-10 rounded-xl
+                 bg-zinc-100
+                 border border-zinc-200
+                 text-black
+                 flex items-center justify-center
+                 shrink-0">
+
+          <iconify-icon icon="lucide:shield-check" class="text-xl"></iconify-icon>
+
+        </div>
+
+        <div>
+
+          <h2 class="text-[20px] font-semibold text-zinc-950">
+            Autenticarse como admin
+          </h2>
+
+          <p class="text-sm text-zinc-500 leading-relaxed mt-1">
+            Selecciona una cuenta administradora guardada en este dispositivo.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- ACCOUNTS -->
+      <div class="flex flex-col gap-3 mt-6">
+
+        @for (account of adminAccounts(); track account.email) {
+
+        <div (click)="selectAdminAccount(account)" class="group flex items-center gap-3
+                 rounded-2xl px-3 py-3
+                 cursor-pointer border
+                 transition-all duration-200
+                 active:scale-[0.99]" [class.border-black]="selectedAdminAccount()?.email === account.email"
+          [class.bg-zinc-50]="selectedAdminAccount()?.email === account.email"
+          [class.border-zinc-200]="selectedAdminAccount()?.email !== account.email"
+          [class.bg-white]="selectedAdminAccount()?.email !== account.email"
+          [class.hover:bg-zinc-50]="selectedAdminAccount()?.email !== account.email">
+
+          <img [src]="account.avatar" alt="Avatar" class="w-11 h-11 rounded-full object-cover
+                   border border-zinc-200
+                   group-hover:border-zinc-400 transition" />
+
+          <div class="flex-1 min-w-0 flex flex-col">
+
+            <span class="text-sm font-medium text-zinc-950 truncate">
+              {{ account.name }}
+            </span>
+
+            <span class="text-[12px] text-zinc-500 truncate">
+              {{ account.email }}
+            </span>
+
+          </div>
+
+          @if (selectedAdminAccount()?.email === account.email) {
+
+          <div class="w-7 h-7 rounded-full
+                   bg-black
+                   flex items-center justify-center
+                   text-white">
+
+            <iconify-icon icon="lucide:check" class="text-sm"></iconify-icon>
+
+          </div>
+
+          }
+
+        </div>
+
+        }
+
+      </div>
+
+
+      <!-- PASSWORD -->
+      @if (selectedAdminAccount()) {
+
+      <form (ngSubmit)="loginSelectedAdmin()" class="flex flex-col gap-3 mt-6">
+
+        <label for="admin-password" class="text-sm text-zinc-700 font-medium">
+          Contraseña
+        </label>
+
+        <div class="relative">
+
+          <input type="text" name="username" autocomplete="username" [value]="selectedAdminAccount()?.email ?? ''"
+            tabindex="-1" aria-hidden="true" class="sr-only" />
+
+          <input id="admin-password" #adminPasswordInput type="password" name="password" autocomplete="current-password"
+            placeholder="Ingresa la contraseña" (input)="onPasswordInput(adminPasswordInput.value)"
+            [disabled]="isAuthenticating" class="w-full rounded-xl
+             border border-zinc-300
+             bg-white
+             px-4 py-3 pr-10
+             text-sm text-zinc-950
+             placeholder:text-zinc-400
+             outline-none transition
+             focus:border-black
+             focus:ring-2 focus:ring-black/10
+             disabled:opacity-50" />
+
+          <div class="absolute right-3 top-1/2
+             -translate-y-1/2
+             text-zinc-400">
+            <iconify-icon icon="lucide:lock"></iconify-icon>
+          </div>
+
+        </div>
+
+        @if (authError()) {
+
+        <div class="text-xs text-red-600 flex items-center gap-2">
+
+          <iconify-icon icon="lucide:alert-circle" class="text-sm"></iconify-icon>
+
+          <span>{{ authError() }}</span>
+
+        </div>
+
+        }
+
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-3 pt-6">
+
+          <button type="button" (click)="closeAdminAuth()" class="px-4 py-2 rounded-md
+             text-sm text-zinc-700
+             hover:bg-zinc-100
+             transition cursor-pointer">
+            Cancelar
+          </button>
+
+          <button type="submit" [disabled]="!adminPassword().trim() || isAuthenticating" class="px-4 py-2 rounded-md
+             bg-black
+             text-sm font-bold text-white
+             transition hover:bg-zinc-800
+             active:scale-[0.99]
+             disabled:opacity-50
+             disabled:cursor-not-allowed
+             cursor-pointer
+             flex items-center gap-2">
+
+            @if (isAuthenticating) {
+
+            <span class="w-4 h-4
+               border-2
+               border-white/30
+               border-t-white
+               rounded-full
+               animate-spin"></span>
+
+            Validando...
+
+            } @else {
+
+            <iconify-icon icon="lucide:log-in" class="text-base"></iconify-icon>
+
+            Entrar
+
+            }
+
+          </button>
+
+        </div>
+
+      </form>
+
+      }
+
+    </div>
+
+  </div>
+
+  }
+
+</main>

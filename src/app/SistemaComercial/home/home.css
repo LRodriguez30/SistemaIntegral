@@ -1,0 +1,15 @@
+.home-lines {
+  position: absolute;
+  inset: -120px;
+
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 26px,
+      #000 26px,
+      #000 27px
+    );
+
+  transform: rotate(-2deg);
+}

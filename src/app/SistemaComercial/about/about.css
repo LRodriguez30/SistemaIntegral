@@ -1,0 +1,7 @@
+.perspective {
+    perspective: 1200px;
+}
+
+.backface-hidden {
+    backface-visibility: hidden;
+}

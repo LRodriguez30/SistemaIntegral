@@ -1,0 +1,479 @@
+:root {
+
+  /* =========================
+     BACKGROUNDS — PASOS LIGHT
+  ========================= */
+
+  --clr-bg-0: #ffffff;
+  --clr-bg-50: #fafafa;
+  --clr-bg-100: #f4f4f5;
+  --clr-bg-200: #e4e4e7;
+  --clr-bg-300: #d4d4d8;
+  --clr-bg-400: #a1a1aa;
+  --clr-bg-500: #71717a;
+  --clr-bg-600: #52525b;
+  --clr-bg-700: #3f3f46;
+  --clr-bg-800: #27272a;
+  --clr-bg-900: #18181b;
+  --clr-bg-1000: #000000;
+
+
+  /* =========================
+     TEXT — PASOS LIGHT
+  ========================= */
+
+  --clr-text-0: #ffffff;
+  --clr-text-50: #fafafa;
+  --clr-text-100: #f4f4f5;
+  --clr-text-200: #e4e4e7;
+  --clr-text-300: #d4d4d8;
+  --clr-text-400: #a1a1aa;
+  --clr-text-500: #71717a;
+  --clr-text-600: #52525b;
+  --clr-text-700: #3f3f46;
+  --clr-text-800: #27272a;
+  --clr-text-900: #18181b;
+
+  --clr-text-primary-0: #000000;
+
+
+  /* =========================
+     BORDERS
+  ========================= */
+
+  --clr-border-0: #ffffff;
+  --clr-border-50: #fafafa;
+  --clr-border-100: #f4f4f5;
+  --clr-border-200: #e4e4e7;
+  --clr-border-300: #d4d4d8;
+  --clr-border-400: #a1a1aa;
+  --clr-border-500: #71717a;
+
+
+  /* =========================
+     PRIMARY — PASOS
+     Blanco / Negro
+  ========================= */
+
+  --clr-primary-50: #fafafa;
+  --clr-primary-100: #f4f4f5;
+  --clr-primary-200: #e4e4e7;
+  --clr-primary-300: #d4d4d8;
+  --clr-primary-400: #a1a1aa;
+  --clr-primary-500: #18181b;
+  --clr-primary-600: #111111;
+  --clr-primary-700: #09090b;
+  --clr-primary-800: #050505;
+  --clr-primary-900: #000000;
+
+
+  /* =========================
+     SINGLE
+     Color principal de Pasos
+  ========================= */
+
+  --clr-single-option-bg: rgba(255, 255, 255, 0.70);
+  --clr-single-option-bg-hover: #ffffff;
+
+  --clr-single-option-border: #e4e4e7;
+  --clr-single-option-border-hover: #a1a1aa;
+
+  --clr-single-option-text-title: #18181b;
+  --clr-single-option-text-sub: #71717a;
+
+  --clr-single-option-icon-bg: #fafafa;
+  --clr-single-option-icon-bg-hover: #f4f4f5;
+
+  --clr-single-option-icon: #09090b;
+
+  --clr-single-option-shadow: #d4d4d8;
+
+  --clr-single-option-chevron: #111111;
+
+  --clr-single-option-glow: #f4f4f5;
+
+  --clr-single-option-focus: #18181b;
+
+
+  /* =========================
+     MULTIPLE
+     Morado funcional
+  ========================= */
+
+  --clr-multiple-option-bg: rgba(255, 255, 255, 0.70);
+  --clr-multiple-option-bg-hover: #ffffff;
+
+  --clr-multiple-option-border: #e4e4e7;
+  --clr-multiple-option-border-hover: #c084fc;
+
+  --clr-multiple-option-text-title: #18181b;
+  --clr-multiple-option-text-sub: #71717a;
+
+  --clr-multiple-option-icon-bg: #faf5ff;
+  --clr-multiple-option-icon-bg-hover: #f3e8ff;
+
+  --clr-multiple-option-icon: #7e22ce;
+
+  --clr-multiple-option-chevron: #9333ea;
+
+  --clr-multiple-option-glow: #faf5ff;
+
+  --clr-multiple-option-focus: rgba(192, 132, 252, 0.30);
+
+  --clr-multiple-option-shadow: #e9d5ff;
+
+
+  /* =========================
+     CSV
+     Cyan funcional
+  ========================= */
+
+  --clr-csv-option-bg: rgba(255, 255, 255, 0.70);
+  --clr-csv-option-bg-hover: #ffffff;
+
+  --clr-csv-option-border: #e4e4e7;
+  --clr-csv-option-border-hover: #67e8f9;
+
+  --clr-csv-option-text-title: #18181b;
+  --clr-csv-option-text-sub: #71717a;
+
+  --clr-csv-option-icon-bg: #ecfeff;
+  --clr-csv-option-icon-bg-hover: #cffafe;
+
+  --clr-csv-option-icon: #0e7490;
+
+  --clr-csv-option-chevron: #0891b2;
+
+  --clr-csv-option-glow: #ecfeff;
+
+  --clr-csv-option-focus: rgba(34, 211, 238, 0.30);
+
+  --clr-csv-option-shadow: #a5f3fc;
+
+
+  /* =========================
+     SUCCESS
+  ========================= */
+
+  --clr-success-500: #22c55e;
+  --clr-success-600: #16a34a;
+
+
+  /* =========================
+     WARNING
+  ========================= */
+
+  --clr-warning-50: #fffbeb;
+  --clr-warning-100: #fef3c7;
+  --clr-warning-200: #fde68a;
+  --clr-warning-700: #b45309;
+  --clr-warning-800: #92400e;
+
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  --clr-error-50: #fef2f2;
+  --clr-error-100: #fee2e2;
+  --clr-error-200: #fecaca;
+  --clr-error-300: #fca5a5;
+  --clr-error-400: #f87171;
+  --clr-error-500: #ef4444;
+  --clr-error-600: #dc2626;
+  --clr-error-700: #b91c1c;
+
+
+  /* =========================
+     DELETE
+  ========================= */
+
+  --clr-delete-50: #fef2f2;
+  --clr-delete-100: #fee2e2;
+  --clr-delete-200: #fecaca;
+  --clr-delete-300: #fca5a5;
+  --clr-delete-400: #f87171;
+  --clr-delete-500: #ef4444;
+  --clr-delete-600: #dc2626;
+  --clr-delete-700: #b91c1c;
+
+
+  /* =========================
+     OVERLAY
+  ========================= */
+
+  --clr-overlay-menu-dark-40: rgba(0, 0, 0, 0.40);
+
+
+  /* =========================
+     PURPLE
+     Color funcional MULTIPLE
+  ========================= */
+
+  --clr-multiple-menu-50: #faf5ff;
+  --clr-multiple-menu-100: #f3e8ff;
+  --clr-multiple-menu-200: #e9d5ff;
+  --clr-multiple-menu-400: #c084fc;
+  --clr-multiple-menu-500: #a855f7;
+  --clr-multiple-menu-600: #9333ea;
+  --clr-multiple-menu-700: #7e22ce;
+
+  --clr-multiple-menu-400-30: rgba(192, 132, 252, 0.30);
+
+
+  /* =========================
+     CYAN
+     Color funcional CSV
+  ========================= */
+
+  --clr-csv-menu-50: #ecfeff;
+  --clr-csv-menu-100: #cffafe;
+  --clr-csv-menu-200: #a5f3fc;
+  --clr-csv-menu-300: #67e8f9;
+  --clr-csv-menu-400: #22d3ee;
+  --clr-csv-menu-500: #06b6d4;
+  --clr-csv-menu-600: #0891b2;
+  --clr-csv-menu-700: #0e7490;
+
+  --clr-csv-menu-50-40: rgba(236, 254, 255, 0.40);
+  --clr-csv-menu-400-30: rgba(34, 211, 238, 0.30);
+}
+
+
+/* =========================================================
+   DARK THEME
+   PASOS — BLACK / WHITE
+========================================================= */
+
+.dark-theme {
+
+  /* =========================
+     BACKGROUNDS
+  ========================= */
+
+  --clr-bg-0: #000000;
+  --clr-bg-50: #09090b;
+  --clr-bg-100: #0f0f10;
+  --clr-bg-200: #18181b;
+  --clr-bg-300: #27272a;
+  --clr-bg-400: #3f3f46;
+  --clr-bg-500: #52525b;
+  --clr-bg-600: #71717a;
+  --clr-bg-700: #a1a1aa;
+  --clr-bg-800: #d4d4d8;
+  --clr-bg-900: #e4e4e7;
+  --clr-bg-1000: #ffffff;
+
+
+  /* =========================
+     TEXT
+  ========================= */
+
+  --clr-text-0: #000000;
+  --clr-text-50: #09090b;
+  --clr-text-100: #18181b;
+  --clr-text-200: #27272a;
+  --clr-text-300: #3f3f46;
+  --clr-text-400: #71717a;
+  --clr-text-500: #a1a1aa;
+  --clr-text-600: #d4d4d8;
+  --clr-text-700: #e4e4e7;
+  --clr-text-800: #f4f4f5;
+  --clr-text-900: #fafafa;
+
+
+  /* =========================
+     BORDERS
+  ========================= */
+
+  --clr-border-0: #000000;
+  --clr-border-50: #09090b;
+  --clr-border-100: #18181b;
+  --clr-border-200: #27272a;
+  --clr-border-300: #3f3f46;
+  --clr-border-400: #52525b;
+  --clr-border-500: #71717a;
+
+
+  /* =========================
+     PRIMARY — PASOS
+  ========================= */
+
+  --clr-primary-50: #18181b;
+  --clr-primary-100: #27272a;
+  --clr-primary-200: #3f3f46;
+  --clr-primary-300: #52525b;
+  --clr-primary-400: #71717a;
+  --clr-primary-500: #d4d4d8;
+  --clr-primary-600: #e4e4e7;
+  --clr-primary-700: #f4f4f5;
+  --clr-primary-800: #fafafa;
+  --clr-primary-900: #ffffff;
+
+
+  /* =========================
+     SINGLE
+  ========================= */
+
+  --clr-single-option-bg: rgba(255, 255, 255, 0.04);
+  --clr-single-option-bg-hover: rgba(255, 255, 255, 0.08);
+
+  --clr-single-option-border: rgba(255, 255, 255, 0.08);
+  --clr-single-option-border-hover: var(--clr-primary-500);
+
+  --clr-single-option-text-title: #f4f4f5;
+  --clr-single-option-text-sub: #a1a1aa;
+
+  --clr-single-option-icon-bg: rgba(255, 255, 255, 0.06);
+  --clr-single-option-icon-bg-hover: rgba(255, 255, 255, 0.10);
+
+  --clr-single-option-icon: #f4f4f5;
+
+  --clr-single-option-shadow: rgba(0, 0, 0, 0.45);
+
+  --clr-single-option-chevron: #d4d4d8;
+
+  --clr-single-option-glow: rgba(255, 255, 255, 0.06);
+
+  --clr-single-option-focus: #f4f4f5;
+
+
+  /* =========================
+     MULTIPLE
+  ========================= */
+
+  --clr-multiple-option-bg: rgba(255, 255, 255, 0.04);
+  --clr-multiple-option-bg-hover: rgba(255, 255, 255, 0.09);
+
+  --clr-multiple-option-border: rgba(255, 255, 255, 0.08);
+  --clr-multiple-option-border-hover: var(--clr-multiple-menu-400);
+
+  --clr-multiple-option-text-title: #f4f4f5;
+  --clr-multiple-option-text-sub: #a1a1aa;
+
+  --clr-multiple-option-icon-bg: rgba(168, 85, 247, 0.14);
+  --clr-multiple-option-icon-bg-hover: rgba(168, 85, 247, 0.22);
+
+  --clr-multiple-option-icon: #c084fc;
+
+  --clr-multiple-option-chevron: #d8b4fe;
+
+  --clr-multiple-option-glow: rgba(168, 85, 247, 0.10);
+
+  --clr-multiple-option-focus: rgba(168, 85, 247, 0.35);
+
+  --clr-multiple-option-shadow: rgba(0, 0, 0, 0.5);
+
+
+  /* =========================
+     CSV
+  ========================= */
+
+  --clr-csv-option-bg: rgba(255, 255, 255, 0.04);
+  --clr-csv-option-bg-hover: rgba(255, 255, 255, 0.08);
+
+  --clr-csv-option-border: rgba(255, 255, 255, 0.08);
+  --clr-csv-option-border-hover: var(--clr-csv-menu-300);
+
+  --clr-csv-option-text-title: #f4f4f5;
+  --clr-csv-option-text-sub: #a1a1aa;
+
+  --clr-csv-option-icon-bg: rgba(34, 211, 238, 0.12);
+  --clr-csv-option-icon-bg-hover: rgba(34, 211, 238, 0.18);
+
+  --clr-csv-option-icon: var(--clr-csv-menu-500);
+
+  --clr-csv-option-chevron: var(--clr-csv-menu-400);
+
+  --clr-csv-option-glow: rgba(34, 211, 238, 0.10);
+
+  --clr-csv-option-focus: rgba(34, 211, 238, 0.20);
+
+  --clr-csv-option-shadow: rgba(0, 0, 0, 0.5);
+
+
+  /* =========================
+     SUCCESS
+  ========================= */
+
+  --clr-success-500: #22c55e;
+  --clr-success-600: #4ade80;
+
+
+  /* =========================
+     WARNING
+  ========================= */
+
+  --clr-warning-50: #1c1000;
+  --clr-warning-100: #2d1d00;
+  --clr-warning-200: #fbbf24;
+  --clr-warning-700: #fcd34d;
+  --clr-warning-800: #fde68a;
+
+
+  /* =========================
+     ERROR
+  ========================= */
+
+  --clr-error-50: #450a0a;
+  --clr-error-100: #5c1212;
+  --clr-error-200: #7f1d1d;
+  --clr-error-300: #991b1b;
+  --clr-error-400: #dc2626;
+  --clr-error-500: #ef4444;
+  --clr-error-600: #f87171;
+  --clr-error-700: #fca5a5;
+
+
+  /* =========================
+     DELETE
+  ========================= */
+
+  --clr-delete-50: #450a0a;
+  --clr-delete-100: #5c1212;
+  --clr-delete-200: #7f1d1d;
+  --clr-delete-300: #991b1b;
+  --clr-delete-400: #dc2626;
+  --clr-delete-500: #ef4444;
+  --clr-delete-600: #f87171;
+  --clr-delete-700: #fca5a5;
+
+
+  /* =========================
+     OVERLAY
+  ========================= */
+
+  --clr-overlay-menu-dark-40: rgba(0, 0, 0, 0.60);
+
+
+  /* =========================
+     PURPLE
+  ========================= */
+
+  --clr-multiple-menu-50: #1a0a2e;
+  --clr-multiple-menu-100: #2d1354;
+  --clr-multiple-menu-200: #3d1d73;
+  --clr-multiple-menu-400: #7c3aed;
+  --clr-multiple-menu-500: #a855f7;
+  --clr-multiple-menu-600: #c084fc;
+  --clr-multiple-menu-700: #d8b4fe;
+
+  --clr-multiple-menu-400-30: rgba(124, 58, 237, 0.30);
+
+
+  /* =========================
+     CYAN
+  ========================= */
+
+  --clr-csv-menu-50: #041f26;
+  --clr-csv-menu-100: #083344;
+  --clr-csv-menu-200: #0e4d63;
+  --clr-csv-menu-300: #155e75;
+  --clr-csv-menu-400: #0891b2;
+  --clr-csv-menu-500: #22d3ee;
+  --clr-csv-menu-600: #67e8f9;
+  --clr-csv-menu-700: #a5f3fc;
+
+  --clr-csv-menu-50-40: rgba(4, 31, 38, 0.60);
+  --clr-csv-menu-400-30: rgba(8, 145, 178, 0.30);
+}
