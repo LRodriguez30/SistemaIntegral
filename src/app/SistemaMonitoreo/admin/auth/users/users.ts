@@ -3,10 +3,16 @@ import { CommonModule } from '@angular/common';
 
 // Service and Type isolation
 import { UsersService } from '../../../../services/users.service';
-import type { CreateUser, GrantRole, UsersResponse, UsersRole } from '../../../../services/users.service';
+import { RolesType } from '../../../../services/users.service';
+import type {
+    CreateUser,
+    UpdateUser,
+    UsersResponse,
+} from '../../../../services/users.service';
+
 import type { UserFilter } from './users.filter';
 
-// Combined Material Table imports to fix static evaluation error
+// Combined Material Table imports
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
@@ -20,9 +26,13 @@ import { DynamicCreateModel } from '../../helpers/ActionsHelper';
 
 import { InitializeTableSchema, GUID_COLUMNS } from './users.schema';
 import { InitializeFilterEngine } from './users.filter';
-import { getRoleClass, getRoleIcon, getRoleLabel } from './users.ui';
+import {
+    getRoleClass,
+    getRoleIcon,
+    getRoleLabel
+} from './users.ui';
+
 import { InitializeDefaultValues } from '../../helpers/FormInit';
-import { isValidGuid } from '../../helpers/Validators';
 import { AuthService } from '../../../../services/auth.service';
 
 type UpdateModalAction = 'close' | 'reset';
@@ -51,6 +61,7 @@ export class Users {
     // =========================================================
     // CONSTRUCTOR / INIT
     // =========================================================
+
     constructor(
         private readonly usersService: UsersService,
         private readonly authService: AuthService
@@ -58,6 +69,9 @@ export class Users {
         this.loadData();
     }
 
+    // =========================================================
+    // CSV
+    // =========================================================
 
     uploadedCsvFiles = signal<{
         file: File;
@@ -90,6 +104,7 @@ export class Users {
     onFileSelected(event: Event) {
 
         const input = event.target as HTMLInputElement;
+
         this.csvWarning.set('');
 
         if (!input.files?.length) return;
@@ -100,6 +115,7 @@ export class Users {
         this.multiRows.set([]);
 
         this.preprocessCsvFile(file);
+
         input.value = '';
     }
 
@@ -144,10 +160,11 @@ export class Users {
                     .map(h => h.trim());
 
                 const requiredColumns = [
-                    'name',
-                    'email',
-                    'password',
-                    'role'
+                    'personaId',
+                    'correoElectronico',
+                    'contraseña',
+                    'rolId',
+                    'estado'
                 ];
 
                 const missing = requiredColumns.filter(
@@ -164,6 +181,7 @@ export class Users {
                 }
 
                 if (!this.isSameCsv(file)) {
+
                     this.uploadedCsvFiles.update(files => [
                         {
                             file,
@@ -172,8 +190,9 @@ export class Users {
                         },
                         ...files
                     ]);
-                }
-                else {
+
+                } else {
+
                     this.csvWarning.set(
                         'El archivo CSV ya fue cargado anteriormente'
                     );
@@ -191,7 +210,6 @@ export class Users {
 
         reader.readAsText(file);
     }
-
 
     processCsvFile(file: File) {
 
@@ -219,7 +237,6 @@ export class Users {
                     .split(/\r?\n/)
                     .filter(l => l.trim().length > 0);
 
-
                 if (lines.length < 2) {
 
                     this.csvError.set(
@@ -234,10 +251,11 @@ export class Users {
                     .map(h => h.trim());
 
                 const requiredColumns = [
-                    'name',
-                    'email',
-                    'password',
-                    'role'
+                    'personaId',
+                    'correoElectronico',
+                    'contraseña',
+                    'rolId',
+                    'estado'
                 ];
 
                 const missing = requiredColumns.filter(
@@ -267,8 +285,9 @@ export class Users {
                         row[header] = values[index] ?? '';
                     });
 
-                    row["total"] = Number(row["total"]);
-                    row["cantidadProductos"] = Number(row["cantidadProductos"]);
+                    row['personaId'] = Number(row['personaId']);
+                    row['estado'] =
+                        String(row['estado']).toLowerCase() === 'true';
 
                     rows.push(row);
                 }
@@ -294,17 +313,19 @@ export class Users {
     downloadCsvTemplate() {
 
         const headers = [
-            'name',
-            'email',
-            'password',
-            'role'
+            'personaId',
+            'correoElectronico',
+            'contraseña',
+            'rolId',
+            'estado'
         ];
 
         const example = [
-            'María López',
-            'maria.lopez@empresa.com',
+            '1',
+            'usuario@empresa.com',
             'SecurePass@2026',
-            'Organizador'
+            RolesType.USUARIOESTANDAR,
+            'true'
         ];
 
         const csvContent = [
@@ -340,20 +361,10 @@ export class Users {
 
     handleCsvLoad(input: HTMLInputElement) {
 
-        if (this.uploadedCsvFiles().length > 0) {
-
-            this.createState.set({
-                open: true,
-                mode: 'import'
-            });
-
-            return;
-        }
-
         this.createState.set({
             open: true,
             mode: 'import'
-        })
+        });
     }
 
     isSameCsv(file: File): boolean {
@@ -368,6 +379,7 @@ export class Users {
     // =========================================================
     // STATE
     // =========================================================
+
     createMode = signal<CreateMode>('menu');
 
     isCreateModeOpen = signal(false);
@@ -380,7 +392,7 @@ export class Users {
         mode: 'menu'
     });
 
-    multiRows = signal<any[]>([]);
+    multiRows = signal<Record<string, any>[]>([]);
 
     isLoaded = signal(false);
     isApiError = signal(false);
@@ -412,89 +424,182 @@ export class Users {
     // =========================================================
     // DATA MODELS
     // =========================================================
+
     deleteTarget: UsersResponse | null = null;
     updateTarget: UsersResponse | null = null;
 
     updateModel: DynamicCreateModel | null = null;
+
     createModel: DynamicCreateModel = {
+
         title: 'Nuevo usuario',
-        endpoint: `/users`,
+
+        endpoint: `/users/sqlServer`,
+
         fields: [
-            { key: 'name', label: 'Nombre', type: 'text', required: true },
-            { key: 'email', label: 'Email', type: 'text', required: true },
 
             {
-                key: 'password',
+                key: 'personaId',
+                label: 'Persona',
+                type: 'int',
+                required: true
+            },
+
+            {
+                key: 'correoElectronico',
+                label: 'Correo electrónico',
+                type: 'text',
+                required: true
+            },
+
+            {
+                key: 'contraseña',
                 label: 'Contraseña',
                 type: 'password',
                 required: true
             },
 
             {
-                key: 'role',
+                key: 'rolId',
                 label: 'Rol',
                 type: 'select',
                 required: true,
+
                 options: [
-                    { label: 'Admin', value: 'Admin' },
-                    { label: 'Organizador', value: 'Organizador' },
-                    { label: 'Visitante', value: 'Visitante' }
+                    {
+                        label: 'Superadministrador',
+                        value: RolesType.SUPERADMINISTRADOR
+                    },
+                    {
+                        label: 'Administrador Gerencial',
+                        value: RolesType.ADMINISTRADORGERENCIAL
+                    },
+                    {
+                        label: 'Administrador Contable',
+                        value: RolesType.ADMINISTRADORCONTABLE
+                    },
+                    {
+                        label: 'Administrador Operativo',
+                        value: RolesType.ADMINISTRADOROPERATIVO
+                    },
+                    {
+                        label: 'Usuario Estándar',
+                        value: RolesType.USUARIOESTANDAR
+                    }
                 ]
+            },
+
+            {
+                key: 'estado',
+                label: 'Estado',
+                type: 'boolean',
+                required: true
             }
         ]
+
     } as DynamicCreateModel;
 
     formCreateState: Record<string, any> = {};
     formUpdateState: Record<string, any> = {};
     originalFormState: Record<string, any> = {};
 
-    dataSource = new MatTableDataSource<UsersResponse>();
+    dataSource =
+        new MatTableDataSource<UsersResponse>();
 
     // =========================================================
     // FILTER STATE
     // =========================================================
+
     filterEngine = InitializeFilterEngine();
 
     isFilterOpen = signal(false);
     activeFilterCount = signal(0);
     isFilterDiscardWarningOpen = signal(false);
 
-    filterState = this.filterEngine.createState() as UserFilter;
-    savedFilterState = structuredClone(this.filterState);
-    readonly filterRules = this.filterEngine.rules;
+    filterState =
+        this.filterEngine.createState() as UserFilter;
 
-    toggleMulti(field: UserFilterKey, valor: string) {
-        const current = this.filterState[field] as string[];
-        const idx = current.indexOf(valor);
+    savedFilterState =
+        structuredClone(this.filterState);
 
-        (this.filterState[field] as string[]) = idx === -1
-            ? [...current, valor]
-            : current.filter(v => v !== valor);
+    readonly filterRules =
+        this.filterEngine.rules;
+
+    toggleMulti(
+        field: UserFilterKey,
+        valor: string
+    ) {
+
+        if (field !== 'rolId') return;
+
+        const current =
+            this.filterState.rolId as RolesType[];
+
+        const idx =
+            current.indexOf(valor as RolesType);
+
+        const newValue =
+            idx === -1
+                ? [...current, valor as RolesType]
+                : current.filter(v => v !== valor);
+
+        this.filterState = {
+            ...this.filterState,
+            rolId: newValue
+        };
     }
 
-    setRangeValue(field: UserFilterKey, key: 'min' | 'max' | 'from' | 'to', raw: string) {
-        const current = { ...(this.filterState[field] as any) };
+    setRangeValue(
+        field: UserFilterKey,
+        key: 'min' | 'max' | 'from' | 'to',
+        raw: string
+    ) {
+
+        const current = {
+            ...(this.filterState[field] as any)
+        };
 
         if (key === 'min' || key === 'max') {
-            current[key] = raw === '' ? null : Number(raw);
+
+            current[key] =
+                raw === ''
+                    ? null
+                    : Number(raw);
+
         } else {
+
             current[key] = raw;
         }
 
-        this.filterState[field] = current;
+        this.filterState = {
+            ...this.filterState,
+            [field]: current
+        };
     }
 
-    asRange(value: any): { min: number | null; max: number | null } {
-        return value as { min: number | null; max: number | null };
+    asRange(value: any): {
+        min: number | null;
+        max: number | null;
+    } {
+
+        return value as {
+            min: number | null;
+            max: number | null;
+        };
     }
 
-    asDateRange(value: any): { from: string; to: string } {
-        return value as { from: string; to: string };
+    asDateRange(value: any): {
+        from: string;
+        to: string;
+    } {
+
+        return value as {
+            from: string;
+            to: string;
+        };
     }
 
-    getFilterValue(
-        field: UserFilterKey
-    ) {
+    getFilterValue(field: UserFilterKey) {
         return this.filterState[field];
     }
 
@@ -502,152 +607,148 @@ export class Users {
         field: UserFilterKey,
         value: any
     ) {
-        this.filterState[field] = value;
+
+        if (field === 'estado') {
+
+            value = this.normalizeBoolean(value);
+        }
+
+        this.filterState = {
+            ...this.filterState,
+            [field]: value
+        };
     }
 
     openFilter() {
+
         this.isFilterOpen.set(true);
         this.isOpening.set(true);
 
         setTimeout(() => {
             this.isOpening.set(false);
-        }, 16)
+        }, 16);
     }
 
     closeFilterDiscardWarning() {
         this.isFilterDiscardWarningOpen.set(false);
     }
 
-    closeFilter(discardConfirmation: boolean = false) {
-        const changes = JSON.stringify(this.filterState) != JSON.stringify(this.savedFilterState);
-        console.log(this.filterState, this.savedFilterState, changes)
+    closeFilter(discardConfirmation = false) {
+
+        const changes =
+            JSON.stringify(this.filterState) !==
+            JSON.stringify(this.savedFilterState);
 
         if (changes) {
 
-            if (this.confirmFilterDiscard(discardConfirmation)) return;
+            if (
+                this.confirmFilterDiscard(
+                    discardConfirmation
+                )
+            ) {
+                return;
+            }
+
             this.isFilterDiscardWarningOpen.set(true);
+
             return;
         }
 
-        if (this.confirmFilterDiscard(discardConfirmation)) return;
+        if (
+            this.confirmFilterDiscard(
+                discardConfirmation
+            )
+        ) {
+            return;
+        }
 
-        this.closeModal("filter");
+        this.closeModal('filter');
     }
 
-    confirmFilterDiscard(discardConfirmation: boolean): boolean {
-        if (discardConfirmation) {
-            this.filterState = structuredClone(this.savedFilterState);
-            this.closeFilterDiscardWarning();
-            this.closeModal("filter");
-            return true;
+    confirmFilterDiscard(
+        discardConfirmation: boolean
+    ): boolean {
+
+        if (!discardConfirmation) {
+            return false;
         }
-        else return false;
+
+        this.filterState =
+            structuredClone(this.savedFilterState);
+
+        this.closeFilterDiscardWarning();
+        this.closeModal('filter');
+
+        return true;
     }
 
     applyFilter() {
+
         const f = this.filterState;
 
         this.loadFilters(f);
 
-        let count = 0;
-
-        if (f.role.length > 0) count += f.role.length;
-        if (f.created_at.from || f.created_at.to) count++;
-        if (f.updated_at.from || f.updated_at.to) count++;
-        if (f.last_login.from || f.last_login.to) count++;
-        if (f.name) count++;
-        if (f.email) count++;
+        const count =
+            this.filterEngine.countActive(f);
 
         this.activeFilterCount.set(count);
 
-        this.savedFilterState = structuredClone(this.filterState);
+        this.savedFilterState =
+            structuredClone(this.filterState);
 
         this.closeFilter();
     }
 
+    // =========================================================
+    // FILTERING
+    // =========================================================
+
     searchText = signal('');
+
     loadFilters(f: UserFilter) {
-        this.dataSource.filterPredicate = (row: UsersResponse, filter: string) => {
 
-            // FILTRO GLOBAL
-            if (
-                filter &&
-                !this.buildSearchText(row).includes(filter) &&
-                this.searchText()
-            ) {
-                return false;
-            }
+        this.dataSource.filterPredicate =
+            (row: UsersResponse, filter: string) => {
 
-            // ROLE (multi select)
-            if (f.role.length > 0 && !f.role.includes(row.role as UsersRole)) {
-                return false;
-            }
+                const globalValue =
+                    filter.trim().toLowerCase();
 
-            // CREATED_AT
-            if (f.created_at.from) {
-                const desde = new Date(f.created_at.from);
-                if (new Date(row.created_at) < desde) return false;
-            }
+                if (
+                    globalValue &&
+                    !this.buildSearchText(row)
+                        .includes(globalValue)
+                ) {
+                    return false;
+                }
 
-            if (f.created_at.to) {
-                const hasta = new Date(f.created_at.to);
-                hasta.setHours(23, 59, 59);
-                if (new Date(row.created_at) > hasta) return false;
-            }
+                return this.filterEngine.apply(
+                    {
+                        usuarioId: row.usuarioId,
+                        personaId: row.personaId,
+                        correoElectronico: row.correoElectronico,
+                        rolId: row.rolId,
+                        estado: this.normalizeBoolean(row.estado)
+                    } as any,
+                    f as any
+                );
+            };
 
-            // UPDATED_AT
-            if (f.updated_at.from) {
-                const desde = new Date(f.updated_at.from);
-                if (new Date(row.updated_at) < desde) return false;
-            }
-
-            if (f.updated_at.to) {
-                const hasta = new Date(f.updated_at.to);
-                hasta.setHours(23, 59, 59);
-                if (new Date(row.updated_at) > hasta) return false;
-            }
-
-            // LAST_LOGIN
-            if (f.last_login.from) {
-                const desde = new Date(f.last_login.from);
-                if (new Date(row.last_login) < desde) return false;
-            }
-
-            if (f.last_login.to) {
-                const hasta = new Date(f.last_login.to);
-                hasta.setHours(23, 59, 59);
-                if (new Date(row.last_login) > hasta) return false;
-            }
-
-            // NAME (contains)
-            if (f.name && !row.name.toLowerCase().includes(f.name.toLowerCase())) {
-                return false;
-            }
-
-            // EMAIL (contains)
-            if (f.email && !row.email.toLowerCase().includes(f.email.toLowerCase())) {
-                return false;
-            }
-
-            return true;
-        };
-
-        this.dataSource.filter = 'active';
+        this.dataSource.filter =
+            this.searchText() || 'active';
     }
 
     clearFilter() {
-        this.filterState = {
-            id: '',
-            role: [],
-            name: '',
-            email: '',
-            created_at: { from: '', to: '' },
-            updated_at: { from: '', to: '' },
-            last_login: { from: '', to: '' }
-        };
-        this.savedFilterState = structuredClone(this.filterState);
+
+        this.filterState =
+            this.filterEngine.reset() as UserFilter;
+
+        this.savedFilterState =
+            structuredClone(this.filterState);
+
+        this.searchText.set('');
 
         this.dataSource.filter = '';
+
         this.activeFilterCount.set(0);
     }
 
@@ -663,31 +764,28 @@ export class Users {
 
         this.loadFilters(this.filterState);
 
-        this.dataSource.filter = value || 'active';
+        this.dataSource.filter =
+            value || 'active';
     }
 
-    private globalFilterPredicate() {
+    private buildSearchText(
+        row: UsersResponse
+    ): string {
 
-        return (
-            row: UsersResponse,
-            filter: string
-        ) => {
-            console.log(this.buildSearchText(row).includes(filter))
-            return this.buildSearchText(row).includes(filter);
-        };
-    }
-
-    private buildSearchText(row: UsersResponse): string {
         return [
-            row.id,
-            row.name,
-            row.email,
-            row.role,
-            row.created_at,
-            row.updated_at,
-            row.last_login
-        ].join(' ').toLowerCase();
+            row.usuarioId,
+            row.personaId,
+            row.correoElectronico,
+            row.rolId,
+            row.estado
+        ]
+            .join(' ')
+            .toLowerCase();
     }
+
+    // =========================================================
+    // TABLE
+    // =========================================================
 
     get visibleColumns(): string[] {
 
@@ -700,63 +798,93 @@ export class Users {
         );
     }
 
-    // =========================================================
-    // TABLE CONFIG
-    // =========================================================
     ventasSchema = InitializeTableSchema();
 
     get displayedColumns(): string[] {
+
         return this.ventasSchema.fields
-            .filter(f => f.type !== 'actions' || f.source === 'ui')
+            .filter(
+                f =>
+                    f.type !== 'actions' ||
+                    f.source === 'ui'
+            )
             .map(f => f.key as string);
     }
 
     get columnLabels(): Record<string, string> {
+
         return Object.fromEntries(
-            this.ventasSchema.fields.map(f => [f.key, f.label])
+            this.ventasSchema.fields.map(
+                f => [f.key, f.label]
+            )
         );
     }
 
-    get columnConfig(): Record<string, { type: string }> {
+    get columnConfig(): Record<
+        string,
+        { type: string }
+    > {
+
         return Object.fromEntries(
-            this.ventasSchema.fields.map(f => [
-                f.key,
-                { type: f.type }
-            ])
+            this.ventasSchema.fields.map(
+                f => [
+                    f.key,
+                    { type: f.type }
+                ]
+            )
         );
     }
 
     guidColumns = GUID_COLUMNS;
 
-
     // =========================================================
     // DATA LOADING
     // =========================================================
+
     loadData() {
+
         this.isLoaded.set(false);
         this.isApiError.set(false);
 
-        this.authService.refresh().subscribe({
-            next: () => { },
-            error: () => { }
-        });
+        // this.authService.refresh().subscribe({
+        //     next: () => {},
+        //     error: () => {}
+        // });
 
         this.usersService.getUsers().subscribe({
-            next: (data) => {
+
+            next: data => {
+
                 this.dataSource.data = [...data];
+
                 this.isLoaded.set(true);
+
+                if (this.searchText()) {
+                    this.loadFilters(
+                        this.filterState
+                    );
+                }
             },
 
-            error: (err) => {
-                console.error('Error cargando usuarios', err);
+            error: err => {
+
+                console.error(
+                    'Error cargando usuarios',
+                    err
+                );
+
                 this.isApiError.set(true);
                 this.isLoaded.set(false);
             }
         });
     }
 
-    getRowIndex(row: UsersResponse): number {
-        return this.dataSource.data.indexOf(row) + 1;
+    getRowIndex(
+        row: UsersResponse
+    ): number {
+
+        return this.dataSource.data
+            .indexOf(row) + 1;
     }
 
     // =========================================================
@@ -764,11 +892,16 @@ export class Users {
     // =========================================================
 
     createRandomRow(): Record<string, any> {
-        return InitializeDefaultValues(this.createModel);
+
+        return InitializeDefaultValues(
+            this.createModel
+        );
     }
 
     addRow() {
+
         const current = this.multiRows();
+
         this.multiRows.set([
             ...current,
             this.createRandomRow()
@@ -776,7 +909,9 @@ export class Users {
     }
 
     removeRow(index: number) {
+
         const current = this.multiRows();
+
         current.splice(index, 1);
 
         this.multiRows.set([...current]);
@@ -786,7 +921,12 @@ export class Users {
         this.multiRows.set([]);
     }
 
-    updateCell(rowIndex: number, key: string, value: any) {
+    updateCell(
+        rowIndex: number,
+        key: string,
+        value: any
+    ) {
+
         const rows = this.multiRows();
 
         rows[rowIndex] = {
@@ -799,53 +939,104 @@ export class Users {
 
     submitMultiCreate() {
 
-        const payload: CreateUser[] = this.multiRows().map(r => ({
-            name: r.name,
-            email: r.email,
-            password: r.password,
-            role: r.role
-        }));
+        const rows = this.multiRows();
 
         this.isSubmitting.set(true);
 
-        // this.usersService.createUser(payload).subscribe({
-        //     next: () => {
-        //         this.isSubmitting.set(false);
-        //         this.isClosing.set(true);
+        let completed = 0;
 
-        //         setTimeout(() => {
-        //             this.createState.set({
-        //                 open: false,
-        //                 mode: "multi"
-        //             });
+        if (rows.length === 0) {
 
-        //             this.multiRows.set([]);
-        //             this.isClosing.set(false);
-        //             this.loadData();
-        //         }, 200);
-        //     },
+            this.isSubmitting.set(false);
 
-        //     error: (err) => {
-        //         console.error('Error creando usuarios', err);
-        //         this.isSubmitting.set(false);
-        //     }
-        // });
+            return;
+        }
+
+        rows.forEach(row => {
+
+            const payload: CreateUser = {
+
+                personaId:
+                    Number(row['personaId']),
+
+                correoElectronico:
+                    row['correoElectronico'],
+
+                contraseña:
+                    row['contraseña'],
+
+                rolId:
+                    row['rolId'],
+
+                estado:
+                    Boolean(row['estado'])
+            };
+
+            this.usersService
+                .createUser(payload)
+                .subscribe({
+
+                    next: () => {
+
+                        completed++;
+
+                        if (completed === rows.length) {
+
+                            this.isSubmitting.set(false);
+                            this.isClosing.set(true);
+
+                            setTimeout(() => {
+
+                                this.createState.set({
+                                    open: false,
+                                    mode: 'multi'
+                                });
+
+                                this.multiRows.set([]);
+
+                                this.isClosing.set(false);
+
+                                this.loadData();
+
+                            }, 200);
+                        }
+                    },
+
+                    error: err => {
+
+                        console.error(
+                            'Error creando usuarios',
+                            err
+                        );
+
+                        this.isSubmitting.set(false);
+                    }
+                });
+        });
     }
 
-
     openCreateMenu() {
+
         this.createMode.set('menu');
         this.isCreateModeOpen.set(true);
     }
 
-    openCreate(mode: CreateMode = "single") {
+    openCreate(
+        mode: CreateMode = 'single'
+    ) {
+
         this.isCreateModeOpen.set(false);
 
-        // ACC: Objeto en construcción, FIELD: Propiedad actual
-        this.formCreateState = InitializeDefaultValues(this.createModel);
+        this.formCreateState =
+            InitializeDefaultValues(
+                this.createModel
+            );
 
         setTimeout(() => {
-            if (mode === 'multi') this.multiRows.set([]);
+
+            if (mode === 'multi') {
+                this.multiRows.set([]);
+            }
 
             this.createState.set({
                 open: true,
@@ -853,12 +1044,15 @@ export class Users {
             });
 
             this.isCreateOpen.set(true);
+
             this.updateFormValidity('create');
+
             this.isOpening.set(true);
 
             setTimeout(() => {
                 this.isOpening.set(false);
             }, 16);
+
         }, 60);
     }
 
@@ -867,68 +1061,150 @@ export class Users {
         this.isSubmitting.set(true);
 
         const payload: CreateUser = {
-            name: this.formCreateState['name'],
-            email: this.formCreateState['email'],
-            password: this.formCreateState['password'],
-            role: this.formCreateState['role']
+
+            personaId:
+                Number(
+                    this.formCreateState['personaId']
+                ),
+
+            correoElectronico:
+                this.formCreateState[
+                'correoElectronico'
+                ],
+
+            contraseña:
+                this.formCreateState[
+                'contraseña'
+                ],
+
+            rolId:
+                this.formCreateState['rolId'],
+
+            estado:
+                Boolean(
+                    this.formCreateState['estado']
+                )
         };
 
-        this.isSubmitting.set(true);
+        this.usersService
+            .createUser(payload)
+            .subscribe({
 
-        this.usersService.createUser(payload).subscribe({
-            next: () => {
-                this.isSubmitting.set(false);
-                this.isClosing.set(true);
+                next: () => {
 
-                setTimeout(() => {
-                    this.createState.set({
-                        open: false,
-                        mode: 'menu'
-                    });
+                    this.isSubmitting.set(false);
+                    this.isClosing.set(true);
 
-                    this.isClosing.set(false);
-                    this.formCreateState = {};
-                    this.loadData();
-                }, 200);
-            },
+                    setTimeout(() => {
 
-            error: (err) => {
-                console.error('Error creando usuario', err);
-                this.isSubmitting.set(false);
-            }
-        });
+                        this.createState.set({
+                            open: false,
+                            mode: 'menu'
+                        });
+
+                        this.isClosing.set(false);
+
+                        this.formCreateState = {};
+
+                        this.loadData();
+
+                    }, 200);
+                },
+
+                error: err => {
+
+                    console.error(
+                        'Error creando usuario',
+                        err
+                    );
+
+                    this.isSubmitting.set(false);
+                }
+            });
     }
 
     // =========================================================
     // UPDATE FLOW
     // =========================================================
+
     updateUser(row: UsersResponse) {
+
         this.updateTarget = row;
 
         this.updateModel = {
+
             title: 'Actualizar usuario',
-            endpoint: `/users`,
+
+            endpoint: `/users/sqlServer`,
+
             fields: [
+
                 {
-                    key: 'role', label: 'Rol', type: 'select', required: true,
+                    key: 'rolId',
+                    label: 'Rol',
+                    type: 'select',
+                    required: true,
+
                     options: [
-                        { label: 'Admin', value: 'Admin' },
-                        { label: 'Organizador', value: 'Organizador' },
-                        { label: 'Visitante', value: 'Visitante' }
+                        {
+                            label: 'Superadministrador',
+                            value:
+                                RolesType.SUPERADMINISTRADOR
+                        },
+                        {
+                            label: 'Administrador Gerencial',
+                            value:
+                                RolesType.ADMINISTRADORGERENCIAL
+                        },
+                        {
+                            label: 'Administrador Contable',
+                            value:
+                                RolesType.ADMINISTRADORCONTABLE
+                        },
+                        {
+                            label: 'Administrador Operativo',
+                            value:
+                                RolesType.ADMINISTRADOROPERATIVO
+                        },
+                        {
+                            label: 'Usuario Estándar',
+                            value:
+                                RolesType.USUARIOESTANDAR
+                        }
                     ]
+                },
+
+                {
+                    key: 'estado',
+                    label: 'Estado',
+                    type: 'boolean',
+                    required: true
                 }
             ]
         };
 
         this.formUpdateState = {
-            role: row.role
+
+            rolId: row.rolId,
+
+            estado: row.estado
+
         };
 
-        this.originalFormState = structuredClone(this.formUpdateState);
+        this.originalFormState =
+            structuredClone(
+                this.formUpdateState
+            );
+
         this.isUpdateOpen.set(true);
+
         this.updateFormValidity('update');
+
         this.isOpening.set(true);
-        setTimeout(() => this.isOpening.set(false), 16);
+
+        setTimeout(() => {
+            this.isOpening.set(false);
+        }, 16);
     }
 
     submitUpdate() {
@@ -937,37 +1213,63 @@ export class Users {
 
         this.isUpdating.set(true);
 
-        const payload: GrantRole = {
-            id: this.updateTarget.id,
-            role: this.formUpdateState['role']
+        const payload: UpdateUser = {
+
+            rolId:
+                this.formUpdateState['rolId'],
+
+            estado:
+                Boolean(
+                    this.formUpdateState['estado']
+                )
         };
 
-        this.usersService.grantRole(payload).subscribe({
+        this.usersService
+            .grantRole(
+                payload,
+                this.updateTarget.usuarioId
+            )
+            .subscribe({
 
-            next: () => {
-                this.isUpdateClosing.set(true);
+                next: () => {
 
-                setTimeout(() => {
-                    this.isUpdateOpen.set(false);
-                    this.isUpdateClosing.set(false);
+                    this.isUpdateClosing.set(true);
+
+                    setTimeout(() => {
+
+                        this.isUpdateOpen.set(false);
+
+                        this.isUpdateClosing.set(false);
+
+                        this.isUpdating.set(false);
+
+                        this.updateTarget = null;
+
+                        this.loadData();
+
+                    }, 200);
+                },
+
+                error: err => {
+
+                    console.error(
+                        'Error actualizando usuario',
+                        err
+                    );
+
                     this.isUpdating.set(false);
-                    this.updateTarget = null;
-                    this.loadData();
-                }, 200);
-            },
-
-            error: (err: any) => {
-                console.error('Error otorgando permisos de usuario', err);
-                this.isUpdating.set(false);
-            }
-        });
+                }
+            });
     }
 
     // =========================================================
     // DELETE FLOW
     // =========================================================
+
     deleteUser(row: UsersResponse) {
+
         this.deleteTarget = row;
+
         this.isDeleteOpen.set(true);
 
         this.isOpening.set(true);
@@ -983,102 +1285,189 @@ export class Users {
 
         this.isDeleting.set(true);
 
-        this.usersService.deleteUser(
-            this.deleteTarget.id
-        ).subscribe({
+        this.usersService
+            .deleteUser(
+                this.deleteTarget.usuarioId
+            )
+            .subscribe({
 
-            next: () => {
-                this.isDeleteClosing.set(true);
+                next: () => {
 
-                setTimeout(() => {
-                    this.isDeleteOpen.set(false);
-                    this.isDeleteClosing.set(false);
+                    this.isDeleteClosing.set(true);
+
+                    setTimeout(() => {
+
+                        this.isDeleteOpen.set(false);
+
+                        this.isDeleteClosing.set(false);
+
+                        this.isDeleting.set(false);
+
+                        this.deleteTarget = null;
+
+                        this.loadData();
+
+                    }, 200);
+                },
+
+                error: err => {
+
+                    console.error(
+                        'Error eliminando usuario',
+                        err
+                    );
+
                     this.isDeleting.set(false);
-                    this.deleteTarget = null;
-                    this.loadData();
-                }, 200);
-            },
-
-            error: (err) => {
-                console.error('Error eliminando usuario', err);
-                this.isDeleting.set(false);
-            }
-        });
+                }
+            });
     }
 
     closeDeleteModal() {
-        this.closeModal("delete");
+        this.closeModal('delete');
     }
 
     // =========================================================
     // FORM CONTROL
     // =========================================================
-    setFieldValue(key: string, value: any, action: 'create' | 'update') {
+
+    setFieldValue(
+        key: string,
+        value: any,
+        action: 'create' | 'update'
+    ) {
+
         if (action === 'create') {
-            this.formCreateState[key] = value;
+
+            this.formCreateState = {
+                ...this.formCreateState,
+                [key]: value
+            };
+
         } else {
-            this.formUpdateState[key] = value;
+
+            this.formUpdateState = {
+                ...this.formUpdateState,
+                [key]: value
+            };
         }
+
         this.isDirty.set(true);
+
         this.updateDirtyState();
+
         this.updateFormValidity(action);
     }
 
-    onNumberChange(key: string, event: Event, action: 'create' | 'update') {
+    onNumberChange(
+        key: string,
+        event: Event,
+        action: 'create' | 'update'
+    ) {
 
-        const value = (event.target as HTMLInputElement).value;
-        const state = action === 'create' ? this.formCreateState : this.formUpdateState;
+        const value =
+            (event.target as HTMLInputElement).value;
+
+        const state =
+            action === 'create'
+                ? this.formCreateState
+                : this.formUpdateState;
 
         if (value === '') {
+
             state[key] = '';
+
             this.updateFormValidity(action);
+
             return;
         }
 
         const parsed = Number(value);
-        state[key] = isNaN(parsed) ? 0 : parsed;
+
+        state[key] =
+            Number.isNaN(parsed)
+                ? 0
+                : parsed;
 
         this.updateFormValidity(action);
     }
 
-    closeModal(action: string = "create", mode: string = "single") {
+    closeModal(
+        action: string = 'create',
+        mode: string = 'single'
+    ) {
+
         this.isClosing.set(true);
 
-        if (action != "delete") {
+        if (action !== 'delete') {
             this.isFormValid.set(false);
         }
 
         setTimeout(() => {
-            if (action === "menu") this.isCreateModeOpen.set(false);
-            if (action === "create") this.createState.set({
-                open: false,
-                mode: mode as CreateMode
-            });
-            if (action === "update") this.isUpdateOpen.set(false);
-            if (action === "delete") this.isDeleteOpen.set(false);
-            if (action === "filter") this.isFilterOpen.set(false);
+
+            if (action === 'menu') {
+                this.isCreateModeOpen.set(false);
+            }
+
+            if (action === 'create') {
+
+                this.createState.set({
+                    open: false,
+                    mode: mode as CreateMode
+                });
+
+                this.isCreateOpen.set(false);
+            }
+
+            if (action === 'update') {
+                this.isUpdateOpen.set(false);
+            }
+
+            if (action === 'delete') {
+                this.isDeleteOpen.set(false);
+            }
+
+            if (action === 'filter') {
+                this.isFilterOpen.set(false);
+            }
 
             this.isClosing.set(false);
 
-            if (action != "delete") this.isDirty.set(false);
+            if (action !== 'delete') {
+                this.isDirty.set(false);
+            }
+
         }, 200);
     }
 
     // =========================================================
     // VALIDATION
     // =========================================================
-    private updateFormValidity(action: 'create' | 'update') {
 
-        const model = action === 'create' ? this.createModel : this.updateModel;
-        const state = action === 'create' ? this.formCreateState : this.formUpdateState;
+    private updateFormValidity(
+        action: 'create' | 'update'
+    ) {
+
+        const model =
+            action === 'create'
+                ? this.createModel
+                : this.updateModel;
+
+        const state =
+            action === 'create'
+                ? this.formCreateState
+                : this.formUpdateState;
 
         if (!model) {
+
             this.isFormValid.set(false);
+
             return;
         }
 
         for (const field of model.fields) {
-            const value = state[field.key];
+
+            const value =
+                state[field.key];
 
             const isEmpty =
                 value === null ||
@@ -1086,7 +1475,9 @@ export class Users {
                 value === '';
 
             if (field.required && isEmpty) {
+
                 this.isFormValid.set(false);
+
                 return;
             }
 
@@ -1094,19 +1485,21 @@ export class Users {
                 continue;
             }
 
-            if (field.type === 'guid' || field.type === 'guid-text') {
-                if (!isValidGuid(value)) {
+            if (
+                field.type === 'number' ||
+                field.type === 'int'
+            ) {
+
+                const num =
+                    Number(value);
+
+                if (
+                    !Number.isFinite(num) ||
+                    num <= 0
+                ) {
+
                     this.isFormValid.set(false);
-                    return;
-                }
-            }
 
-            if (field.type === 'number' || field.type === 'int') {
-
-                const num = Number(value);
-
-                if (!Number.isFinite(num) || num <= 0) {
-                    this.isFormValid.set(false);
                     return;
                 }
             }
@@ -1116,39 +1509,64 @@ export class Users {
     }
 
     // =========================================================
-    // UPDATE CONTROL HELPERS
+    // UPDATE CONTROL
     // =========================================================
+
     hasChanges(): boolean {
-        return JSON.stringify(this.formUpdateState) !== JSON.stringify(this.originalFormState);
+
+        return JSON.stringify(
+            this.formUpdateState
+        ) !== JSON.stringify(
+            this.originalFormState
+        );
     }
 
     discardChanges() {
+
         this.closeDiscardWarning();
+
         this.forceCloseUpdate();
     }
 
     closeDiscardWarning() {
+
         this.isClosingDialog.set(true);
+
         setTimeout(() => {
+
             this.isClosingDialog.set(false);
+
             this.isDiscardWarningOpen.set(false);
+
         }, 200);
     }
 
-    closeUpdateModal(action: UpdateModalAction = 'close') {
+    closeUpdateModal(
+        action: UpdateModalAction = 'close'
+    ) {
 
         if (action === 'reset') {
-            this.formUpdateState = structuredClone(this.originalFormState);
+
+            this.formUpdateState =
+                structuredClone(
+                    this.originalFormState
+                );
+
+            this.updateFormValidity('update');
+
             return;
         }
 
         if (this.hasChanges()) {
+
             this.isDiscardWarningOpen.set(true);
+
             this.isOpeningDialog.set(true);
 
             setTimeout(() => {
                 this.isOpeningDialog.set(false);
             }, 16);
+
             return;
         }
 
@@ -1156,48 +1574,105 @@ export class Users {
     }
 
     forceCloseUpdate() {
-        this.closeModal("update");
+        this.closeModal('update');
     }
 
     // =========================================================
     // HELPERS
     // =========================================================
+
     private updateDirtyState() {
+
         this.isDirty.set(
-            JSON.stringify(this.formUpdateState) !== JSON.stringify(this.originalFormState)
+            JSON.stringify(
+                this.formUpdateState
+            ) !== JSON.stringify(
+                this.originalFormState
+            )
         );
     }
 
+    private normalizeBoolean(value: any): boolean | null {
+
+        if (value === true || value === 1 || value === '1') {
+            return true;
+        }
+
+        if (value === false || value === 0 || value === '0') {
+            return false;
+        }
+
+        if (typeof value === 'string') {
+
+            const normalized = value
+                .trim()
+                .toLowerCase();
+
+            if (normalized === 'true') {
+                return true;
+            }
+
+            if (normalized === 'false') {
+                return false;
+            }
+        }
+
+        return null;
+    }
 
     // =========================================================
-    // EVENT TYPE MAPPING
+    // ROLE MAPPING
     // =========================================================
+
     getRoleClass = getRoleClass;
     getRoleIcon = getRoleIcon;
     getRoleLabel = getRoleLabel;
 
+    // =========================================================
+    // MENU
+    // =========================================================
+
     activeMenuRow: UsersResponse | null = null;
 
     openMenuId: string | null = null;
-    menuPosition = { top: 0, left: 0 };
 
-    toggleMenu(id: string, event: MouseEvent, row?: UsersResponse) {
+    menuPosition = {
+        top: 0,
+        left: 0
+    };
+
+    toggleMenu(
+        id: string,
+        event: MouseEvent,
+        row?: UsersResponse
+    ) {
+
         if (this.openMenuId === id) {
+
             this.openMenuId = null;
             this.activeMenuRow = null;
+
             return;
         }
 
-        const btn = event.currentTarget as HTMLElement;
-        const rect = btn.getBoundingClientRect();
+        const btn =
+            event.currentTarget as HTMLElement;
+
+        const rect =
+            btn.getBoundingClientRect();
 
         this.menuPosition = {
+
             top: rect.bottom + 6,
+
             left: rect.right - 176
+
         };
 
         this.openMenuId = id;
-        this.activeMenuRow = row ?? null;
+
+        this.activeMenuRow =
+            row ?? null;
     }
 
     closeMenu() {

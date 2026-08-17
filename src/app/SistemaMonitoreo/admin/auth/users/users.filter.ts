@@ -1,14 +1,12 @@
 import { DataType, FilterEngine, FilterType } from "../../engines/FilterEngine";
-import { UsersRole } from "../../../../services/users.service";
+import { RolesType } from "../../../../services/users.service";
 
 export interface UserFilter {
-    id: string;
-    name: string;
-    email: string;
-    role: UsersRole[];
-    created_at: { from: string; to: string; };
-    updated_at: { from: string; to: string; };
-    last_login: { from: string; to: string; };
+    usuarioId: string;
+    personaId: string;
+    correoElectronico: string;
+    rolId: RolesType[];
+    estado: boolean | null;
 }
 
 export function InitializeFilterEngine() {
@@ -16,76 +14,84 @@ export function InitializeFilterEngine() {
     return new FilterEngine<UserFilter>(
         [
             {
-                field: 'role',
+                field: 'rolId',
                 filter: {
                     label: "Rol de Usuario",
                     filterType: FilterType.MULTI_SELECT,
                     dataType: DataType.SELECT,
                     options: [
-                        { label: 'DUEÑO', value: 'Dueño' },
-                        { label: 'ADMIN', value: 'Admin' },
-                        { label: 'ORGANIZADOR', value: 'Organizador' },
-                        { label: 'VISITANTE', value: 'Visitante' }
+                        {
+                            label: 'SUPERADMINISTRADOR',
+                            value: RolesType.SUPERADMINISTRADOR
+                        },
+                        {
+                            label: 'ADMINISTRADOR GERENCIAL',
+                            value: RolesType.ADMINISTRADORGERENCIAL
+                        },
+                        {
+                            label: 'ADMINISTRADOR CONTABLE',
+                            value: RolesType.ADMINISTRADORCONTABLE
+                        },
+                        {
+                            label: 'ADMINISTRADOR OPERATIVO',
+                            value: RolesType.ADMINISTRADOROPERATIVO
+                        },
+                        {
+                            label: 'USUARIO ESTÁNDAR',
+                            value: RolesType.USUARIOESTANDAR
+                        }
                     ]
                 }
             },
             {
-                field: 'created_at',
+                field: 'correoElectronico',
                 filter: {
-                    label: "Se creó entre las Fechas:",
-                    filterType: FilterType.DATE_RANGE,
-                    dataType: DataType.DATETIME
-                }
-            },
-            {
-                field: 'updated_at',
-                filter: {
-                    label: "Se actualizó entre las Fechas:",
-                    filterType: FilterType.DATE_RANGE,
-                    dataType: DataType.DATETIME
-                }
-            },
-            {
-                field: 'last_login',
-                filter: {
-                    label: "Inició sesión entre las Fechas:",
-                    filterType: FilterType.DATE_RANGE,
-                    dataType: DataType.DATETIME
-                }
-            },
-            {
-                field: 'email',
-                filter: {
-                    label: "Correo",
+                    label: "Correo electrónico",
                     filterType: FilterType.EQUALS,
                     dataType: DataType.TEXT
                 }
             },
             {
-                field: 'name',
-                filter: {
-                    label: "Nombre",
-                    filterType: FilterType.EQUALS,
-                    dataType: DataType.TEXT
-                }
-            },
-            {
-                field: 'id',
+                field: 'usuarioId',
                 filter: {
                     label: "ID Usuario",
                     filterType: FilterType.EQUALS,
-                    dataType: DataType.GUID
+                    dataType: DataType.NUMBER
+                }
+            },
+            {
+                field: 'personaId',
+                filter: {
+                    label: "ID Persona",
+                    filterType: FilterType.EQUALS,
+                    dataType: DataType.NUMBER
+                }
+            },
+            {
+                field: 'estado',
+                filter: {
+                    label: "Estado",
+                    filterType: FilterType.SELECT,
+                    dataType: DataType.BOOLEAN,
+                    options: [
+                        {
+                            label: 'Activo',
+                            value: true
+                        },
+                        {
+                            label: 'Inactivo',
+                            value: false
+                        }
+                    ]
                 }
             }
         ],
         {
-            role: [],
-            email: '',
-            name: '',
-            id: '',
-            created_at: { from: '', to: '' },
-            updated_at: { from: '', to: '' },
-            last_login: { from: '', to: '' }
+            rolId: [],
+            correoElectronico: '',
+            usuarioId: '',
+            personaId: '',
+            estado: null
         }
     );
 }

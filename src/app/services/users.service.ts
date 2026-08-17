@@ -3,42 +3,43 @@ import { HttpClient } from '@angular/common/http';
 import { baseUrl } from '../app';
 
 export interface UsersResponse {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    created_at: string;
-    updated_at: string;
-    last_login: string;
+    usuarioId: number;
+    personaId: number;
+    correoElectronico: string;
+    contraseña: string;
+    rolId: string;
+    estado: boolean;
 }
 
 export interface CreateUser {
-    name: string;
-    email: string;
-    password: string;
-    role: string;
+    personaId: number;
+    correoElectronico: string;
+    contraseña: string;
+    rolId: string;
+    estado: boolean;
 }
 
-export interface GrantRole {
-    id: string;
-    role: string;
+export interface UpdateUser {
+    rolId: string;
+    estado: boolean;
 }
 
-export enum UsersRole {
-    Dueño = 'Dueño',
-    Admin = 'Admin',
-    Organizador = 'Organizador',
-    Visitante = 'Visitante'
+export enum RolesType {
+    SUPERADMINISTRADOR = "Superadministrador",
+    ADMINISTRADORGERENCIAL = "Administrador Gerencial",
+    ADMINISTRADORCONTABLE = "Administrador Contable",
+    ADMINISTRADOROPERATIVO = "Administrador Operativo",
+    USUARIOESTANDAR = "Usuario Estándar"
 }
 
 export interface UserEnums {
-  userRole: UsersRole;
+  userRole: RolesType;
 }
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
 
-    private url = `${baseUrl}/users`;
+    private url = `${baseUrl}/users/sqlServer`;
 
     constructor(private http: HttpClient) {}
 
@@ -49,19 +50,19 @@ export class UsersService {
         });
     }
 
-    // GET BY ID
-    getUserById(id: string) {
-        return this.http.get<UsersResponse>(`${this.url}/${id}`, {
-            withCredentials: true
-        });
-    }
+    // // GET BY ID
+    // getUserById(id: string) {
+    //     return this.http.get<UsersResponse>(`${this.url}/${id}`, {
+    //         withCredentials: true
+    //     });
+    // }
 
-    // GET BY EMAIL
-    getUserByEmail(email: string) {
-        return this.http.get<UsersResponse>(`${this.url}/email/${email}`, {
-            withCredentials: true
-        });
-    }
+    // // GET BY EMAIL
+    // getUserByEmail(email: string) {
+    //     return this.http.get<UsersResponse>(`${this.url}/email/${email}`, {
+    //         withCredentials: true
+    //     });
+    // }
 
     // CREATE
     createUser(dto: CreateUser) {
@@ -71,15 +72,15 @@ export class UsersService {
     }
 
     // PATCH
-    grantRole(dto: GrantRole) {
-    return this.http.patch<UsersResponse>(`${this.url}/role`,
+    grantRole(dto: UpdateUser, id: number) {
+    return this.http.patch<UsersResponse>(`${this.url}/${id}`,
         dto,
         { withCredentials: true}
     );
     }
 
     // DELETE
-    deleteUser(id: string) {
+    deleteUser(id: number) {
         return this.http.delete(`${this.url}/${id}`, {
             withCredentials: true
         });

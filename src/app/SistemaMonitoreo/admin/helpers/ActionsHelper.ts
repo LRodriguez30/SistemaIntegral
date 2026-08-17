@@ -1,7 +1,7 @@
 export interface FieldConfig {
   key: string;
   label: string;
-  type: 'text' | 'number' | 'date' | 'datetime' | 'select' | 'guid' | 'int' | 'guid-text';
+  type: 'text' | 'number' | 'date' | 'datetime' | 'select' | 'guid' | 'int' | 'guid-text' | 'boolean';
   required?: boolean;
   options?: { label: string; value: any }[];
 }

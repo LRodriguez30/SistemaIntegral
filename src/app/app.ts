@@ -12,4 +12,4 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 export class App {
 }
 
-export const baseUrl = "https://localhost:7137";
+export const baseUrl = "http://localhost:3000";

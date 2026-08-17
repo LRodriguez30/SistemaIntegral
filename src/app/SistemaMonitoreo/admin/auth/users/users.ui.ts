@@ -1,126 +1,144 @@
-import { UsersRole } from "../../../../services/users.service";
+import { RolesType } from "../../../../services/users.service";
 
-export function getRoleClass(role: UsersRole | string): string {
+export function getRoleClass(role: RolesType | string): string {
 
   switch (role) {
 
-    // DUEÑO
-    case UsersRole.Dueño:
-    case 'Dueño':
+    // SUPERADMINISTRADOR
+    case RolesType.SUPERADMINISTRADOR:
+    case 'Superadministrador':
       return `
-        bg-amber-50
-        text-amber-700
+        bg-zinc-900
+        text-white
 
-        border border-amber-200
-        ring-1 ring-amber-100
-
-        dark:bg-amber-400/10
-        dark:text-amber-100
+        border border-zinc-900
+        ring-2 ring-zinc-900/20
+        shadow-sm
       `;
 
-    // ADMIN
-    case UsersRole.Admin:
-    case 'Admin':
-    case 'Administrador':
+    // ADMINISTRADOR GERENCIAL
+    case RolesType.ADMINISTRADORGERENCIAL:
+    case 'Administrador Gerencial':
       return `
-        bg-indigo-50
-        text-indigo-700
+        bg-zinc-700
+        text-white
 
-        border border-indigo-200
-        ring-1 ring-indigo-100
-
-        dark:bg-indigo-400/10
-        dark:text-indigo-100
+        border border-zinc-700
+        ring-2 ring-zinc-700/20
+        shadow-sm
       `;
 
-    // ORGANIZADOR
-    case UsersRole.Organizador:
-    case 'Organizador':
+    // ADMINISTRADOR CONTABLE
+    case RolesType.ADMINISTRADORCONTABLE:
+    case 'Administrador Contable':
       return `
-        bg-orange-50
-        text-orange-700
+        bg-slate-600
+        text-white
 
-        border border-orange-200
-        ring-1 ring-orange-100
-
-        dark:bg-orange-400/10
-        dark:text-orange-100
+        border border-slate-600
+        ring-2 ring-slate-600/20
+        shadow-sm
       `;
 
-    // VISITANTE
-    case UsersRole.Visitante:
-    case 'Visitante':
+    // ADMINISTRADOR OPERATIVO
+    case RolesType.ADMINISTRADOROPERATIVO:
+    case 'Administrador Operativo':
       return `
-        bg-sky-50
-        text-sky-700
+        bg-slate-200
+        text-slate-900
 
-        border border-sky-200
-        ring-1 ring-sky-100
+        border border-slate-400
+        ring-2 ring-slate-400/20
+        shadow-sm
+      `;
 
-        dark:bg-sky-400/10
-        dark:text-sky-100
+    // USUARIO ESTÁNDAR
+    case RolesType.USUARIOESTANDAR:
+    case 'Usuario Estándar':
+      return `
+        bg-slate-100
+        text-slate-700
+
+        border border-slate-300
+        ring-2 ring-slate-300/20
+        shadow-sm
       `;
 
     default:
       return `
-        bg-slate-50
+        bg-slate-100
         text-slate-700
 
-        border border-slate-200
-        ring-1 ring-slate-100
-
-        dark:bg-slate-400/10
-        dark:text-slate-100
+        border border-slate-300
+        ring-1 ring-slate-300/20
       `;
   }
 }
 
-export function getRoleIcon(role: UsersRole | string): string {
+
+export function getRoleIcon(role: RolesType | string): string {
 
   switch (role) {
 
-    case UsersRole.Dueño:
-    case 'Dueño':
+    // SUPERADMINISTRADOR
+    case RolesType.SUPERADMINISTRADOR:
+    case 'Superadministrador':
       return 'workspace_premium';
 
-    case UsersRole.Admin:
-    case 'Admin':
-    case 'Administrador':
-      return 'shield';
+    // ADMINISTRADOR GERENCIAL
+    case RolesType.ADMINISTRADORGERENCIAL:
+    case 'Administrador Gerencial':
+      return 'admin_panel_settings';
 
-    case UsersRole.Organizador:
-    case 'Organizador':
-      return 'event';
+    // ADMINISTRADOR CONTABLE
+    case RolesType.ADMINISTRADORCONTABLE:
+    case 'Administrador Contable':
+      return 'account_balance';
 
-    case UsersRole.Visitante:
-    case 'Visitante':
-      return 'visibility';
+    // ADMINISTRADOR OPERATIVO
+    case RolesType.ADMINISTRADOROPERATIVO:
+    case 'Administrador Operativo':
+      return 'manage_accounts';
+
+    // USUARIO ESTÁNDAR
+    case RolesType.USUARIOESTANDAR:
+    case 'Usuario Estándar':
+      return 'person';
 
     default:
       return 'person';
   }
 }
 
-export function getRoleLabel(role: UsersRole | string): string {
+
+export function getRoleLabel(role: RolesType | string): string {
 
   switch (role) {
 
-    case UsersRole.Dueño:
-    case 'Dueño':
-      return 'Dueño';
+    // SUPERADMINISTRADOR
+    case RolesType.SUPERADMINISTRADOR:
+    case 'Superadministrador':
+      return 'Superadministrador';
 
-    case UsersRole.Admin:
-    case 'Admin':
-    case 'Administrador':
-      return 'Administrador';
+    // ADMINISTRADOR GERENCIAL
+    case RolesType.ADMINISTRADORGERENCIAL:
+    case 'Administrador Gerencial':
+      return 'Administrador Gerencial';
 
-    case UsersRole.Organizador:
-    case 'Organizador':
-      return 'Organizador';
+    // ADMINISTRADOR CONTABLE
+    case RolesType.ADMINISTRADORCONTABLE:
+    case 'Administrador Contable':
+      return 'Administrador Contable';
 
-    case UsersRole.Visitante:
-    case 'Visitante':
-      return 'Visitante';
+    // ADMINISTRADOR OPERATIVO
+    case RolesType.ADMINISTRADOROPERATIVO:
+    case 'Administrador Operativo':
+      return 'Administrador Operativo';
+
+    // USUARIO ESTÁNDAR
+    case RolesType.USUARIOESTANDAR:
+    case 'Usuario Estándar':
+      return 'Usuario Estándar';
 
     default:
       return role;

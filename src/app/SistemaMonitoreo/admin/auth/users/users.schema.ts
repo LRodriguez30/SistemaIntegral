@@ -2,16 +2,21 @@ export const InitializeTableSchema = () => {
     return {
         fields: [
             { key: 'rowIndex', label: '#', type: 'index', source: 'ui' },
-            { key: 'id', label: 'ID', type: 'guid' },
-            { key: 'name', label: 'Nombre', type: 'text' },
-            { key: 'email', label: 'Correo', type: 'text' },
-            { key: 'role', label: 'Rol', type: 'select' },
-            { key: 'created_at', label: 'Creado', type: 'datetime' },
-            { key: 'updated_at', label: 'Actualizado', type: 'datetime' },
-            { key: 'last_login', label: 'Último acceso', type: 'datetime' },
+
+            { key: 'UsuarioId', label: 'ID Usuario', type: 'number' },
+            { key: 'PersonaId', label: 'ID Persona', type: 'number' },
+
+            { key: 'CorreoElectronico', label: 'Correo electrónico', type: 'text' },
+            { key: 'RolId', label: 'Rol', type: 'select' },
+            { key: 'Estado', label: 'Estado', type: 'boolean' },
+
             { key: 'actions', label: 'Acciones', type: 'actions', source: 'ui' }
         ]
     };
 };
 
-export const GUID_COLUMNS = ['id'];
+
+export const GUID_COLUMNS: string[] = [
+    'UsuarioId',
+    'PersonaId'
+];

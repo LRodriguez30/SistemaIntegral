@@ -2,7 +2,9 @@ export enum FilterType {
     EQUALS = "equals",
     NUMBER_RANGE = "number-range",
     MULTI_SELECT = "multi-select",
-    DATE_RANGE = "date-range"
+    DATE_RANGE = "date-range",
+    SELECT = "select",
+    BOOLEAN = "boolean"
 }
 
 export enum DataType {
@@ -11,6 +13,7 @@ export enum DataType {
     DATE = 'date',
     DATETIME = 'datetime',
     SELECT = 'select',
+    BOOLEAN = 'boolean',
     GUID = 'guid',
     INT = 'int'
 }
@@ -55,21 +58,33 @@ export class FilterEngine<T extends Record<string, any>> {
 
         for (const rule of this.rules) {
 
-            const value = filterState[rule.field];
-            const rowValue = row[rule.field];
+            const value =
+                filterState[rule.field];
 
+            const rowValue =
+                row[rule.field];
+
+            // Ignorar únicamente valores vacíos.
+            // false sigue siendo un valor válido.
             if (
                 value === null ||
                 value === undefined ||
                 value === '' ||
-                (Array.isArray(value) && value.length === 0)
+                (
+                    Array.isArray(value) &&
+                    value.length === 0
+                )
             ) {
                 continue;
             }
 
             switch (rule.filter.filterType) {
 
-                case 'multi-select':
+                // =========================================
+                // MULTI SELECT
+                // =========================================
+
+                case FilterType.MULTI_SELECT:
 
                     if (
                         Array.isArray(value) &&
@@ -80,53 +95,104 @@ export class FilterEngine<T extends Record<string, any>> {
 
                     break;
 
-                case 'equals':
+                // =========================================
+                // SELECT
+                // =========================================
+
+                case FilterType.SELECT:
+
+                    if (rowValue !== value) {
+                        return false;
+                    }
+
+                    break;
+
+                // =========================================
+                // EQUALS
+                // =========================================
+
+                case FilterType.EQUALS:
 
                     if (
                         String(rowValue)
                             .toLowerCase()
-                            .includes(String(value).toLowerCase()) === false
+                            .includes(
+                                String(value).toLowerCase()
+                            ) === false
                     ) {
                         return false;
                     }
 
                     break;
 
-                case 'number-range':
+                // =========================================
+                // BOOLEAN
+                // =========================================
+
+                case FilterType.BOOLEAN:
+
+                    if (rowValue !== value) {
+                        return false;
+                    }
+
+                    break;
+
+                // =========================================
+                // NUMBER RANGE
+                // =========================================
+
+                case FilterType.NUMBER_RANGE:
 
                     if (
                         value.min !== null &&
-                        Number(rowValue) < Number(value.min)
+                        Number(rowValue) <
+                        Number(value.min)
                     ) {
                         return false;
                     }
 
                     if (
                         value.max !== null &&
-                        Number(rowValue) > Number(value.max)
+                        Number(rowValue) >
+                        Number(value.max)
                     ) {
                         return false;
                     }
 
                     break;
 
-                case 'date-range':
+                // =========================================
+                // DATE RANGE
+                // =========================================
+
+                case FilterType.DATE_RANGE:
 
                     if (value.from) {
 
-                        const from = new Date(value.from);
+                        const from =
+                            new Date(value.from);
 
-                        if (new Date(rowValue) < from) {
+                        if (
+                            new Date(rowValue) < from
+                        ) {
                             return false;
                         }
                     }
 
                     if (value.to) {
 
-                        const to = new Date(value.to);
-                        to.setHours(23, 59, 59);
+                        const to =
+                            new Date(value.to);
 
-                        if (new Date(rowValue) > to) {
+                        to.setHours(
+                            23,
+                            59,
+                            59
+                        );
+
+                        if (
+                            new Date(rowValue) > to
+                        ) {
                             return false;
                         }
                     }
@@ -144,13 +210,26 @@ export class FilterEngine<T extends Record<string, any>> {
 
         for (const rule of this.rules) {
 
-            const value = filter[rule.field];
+            const value =
+                filter[rule.field];
 
-            if (value === null || value === undefined) continue;
+            if (
+                value === null ||
+                value === undefined
+            ) {
+                continue;
+            }
 
-            if (Array.isArray(value) && value.length === 0) continue;
+            if (
+                Array.isArray(value) &&
+                value.length === 0
+            ) {
+                continue;
+            }
 
-            if (value !== '') count++;
+            if (value !== '') {
+                count++;
+            }
         }
 
         return count;
