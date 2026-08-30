@@ -1,45 +1,222 @@
-<div class="relative min-h-screen transition-all duration-300 ease-out" [class.opacity-0]="transitioning()"
-  [class.scale-95]="transitioning()">
+<div
+    class="
+        relative
+        min-h-screen
+        transition-all
+        duration-300
+        ease-out
+    "
 
-  <!-- LOADER -->
-  @if (loaderVisible()) {
+    [class.opacity-0]="transitioning()"
 
-  <div class="fixed inset-0 z-[9999]
-           flex items-center justify-center
-           bg-white/80 backdrop-blur-md
-           transition-opacity duration-300 ease-out" [class.opacity-100]="!transitioning()"
-    [class.opacity-0]="transitioning()">
+    [class.scale-95]="transitioning()"
+>
 
-    <div class="flex flex-col items-center gap-5
-             transition-all duration-300 ease-out">
 
-      <!-- ICONO PASOS -->
-      <img src="Marca Pasos Ico.svg" alt="PASOS logo" class="w-16 h-16 object-contain animate-pulse" />
+    <!-- =========================================================
+         LOADER
+    ========================================================== -->
 
-      <!-- SPINNER -->
-      <div class="w-7 h-7
-               border-2
-               border-zinc-200
-               border-t-black
-               rounded-full
-               animate-spin"></div>
+    @if (loaderVisible()) {
 
-      <!-- MENSAJE -->
-      <p class="text-sm
-               font-medium
-               text-zinc-600">
-        {{ loader.message() || 'Cargando...' }}
-      </p>
+        <div
+            class="
+                fixed
+                inset-0
+                z-[9999]
 
-    </div>
+                flex
+                items-center
+                justify-center
 
-  </div>
+                bg-white/80
+                backdrop-blur-md
 
-  }
+                transition-opacity
+                duration-300
+                ease-out
+            "
 
-  <!-- APP -->
-  @if (!booting()) {
-  <router-outlet></router-outlet>
-  }
+            [class.opacity-100]="!transitioning()"
+
+            [class.opacity-0]="transitioning()"
+        >
+
+
+            <div
+                class="
+                    flex
+                    flex-col
+                    items-center
+                    gap-6
+
+                    transition-all
+                    duration-300
+                    ease-out
+                "
+            >
+
+
+                <!-- =================================================
+                     IDENTIDAD
+                ================================================== -->
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-center
+                    "
+                >
+
+
+                    <!-- =================================================
+                         LOGO DEL MÓDULO
+                    ================================================== -->
+
+                    <div
+                        class="
+                            flex
+                            items-center
+                            justify-center
+                            min-h-16
+                            sm:min-h-20
+                            min-w-16
+                            sm:min-w-20
+                        "
+                    >
+
+                        <img
+                            [src]="moduleLogo()"
+
+                            [alt]="moduleLogoAlt()"
+
+                            class="
+                                max-w-52
+                                sm:max-w-64
+                                max-h-20
+                                sm:max-h-24
+                                w-auto
+                                h-auto
+                                object-contain
+                                animate-pulse
+                            "
+                        >
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     INFORMACIÓN DEL MÓDULO
+                ================================================== -->
+
+                <div
+                    class="
+                        text-center
+                        max-w-sm
+                    "
+                >
+
+
+                    <!-- NOMBRE -->
+
+                    <p
+                        class="
+                            text-xs
+                            sm:text-sm
+                            font-bold
+                            uppercase
+                            tracking-[0.2em]
+                            text-zinc-400
+                        "
+                    >
+                        {{ moduleDescription() }}
+                    </p>
+
+
+                    <!-- SUBTÍTULO -->
+
+                    <p
+                        class="
+                            mt-2
+                            text-sm
+                            font-medium
+                            text-zinc-500
+                        "
+                    >
+                        {{ moduleSubtitle() }}
+                    </p>
+
+
+                </div>
+
+
+                <!-- =================================================
+                     SEPARADOR
+                ================================================== -->
+
+                <div
+                    class="
+                        h-px
+                        w-20
+                        bg-zinc-200
+                    "
+                ></div>
+
+
+                <!-- =================================================
+                     SPINNER
+                ================================================== -->
+
+                <div
+                    class="
+                        w-7
+                        h-7
+
+                        border-2
+                        border-zinc-200
+                        border-t-black
+
+                        rounded-full
+                        animate-spin
+                    "
+                ></div>
+
+
+                <!-- =================================================
+                     MENSAJE
+                ================================================== -->
+
+                <p
+                    class="
+                        text-sm
+                        font-medium
+                        text-zinc-500
+                        text-center
+                    "
+                >
+                    {{ loader.message() || 'Cargando...' }}
+                </p>
+
+
+            </div>
+
+        </div>
+
+    }
+
+
+    <!-- =========================================================
+         APLICACIÓN
+    ========================================================== -->
+
+    @if (!booting()) {
+
+        <router-outlet></router-outlet>
+
+    }
 
 </div>

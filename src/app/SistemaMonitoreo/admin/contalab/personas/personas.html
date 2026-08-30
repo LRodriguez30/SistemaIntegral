@@ -12,17 +12,26 @@
             <label class="text-sm text-slate-500 block mb-1">{{ field.label }}</label>
 
             @if (field.type === 'select') {
-            <select class="w-full bg-slate-50 border border-slate-300 text-slate-900 p-2 rounded-lg
-                       focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none"
-                [value]="$any(formCreateState)[field.key] ?? ''"
-                (change)="setFieldValue(field.key, $any($event.target).value, 'create')">
 
-                @for (opt of field.options ?? []; track opt.value) {
-                <option [value]="opt.value" [selected]="$any(formCreateState)[field.key] === opt.value">
-                    {{ opt.label }}
-                </option>
-                }
-            </select>
+            <mat-form-field class="w-full">
+
+                <mat-label>{{ field.label }}</mat-label>
+
+                <mat-select [value]="$any(formCreateState)[field.key] ?? ''" (selectionChange)="setFieldValue(
+            field.key,
+            $any($event).value,
+            'create'
+        )">
+
+                    @for (opt of field.options ?? []; track opt.value) {
+                    <mat-option [value]="opt.value">
+                        {{ opt.label }}
+                    </mat-option>
+                    }
+
+                </mat-select>
+
+            </mat-form-field>
 
             } @else if (field.type === 'number') {
 
@@ -34,25 +43,39 @@
             } @else if (field.type === 'boolean') {
 
             <div class="flex items-center justify-between w-full rounded-xl border border-slate-200
-            bg-slate-50 px-4 py-3">
+                    bg-white px-4 py-3 transition-colors duration-200" [ngClass]="$any(formCreateState)[field.key]
+                ? 'border-emerald-200 bg-emerald-50/40'
+                : 'border-slate-200 bg-slate-50'">
 
                 <div class="flex items-center gap-3">
 
-                    <div class="w-9 h-9 rounded-lg flex items-center justify-center transition-all" [ngClass]="$any(formCreateState)[field.key]
-                ? 'bg-emerald-50 text-emerald-600'
+                    <div class="relative flex items-center justify-center w-9 h-9 rounded-lg" [ngClass]="$any(formCreateState)[field.key]
+                ? 'bg-emerald-100 text-emerald-600'
                 : 'bg-slate-200 text-slate-400'">
 
-                        <mat-icon class="text-[20px]!">
-                            {{ $any(formCreateState)[field.key]
-                            ? 'lightbulb'
-                            : 'lightbulb_outline' }}
-                        </mat-icon>
+                        <span class="w-2.5 h-2.5 rounded-full" [ngClass]="$any(formCreateState)[field.key]
+                    ? 'bg-emerald-500'
+                    : 'bg-slate-400'">
+                        </span>
+
+                        @if ($any(formCreateState)[field.key]) {
+                        <span class="absolute w-2.5 h-2.5 rounded-full
+                             bg-emerald-400 animate-ping opacity-40">
+                        </span>
+                        }
 
                     </div>
 
                     <div class="flex flex-col">
-                        <span class="text-sm font-medium text-slate-700">
-                            {{ $any(formCreateState)[field.key] ? 'Activo' : 'Inactivo' }}
+
+                        <span class="text-sm font-semibold" [ngClass]="$any(formCreateState)[field.key]
+                    ? 'text-emerald-700'
+                    : 'text-slate-600'">
+
+                            {{ $any(formCreateState)[field.key]
+                            ? 'Conectado'
+                            : 'Desconectado' }}
+
                         </span>
 
                         <span class="text-xs text-slate-400">
@@ -60,12 +83,14 @@
                             ? 'El registro está habilitado'
                             : 'El registro está deshabilitado' }}
                         </span>
+
                     </div>
 
                 </div>
 
-                <button type="button"
-                    class="relative w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer" [ngClass]="$any(formCreateState)[field.key]
+                <button type="button" role="switch" [attr.aria-checked]="$any(formCreateState)[field.key]" class="relative w-11 h-6 rounded-full cursor-pointer
+               transition-colors duration-200 focus:outline-none
+               focus:ring-2 focus:ring-emerald-500/20" [ngClass]="$any(formCreateState)[field.key]
             ? 'bg-emerald-500'
             : 'bg-slate-300'" (click)="setFieldValue(
             field.key,
@@ -73,14 +98,74 @@
             'create'
         )">
 
-                    <span
-                        class="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200"
-                        [ngClass]="$any(formCreateState)[field.key]
-                ? 'translate-x-6'
-                : 'translate-x-1'">
+                    <span class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white
+                   shadow-sm transition-transform duration-200" [ngClass]="$any(formCreateState)[field.key]
+                ? 'translate-x-5'
+                : 'translate-x-0'">
                     </span>
 
                 </button>
+
+            </div>
+
+            } @else if (field.type === 'phone-country') {
+
+            <div class="flex items-stretch w-full rounded-xl border border-slate-200 bg-white
+            overflow-hidden shadow-sm
+            transition-all duration-200
+            focus-within:border-zinc-900
+            focus-within:ring-2 focus-within:ring-zinc-900/10">
+
+                <!-- PAÍS -->
+                <div class="relative shrink-0 flex items-center bg-slate-50
+                border-r border-slate-200">
+
+                    <mat-select class="shrink-0 text-sm text-slate-700 bg-white
+           border-r border-slate-300 px-3 cursor-pointer outline-none
+           text-center" [style.width]="PHONE_COUNTRY_WIDTH" panelWidth="300px" [value]="createPhoneCountry.code"
+                        [attr.aria-label]="PHONE_COUNTRY_SELECT_PLACEHOLDER"
+                        (selectionChange)="onCreatePhoneCountryChange($any($event).value)">
+
+                        @for (country of phoneCountries; track country.flag) {
+
+                        <mat-option [value]="country.code">
+
+                            <div class="flex items-center gap-2.5 py-0.5">
+
+                                <span class="text-lg leading-none">
+                                    {{ isoToFlagEmoji(country.flag) }}
+                                </span>
+
+                                <span class="font-medium text-slate-700">
+                                    {{ country.code }}
+                                </span>
+
+                                <span class="text-slate-400">
+                                    {{ country.country }}
+                                </span>
+
+                            </div>
+
+                        </mat-option>
+
+                        }
+
+                    </mat-select>
+
+                </div>
+
+                <!-- TELÉFONO -->
+                <div class="flex-1 flex items-center min-w-0">
+
+                    <input class="w-full min-w-0 bg-white border-0 text-slate-900
+                   px-3.5 py-2.5
+                   text-sm
+                   placeholder:text-slate-400
+                   outline-none" type="tel" inputmode="numeric" [attr.maxlength]="PHONE_NUMBER_MAX_LENGTH"
+                        [placeholder]="PHONE_INPUT_PLACEHOLDER" [value]="formCreateState['telefono'] ?? ''"
+                        (input)="onCreatePhoneInput($event)" />
+
+                </div>
 
             </div>
 
@@ -198,6 +283,98 @@
 
                                 </mat-select>
                             </mat-form-field>
+
+                            } @else if (field.type === 'boolean') {
+
+                            <!-- BOOLEAN -->
+                            <button type="button" role="switch" [attr.aria-checked]="$any(row)[field.key]" class="relative flex items-center justify-between w-full min-w-32
+                                rounded-xl border px-3 py-2 cursor-pointer
+                                transition-all duration-200" [ngClass]="$any(row)[field.key]
+                                ? 'border-emerald-200 bg-emerald-50/50'
+                                : 'border-slate-200 bg-slate-50 hover:bg-slate-100'" (click)="updateCell(
+                                i,
+                                field.key,
+                                !$any(row)[field.key]
+                            )">
+
+                                <div class="flex items-center gap-2">
+
+                                    <!-- INDICADOR -->
+                                    <div class="relative flex items-center justify-center
+                                        w-7 h-7 rounded-lg shrink-0" [ngClass]="$any(row)[field.key]
+                                        ? 'bg-emerald-100 text-emerald-600'
+                                        : 'bg-slate-200 text-slate-400'">
+
+                                        <span class="w-2 h-2 rounded-full" [ngClass]="$any(row)[field.key]
+                    ? 'bg-emerald-500'
+                    : 'bg-slate-400'">
+                                        </span>
+
+                                        @if ($any(row)[field.key]) {
+                                        <span class="absolute w-2 h-2 rounded-full
+                       bg-emerald-400 animate-ping opacity-40">
+                                        </span>
+                                        }
+
+                                    </div>
+
+                                    <div class="flex flex-col text-left">
+
+                                        <span class="text-xs font-semibold" [ngClass]="$any(row)[field.key]
+                                            ? 'text-emerald-700'
+                                            : 'text-slate-600'">
+
+                                            {{ $any(row)[field.key]
+                                            ? 'Activo'
+                                            : 'Inactivo' }}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                                <!-- SWITCH -->
+                                <div class="relative w-9 h-5 rounded-full shrink-0
+                                    transition-colors duration-200" [ngClass]="$any(row)[field.key]
+                                    ? 'bg-emerald-500'
+                                    : 'bg-slate-300'">
+
+                                    <span class="absolute top-0.5 left-0.5
+                                        w-4 h-4 rounded-full bg-white
+                                        shadow-sm transition-transform duration-200" [ngClass]="$any(row)[field.key]
+                                        ? 'translate-x-4'
+                                        : 'translate-x-0'">
+                                    </span>
+
+                                </div>
+
+                            </button>
+
+                            } @else if (field.type === 'phone-country') {
+
+                            <div class="flex items-stretch rounded-lg border border-slate-300 bg-white overflow-hidden
+            focus-within:border-zinc-900 focus-within:ring-1 focus-within:ring-zinc-900/30 transition-all">
+
+                                <mat-select class="shrink-0 text-xs text-slate-600 bg-slate-50
+                        border-r border-slate-300 px-1.5 cursor-pointer outline-none" style="width: 92px"
+                                    panelWidth="300px" [value]="getMultiPhoneCountry(i)"
+                                    (selectionChange)="onMultiPhoneCountryChange(i, $any($event).value)">
+
+                                    @for (country of phoneCountries; track country.flag) {
+                                    <mat-option [value]="country.code">
+                                        {{ isoToFlagEmoji(country.flag) }} {{ country.code }}
+                                    </mat-option>
+                                    }
+
+                                </mat-select>
+
+                                <input class="flex-1 min-w-0 bg-transparent border-0 text-slate-700 px-2 py-1 text-sm
+                  placeholder-slate-400 outline-none" type="tel" inputmode="numeric"
+                                    [attr.maxlength]="PHONE_NUMBER_MAX_LENGTH" [placeholder]="PHONE_INPUT_PLACEHOLDER"
+                                    [value]="$any(row)[field.key] ?? ''" (input)="onMultiPhoneInput(i, $event)" />
+
+                            </div>
 
                             } @else {
 
@@ -436,7 +613,7 @@
                 <p class="text-xs text-slate-500 leading-relaxed">
                     Columnas necesarias:
                     <span class="text-zinc-900 font-mono">
-                        name, email, password, role
+                        primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, telefono
                     </span>
                 </p>
 
@@ -542,26 +719,42 @@
 
                 @case ('boolean') {
 
-                <div class="flex items-center justify-between w-full rounded-xl border border-slate-200
-            bg-slate-50 px-4 py-3">
+                <div class="flex items-center justify-between w-full rounded-xl border
+            px-4 py-3 transition-colors duration-200" [ngClass]="$any(formUpdateState)[field.key]
+        ? 'border-emerald-200 bg-emerald-50/40'
+        : 'border-slate-200 bg-slate-50'">
 
                     <div class="flex items-center gap-3">
 
-                        <div class="w-9 h-9 rounded-lg flex items-center justify-center transition-all" [ngClass]="$any(formUpdateState)[field.key]
-                ? 'bg-emerald-50 text-emerald-600'
+                        <!-- STATUS ICON -->
+                        <div class="relative flex items-center justify-center w-9 h-9 rounded-lg" [ngClass]="$any(formUpdateState)[field.key]
+                ? 'bg-emerald-100 text-emerald-600'
                 : 'bg-slate-200 text-slate-400'">
 
-                            <mat-icon class="text-[20px]!">
-                                {{ $any(formUpdateState)[field.key]
-                                ? 'lightbulb'
-                                : 'lightbulb_outline' }}
-                            </mat-icon>
+                            <span class="w-2.5 h-2.5 rounded-full" [ngClass]="$any(formUpdateState)[field.key]
+                    ? 'bg-emerald-500'
+                    : 'bg-slate-400'">
+                            </span>
+
+                            @if ($any(formUpdateState)[field.key]) {
+                            <span class="absolute w-2.5 h-2.5 rounded-full
+                         bg-emerald-400 animate-ping opacity-40">
+                            </span>
+                            }
 
                         </div>
 
+                        <!-- STATUS TEXT -->
                         <div class="flex flex-col">
-                            <span class="text-sm font-medium text-slate-700">
-                                {{ $any(formUpdateState)[field.key] ? 'Activo' : 'Inactivo' }}
+
+                            <span class="text-sm font-semibold" [ngClass]="$any(formUpdateState)[field.key]
+                    ? 'text-emerald-700'
+                    : 'text-slate-600'">
+
+                                {{ $any(formUpdateState)[field.key]
+                                ? 'Conectado'
+                                : 'Desconectado' }}
+
                             </span>
 
                             <span class="text-xs text-slate-400">
@@ -569,12 +762,16 @@
                                 ? 'El registro está habilitado'
                                 : 'El registro está deshabilitado' }}
                             </span>
+
                         </div>
 
                     </div>
 
-                    <button type="button"
-                        class="relative w-11 h-6 rounded-full transition-colors duration-200 cursor-pointer" [ngClass]="$any(formUpdateState)[field.key]
+                    <!-- SWITCH -->
+                    <button type="button" role="switch" [attr.aria-checked]="$any(formUpdateState)[field.key]" class="relative w-11 h-6 rounded-full cursor-pointer
+               transition-colors duration-200
+               focus:outline-none
+               focus:ring-2 focus:ring-emerald-500/20" [ngClass]="$any(formUpdateState)[field.key]
             ? 'bg-emerald-500'
             : 'bg-slate-300'" (click)="setFieldValue(
             field.key,
@@ -582,14 +779,76 @@
             'update'
         )">
 
-                        <span
-                            class="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200"
-                            [ngClass]="$any(formUpdateState)[field.key]
-                ? 'translate-x-6'
-                : 'translate-x-1'">
+                        <span class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white
+                     shadow-sm transition-transform duration-200" [ngClass]="$any(formUpdateState)[field.key]
+                ? 'translate-x-5'
+                : 'translate-x-0'">
                         </span>
 
                     </button>
+
+                </div>
+
+                }
+
+                @case ('phone-country') {
+
+                <div class="flex items-stretch w-full rounded-xl border border-slate-200 bg-white 
+    overflow-hidden shadow-sm
+    transition-all duration-200
+    focus-within:border-zinc-900
+    focus-within:ring-2 focus-within:ring-zinc-900/10">
+
+                    <!-- PAÍS -->
+                    <div class="relative shrink-0 flex items-center bg-slate-50 
+        border-r border-slate-200">
+
+                        <mat-select class="shrink-0 text-sm text-slate-700 bg-white
+                border-r border-slate-300 px-3 cursor-pointer
+                outline-none text-center" [style.width]="PHONE_COUNTRY_WIDTH" panelWidth="300px"
+                            [value]="updatePhoneCountry.code" [attr.aria-label]="PHONE_COUNTRY_SELECT_PLACEHOLDER"
+                            (selectionChange)="onUpdatePhoneCountryChange($any($event).value)">
+
+                            @for (country of phoneCountries; track country.flag) {
+
+                            <mat-option [value]="country.code">
+
+                                <div class="flex items-center gap-2.5 py-0.5">
+
+                                    <span class="text-lg leading-none">
+                                        {{ isoToFlagEmoji(country.flag) }}
+                                    </span>
+
+                                    <span class="font-medium text-slate-700">
+                                        {{ country.code }}
+                                    </span>
+
+                                    <span class="text-slate-400">
+                                        {{ country.country }}
+                                    </span>
+
+                                </div>
+
+                            </mat-option>
+
+                            }
+
+                        </mat-select>
+
+                    </div>
+
+                    <!-- TELÉFONO -->
+                    <div class="flex-1 flex items-center min-w-0">
+
+                        <input class="w-full min-w-0 bg-white border-0 text-slate-900
+                px-3.5 py-2.5
+                text-sm
+                placeholder:text-slate-400
+                outline-none" type="tel" inputmode="numeric" [attr.maxlength]="PHONE_NUMBER_MAX_LENGTH"
+                            [placeholder]="PHONE_INPUT_PLACEHOLDER" [value]="getUpdatePhoneNumber()"
+                            (input)="onUpdatePhoneInput($event)" />
+
+                    </div>
 
                 </div>
 
@@ -692,10 +951,13 @@
         </div>
 
         <p class="text-sm text-slate-500 mb-5">
-            ¿Estás seguro de que deseas eliminar al usuario
+            ¿Estás seguro de que deseas eliminar a la persona por nombre
             <span class="font-semibold text-zinc-900">
-                {{ deleteTarget?.correoElectronico }}
-            </span>?
+                {{ deleteTarget?.primer_nombre }} {{ deleteTarget?.segundo_nombre }} {{ deleteTarget?.primer_apellido }}
+                {{ deleteTarget?.segundo_apellido }}</span>?
+            con ID
+            <span class="font-semibold text-zinc-900">
+                {{ deleteTarget?.persona_id }}</span>
             Esta acción no se puede deshacer.
         </p>
 
@@ -764,61 +1026,6 @@
                     {{ rule.filter.label }}
                 </label>
 
-                @if (rule.filter.filterType === 'multi-select') {
-                <div class="flex flex-wrap gap-2">
-
-                    @for (opt of rule.filter.options ?? []; track opt.value) {
-
-                    @if (rule.field === 'rolId') {
-                    <button class="cursor-pointer px-3 py-1.5 rounded-full text-xs font-medium border
-                               transition-all duration-150"
-                        [ngClass]="$any(filterState).role.includes($any(opt.value))
-                            ? getRoleClass($any(opt.value))
-                            : 'bg-slate-50 text-slate-500 border-slate-300 hover:border-zinc-900/50 hover:text-zinc-900'"
-                        (click)="toggleMulti(rule.field, $any(opt.value))">
-
-                        <mat-icon class="text-[12px]! w-3! h-3! mr-1 align-middle">
-                            {{ getRoleIcon($any(opt.value)) }}
-                        </mat-icon>
-
-                        {{ getRoleLabel($any(opt.value)) }}
-                    </button>
-                    }
-
-                    }
-
-                </div>
-                }
-
-                <!-- SELECT / BOOLEAN -->
-                @if (rule.filter.filterType === 'select') {
-
-                <div class="flex flex-wrap gap-2">
-
-                    @for (opt of rule.filter.options ?? []; track opt.value) {
-
-                    <button type="button" class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl
-               border text-sm font-medium transition-all duration-150" [ngClass]="$any(getFilterValue(rule.field)) === $any(opt.value)
-            ? ($any(opt.value)
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 ring-1 ring-emerald-100'
-                : 'bg-red-50 text-red-700 border-red-200 ring-1 ring-red-100')
-            : 'bg-slate-50 text-slate-500 border-slate-300 hover:border-zinc-900/40 hover:text-zinc-900'"
-                        (click)="setFilterValue(rule.field, opt.value)">
-
-                        <mat-icon class="text-[18px]! w-[18px]! h-[18px]!">
-                            {{ $any(opt.value) ? 'lightbulb' : 'lightbulb_outline' }}
-                        </mat-icon>
-
-                        {{ opt.label }}
-
-                    </button>
-
-                    }
-
-                </div>
-
-                }
-
                 <!-- DATE_RANGE -->
                 @if (rule.filter.filterType === 'date-range') {
                 <div class="flex gap-3">
@@ -834,6 +1041,26 @@
                         (change)="setRangeValue(rule.field, 'to', $any($event.target).value)" />
 
                 </div>
+                }
+
+                @if (rule.filter.filterType === 'phone-country') {
+
+                <mat-select class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm
+                                    text-slate-900 cursor-pointer outline-none
+                                    focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900" panelWidth="300px"
+                    [value]="getFilterValue(rule.field)"
+                    (selectionChange)="setFilterValue(rule.field, $any($event).value)">
+
+                    <mat-option value="">Todos los países</mat-option>
+
+                    @for (opt of rule.filter.options ?? []; track opt.value) {
+                    <mat-option [value]="opt.value">
+                        {{ isoToFlagEmoji(opt.value) }} {{ opt.meta?.['dialCode'] }} {{ opt.label }}
+                    </mat-option>
+                    }
+
+                </mat-select>
+
                 }
 
                 @if (rule.filter.filterType === 'equals') {
@@ -1070,7 +1297,7 @@
 
             <div class="px-2 py-1 rounded-lg bg-white text-slate-600 text-xs font-medium
                        border border-slate-200">
-                {{ dataSource.data.length }} registros
+                {{ dataSource.data.length }} {{ dataSource.data.length === 1 ? 'registro' : 'registros' }}
             </div>
 
         </div>
@@ -1252,20 +1479,6 @@
 
                         }
 
-                        @else if (col === 'role') {
-
-                        <span class="role-chip flex items-center gap-2" [ngClass]="getRoleClass($any(e)[col])">
-
-                            <mat-icon class="text-[16px]! w-4! h-4!">
-                                {{ getRoleIcon($any(e)[col]) }}
-                            </mat-icon>
-
-                            {{ getRoleLabel($any(e)[col]) }}
-
-                        </span>
-
-                        }
-
                         @else {
 
                         @switch ($any(columnConfig)[col]?.type) {
@@ -1280,6 +1493,53 @@
                         <span class="date-cell">
                             {{ $any(e)[col] | date:'dd/MM/yyyy' }}
                         </span>
+                        }
+
+                        @case ('boolean') {
+
+                        <div class="inline-flex items-center gap-2">
+
+                            <span class="relative flex items-center justify-center w-5 h-5 rounded-full" [ngClass]="$any(e)[col]
+            ? 'bg-emerald-100'
+            : 'bg-red-100'">
+
+                                <span class="w-2 h-2 rounded-full" [ngClass]="$any(e)[col]
+                ? 'bg-emerald-500'
+                : 'bg-red-500'">
+                                </span>
+
+                                @if ($any(e)[col]) {
+                                <span class="absolute w-2 h-2 rounded-full
+                   bg-emerald-400 animate-ping opacity-40">
+                                </span>
+                                }
+
+                            </span>
+
+                            <span class="text-xs font-semibold" [ngClass]="$any(e)[col]
+                                ? 'text-emerald-700'
+                                : 'text-amber-700'">
+
+                                {{ $any(e)[col] ? 'Activo' : 'Inactivo' }}
+
+                            </span>
+
+                        </div>
+
+                        }
+
+                        @case ('phone-country') {
+
+                        <div class="flex flex-col leading-tight">
+                            <span class="inline-flex items-center gap-1 text-xs text-slate-500">
+                                <span>{{ getPhoneFlagEmoji(getPhoneCodeFromNumber($any(e)[col])) }}</span>
+                                <span>{{ getPhoneCountryName(getPhoneCodeFromNumber($any(e)[col])) }}</span>
+                            </span>
+                            <span class="text-sm font-medium text-slate-900 tabular-nums">
+                                {{ displayPhone($any(e)[col]) }}
+                            </span>
+                        </div>
+
                         }
 
                         @default {

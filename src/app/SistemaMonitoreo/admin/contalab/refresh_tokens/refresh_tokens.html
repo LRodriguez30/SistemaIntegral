@@ -1,0 +1,2537 @@
+<!-- ========================================================= -->
+<!-- PAGE -->
+<!-- ========================================================= -->
+
+<section class="h-full min-h-0 flex flex-col bg-slate-50 text-slate-900">
+
+    <!-- ===================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================== -->
+
+    <header class="shrink-0 px-6 pt-6 pb-4">
+
+        <div class="flex flex-col lg:flex-row lg:items-center
+                    lg:justify-between gap-5">
+
+            <!-- TITLE -->
+
+            <div class="flex items-start gap-4">
+
+                <div class="w-11 h-11 shrink-0
+                            rounded-xl
+                            bg-indigo-50
+                            border border-indigo-100
+                            text-indigo-600
+                            flex items-center justify-center">
+
+                    <iconify-icon icon="lucide:key-round" class="text-xl">
+                    </iconify-icon>
+
+                </div>
+
+                <div>
+
+                    <h1 class="text-xl font-semibold
+                               tracking-tight
+                               text-slate-900">
+
+                        Refresh Tokens
+
+                    </h1>
+
+                    <p class="text-sm text-slate-500 mt-1">
+
+                        Administra las sesiones activas
+                        y tokens de autenticación.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="flex items-center gap-2">
+
+                <button type="button" class="inline-flex items-center gap-2
+                           cursor-pointer
+                           px-3.5 py-2.5
+                           rounded-xl
+                           border border-slate-200
+                           bg-white
+                           text-sm font-medium
+                           text-slate-600
+                           hover:text-slate-900
+                           hover:border-slate-300
+                           hover:bg-slate-50
+                           transition-all
+                           disabled:opacity-50" [disabled]="isRefreshing()" (click)="refreshData()">
+
+                    <iconify-icon icon="lucide:refresh-cw" [class.animate-spin]="isRefreshing()">
+                    </iconify-icon>
+
+                    Actualizar
+
+                </button>
+
+
+                <button type="button" class="inline-flex items-center gap-2
+                           cursor-pointer
+                           px-4 py-2.5
+                           rounded-xl
+                           bg-slate-900
+                           text-white
+                           text-sm font-semibold
+                           hover:bg-slate-800
+                           active:scale-[0.98]
+                           transition-all" (click)="openCreate()">
+
+                    <iconify-icon icon="lucide:plus" class="text-base">
+                    </iconify-icon>
+
+                    Nuevo token
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ===================================================== -->
+    <!-- CONTENT -->
+    <!-- ===================================================== -->
+
+    <div class="flex-1 min-h-0 px-6 pb-6
+                flex flex-col gap-4">
+
+
+        <!-- ================================================= -->
+        <!-- STATISTICS -->
+        <!-- ================================================= -->
+
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 shrink-0">
+
+
+            <!-- TOTAL -->
+
+            <div class="bg-white
+                        border border-slate-200
+                        rounded-2xl
+                        p-4">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <p class="text-xs font-medium
+                                  text-slate-400">
+
+                            Total
+
+                        </p>
+
+                        <p class="text-2xl font-semibold
+                                  text-slate-900 mt-1">
+
+                            {{ totalTokens }}
+
+                        </p>
+
+                    </div>
+
+                    <div class="w-9 h-9 rounded-xl
+                                bg-slate-100
+                                text-slate-600
+                                flex items-center justify-center">
+
+                        <iconify-icon icon="lucide:layers-3">
+                        </iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIVE -->
+
+            <div class="bg-white
+                        border border-slate-200
+                        rounded-2xl
+                        p-4">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <p class="text-xs font-medium
+                                  text-slate-400">
+
+                            Activos
+
+                        </p>
+
+                        <p class="text-2xl font-semibold
+                                  text-emerald-600 mt-1">
+
+                            {{ activeTokens }}
+
+                        </p>
+
+                    </div>
+
+                    <div class="w-9 h-9 rounded-xl
+                                bg-emerald-50
+                                text-emerald-600
+                                flex items-center justify-center">
+
+                        <iconify-icon icon="lucide:shield-check">
+                        </iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- REVOKED -->
+
+            <div class="bg-white
+                        border border-slate-200
+                        rounded-2xl
+                        p-4">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <p class="text-xs font-medium
+                                  text-slate-400">
+
+                            Revocados
+
+                        </p>
+
+                        <p class="text-2xl font-semibold
+                                  text-rose-600 mt-1">
+
+                            {{ revokedTokens }}
+
+                        </p>
+
+                    </div>
+
+                    <div class="w-9 h-9 rounded-xl
+                                bg-rose-50
+                                text-rose-600
+                                flex items-center justify-center">
+
+                        <iconify-icon icon="lucide:shield-x">
+                        </iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- EXPIRED -->
+
+            <div class="bg-white
+                        border border-slate-200
+                        rounded-2xl
+                        p-4">
+
+                <div class="flex items-center justify-between">
+
+                    <div>
+
+                        <p class="text-xs font-medium
+                                  text-slate-400">
+
+                            Expirados
+
+                        </p>
+
+                        <p class="text-2xl font-semibold
+                                  text-amber-600 mt-1">
+
+                            {{ expiredTokens }}
+
+                        </p>
+
+                    </div>
+
+                    <div class="w-9 h-9 rounded-xl
+                                bg-amber-50
+                                text-amber-600
+                                flex items-center justify-center">
+
+                        <iconify-icon icon="lucide:clock-3">
+                        </iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- TABLE CONTAINER -->
+        <!-- ================================================= -->
+
+        <section class="flex-1 min-h-0
+                        bg-white
+                        border border-slate-200
+                        rounded-2xl
+                        overflow-hidden
+                        flex flex-col">
+
+
+            <!-- ============================================= -->
+            <!-- TOOLBAR -->
+            <!-- ============================================= -->
+
+            <div class="shrink-0
+                        px-4 py-3
+                        border-b border-slate-200
+                        flex flex-col md:flex-row
+                        md:items-center
+                        md:justify-between
+                        gap-3">
+
+
+                <!-- SEARCH -->
+
+                <div class="relative w-full md:w-90">
+
+                    <iconify-icon icon="lucide:search" class="absolute left-3
+                               top-1/2 -translate-y-1/2
+                               text-slate-400">
+                    </iconify-icon>
+
+                    <input type="text" placeholder="Buscar por usuario, dispositivo o ID..." class="w-full
+                               pl-9 pr-9 py-2.5
+                               rounded-xl
+                               border border-slate-200
+                               bg-slate-50
+                               text-sm
+                               text-slate-900
+                               placeholder:text-slate-400
+                               outline-none
+                               focus:bg-white
+                               focus:border-indigo-300
+                               focus:ring-2
+                               focus:ring-indigo-100
+                               transition" [value]="searchText()" (input)="onSearch($event)" />
+
+                    @if (searchText()) {
+
+                    <button type="button" class="absolute right-2
+                               top-1/2
+                               -translate-y-1/2
+                               w-6 h-6
+                               rounded-md
+                               text-slate-400
+                               hover:bg-slate-200
+                               hover:text-slate-700
+                               flex items-center
+                               justify-center" (click)="clearSearch()">
+
+                        <iconify-icon icon="lucide:x">
+                        </iconify-icon>
+
+                    </button>
+
+                    }
+
+                </div>
+
+
+                <!-- COUNT -->
+
+                <div class="flex items-center gap-2">
+
+                    <span class="text-xs
+                                 text-slate-400">
+
+                        {{ dataSource.filteredData.length }} {{ dataSource.data.length === 1 ? 'registro' : 'registros'
+                        }}
+
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- ============================================= -->
+            <!-- API ERROR -->
+            <!-- ============================================= -->
+
+            @if (isApiError()) {
+
+            <div class="flex-1
+                        flex items-center
+                        justify-center
+                        p-6">
+
+                <div class="max-w-sm
+                            text-center">
+
+                    <div class="mx-auto
+                                w-14 h-14
+                                rounded-2xl
+                                bg-rose-50
+                                text-rose-500
+                                flex items-center
+                                justify-center">
+
+                        <iconify-icon icon="lucide:server-off" class="text-2xl">
+                        </iconify-icon>
+
+                    </div>
+
+                    <h3 class="mt-4
+                               text-sm
+                               font-semibold
+                               text-slate-800">
+
+                        No se pudo conectar con el servidor
+
+                    </h3>
+
+                    <p class="mt-1
+                              text-xs
+                              text-slate-400">
+
+                        Ocurrió un problema al cargar
+                        los refresh tokens.
+
+                    </p>
+
+                    <button type="button" class="mt-4
+                               inline-flex
+                               items-center
+                               gap-2
+                               px-4 py-2
+                               rounded-xl
+                               bg-slate-900
+                               text-white
+                               text-sm
+                               font-medium
+                               hover:bg-slate-800" (click)="loadData()">
+
+                        <iconify-icon icon="lucide:refresh-cw">
+                        </iconify-icon>
+
+                        Reintentar
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            }
+
+
+            <!-- ============================================= -->
+            <!-- LOADING -->
+            <!-- ============================================= -->
+
+            @else if (!isLoaded()) {
+
+            <div class="flex-1
+                        flex items-center
+                        justify-center">
+
+                <div class="flex
+                            flex-col
+                            items-center
+                            gap-3">
+
+                    <div class="w-8 h-8
+                                rounded-full
+                                border-2
+                                border-slate-200
+                                border-t-indigo-500
+                                animate-spin">
+                    </div>
+
+                    <span class="text-xs
+                                 text-slate-400">
+
+                        Cargando sesiones...
+
+                    </span>
+
+                </div>
+
+            </div>
+
+            }
+
+
+            <!-- ============================================= -->
+            <!-- EMPTY -->
+            <!-- ============================================= -->
+
+            @else if (dataSource.filteredData.length === 0) {
+
+            <div class="flex-1
+                        flex items-center
+                        justify-center
+                        p-6">
+
+                <div class="text-center
+                            max-w-sm">
+
+                    <div class="mx-auto
+                                w-14 h-14
+                                rounded-2xl
+                                bg-slate-100
+                                text-slate-400
+                                flex items-center
+                                justify-center">
+
+                        <iconify-icon icon="lucide:key-round" class="text-2xl">
+                        </iconify-icon>
+
+                    </div>
+
+                    @if (searchText()) {
+
+                    <h3 class="mt-4
+                               text-sm
+                               font-semibold
+                               text-slate-700">
+
+                        No se encontraron resultados
+
+                    </h3>
+
+                    <p class="mt-1
+                              text-xs
+                              text-slate-400">
+
+                        No hay tokens que coincidan
+                        con tu búsqueda.
+
+                    </p>
+
+                    <button type="button" class="mt-4
+                               cursor-pointer
+                               text-xs
+                               font-medium
+                               text-indigo-600
+                               hover:text-indigo-700" (click)="clearSearch()">
+
+                        Limpiar búsqueda
+
+                    </button>
+
+                    } @else {
+
+                    <h3 class="mt-4
+                               text-sm
+                               font-semibold
+                               text-slate-700">
+
+                        No hay refresh tokens
+
+                    </h3>
+
+                    <p class="mt-1
+                              text-xs
+                              text-slate-400">
+
+                        Actualmente no existen
+                        sesiones registradas.
+
+                    </p>
+
+                    }
+
+                </div>
+
+            </div>
+
+            }
+
+
+            <!-- ============================================= -->
+            <!-- TABLE -->
+            <!-- ============================================= -->
+
+            @else {
+
+            <div class="flex-1
+                        min-h-0
+                        overflow-auto">
+
+                <table mat-table [dataSource]="dataSource" class="w-full">
+
+
+                    <!-- ===================================== -->
+                    <!-- USER -->
+                    <!-- ===================================== -->
+
+                    <ng-container matColumnDef="user_id">
+
+                        <th mat-header-cell *matHeaderCellDef class="!px-5">
+
+                            Usuario
+
+                        </th>
+
+                        <td mat-cell *matCellDef="let row" class="!px-5">
+
+                            <div class="flex
+                                        items-center
+                                        gap-3">
+
+                                <div class="w-9 h-9
+                                            shrink-0
+                                            rounded-xl
+                                            bg-indigo-50
+                                            text-indigo-600
+                                            flex items-center
+                                            justify-center">
+
+                                    <iconify-icon icon="lucide:user-round">
+                                    </iconify-icon>
+
+                                </div>
+
+                                <div class="min-w-0">
+
+                                    <p class="text-sm
+                                              font-medium
+                                              text-slate-800
+                                              truncate
+                                              max-w-44">
+
+                                        {{ row.user_id }}
+
+                                    </p>
+
+                                    <p class="text-[11px]
+                                              text-slate-400">
+
+                                        ID de usuario
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </ng-container>
+
+
+                    <!-- ===================================== -->
+                    <!-- DEVICE -->
+                    <!-- ===================================== -->
+
+                    <ng-container matColumnDef="device_info">
+
+                        <th mat-header-cell *matHeaderCellDef>
+
+                            Dispositivo
+
+                        </th>
+
+                        <td mat-cell *matCellDef="let row">
+
+                            <div class="flex
+                                        items-center
+                                        gap-2.5">
+
+                                <div class="w-8 h-8
+                                            rounded-lg
+                                            bg-slate-100
+                                            text-slate-500
+                                            flex items-center
+                                            justify-center">
+
+                                    <iconify-icon [icon]="
+                                            getDeviceValue(row, 'device')
+                                            === 'Desktop'
+                                                ? 'lucide:monitor'
+                                                : 'lucide:smartphone'
+                                        ">
+                                    </iconify-icon>
+
+                                </div>
+
+                                <div>
+
+                                    <p class="text-sm
+                                              font-medium
+                                              text-slate-700">
+
+                                        {{ getDeviceLabel(row) }}
+
+                                    </p>
+
+                                    <p class="text-[11px]
+                                              text-slate-400">
+
+                                        {{ getDeviceValue(row, 'os') }}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                    </ng-container>
+
+                    <!-- ===================================== -->
+                    <!-- LAST ACTIVITY -->
+                    <!-- ===================================== -->
+
+                    <ng-container matColumnDef="last_activity_at">
+
+                        <th mat-header-cell *matHeaderCellDef>
+
+                            Última actividad
+
+                        </th>
+
+                        <td mat-cell *matCellDef="let row">
+
+                            <div class="flex items-center gap-2">
+
+                                <span class="w-2 h-2
+                       rounded-full
+                       bg-emerald-500">
+                                </span>
+
+                                <span class="text-sm
+                       text-slate-700">
+
+                                    {{ formatDate(row.last_activity_at) }}
+
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                    </ng-container>
+
+
+                    <!-- ===================================== -->
+                    <!-- EXPIRATION -->
+                    <!-- ===================================== -->
+
+                    <ng-container matColumnDef="expires_at">
+
+                        <th mat-header-cell *matHeaderCellDef>
+
+                            Expira
+
+                        </th>
+
+                        <td mat-cell *matCellDef="let row">
+
+                            <div class="flex flex-col">
+
+                                <span class="text-sm" [ngClass]="
+                                        isExpired(row)
+                                            ? 'text-rose-600 font-medium'
+                                            : 'text-slate-700'
+                                    ">
+
+                                    {{ row.expires_at
+                                    | date:'dd/MM/yyyy' }}
+
+                                </span>
+
+                                <span class="text-[11px]
+                                             text-slate-400">
+
+                                    {{ row.expires_at
+                                    | date:'HH:mm' }}
+
+                                </span>
+
+                            </div>
+
+                        </td>
+
+                    </ng-container>
+
+
+                    <!-- ===================================== -->
+                    <!-- STATUS -->
+                    <!-- ===================================== -->
+
+                    <ng-container matColumnDef="revoked">
+
+                        <th mat-header-cell *matHeaderCellDef>
+
+                            Estado
+
+                        </th>
+
+                        <td mat-cell *matCellDef="let row">
+
+                            @if (getStatus(row) === 'active') {
+
+                            <span class="inline-flex
+                                       items-center
+                                       gap-1.5
+                                       px-2.5 py-1
+                                       rounded-lg
+                                       bg-emerald-50
+                                       text-emerald-700
+                                       border
+                                       border-emerald-100
+                                       text-xs
+                                       font-semibold">
+
+                                <span class="w-1.5 h-1.5
+                                           rounded-full
+                                           bg-emerald-500">
+                                </span>
+
+                                Activo
+
+                            </span>
+
+                            }
+
+                            @else if (
+                            getStatus(row) === 'expired'
+                            ) {
+
+                            <span class="inline-flex
+                                       items-center
+                                       gap-1.5
+                                       px-2.5 py-1
+                                       rounded-lg
+                                       bg-amber-50
+                                       text-amber-700
+                                       border
+                                       border-amber-100
+                                       text-xs
+                                       font-semibold">
+
+                                <span class="w-1.5 h-1.5
+                                           rounded-full
+                                           bg-amber-500">
+                                </span>
+
+                                Expirado
+
+                            </span>
+
+                            }
+
+                            @else {
+
+                            <span class="inline-flex
+                                       items-center
+                                       gap-1.5
+                                       px-2.5 py-1
+                                       rounded-lg
+                                       bg-rose-50
+                                       text-rose-700
+                                       border
+                                       border-rose-100
+                                       text-xs
+                                       font-semibold">
+
+                                <span class="w-1.5 h-1.5
+                                           rounded-full
+                                           bg-rose-500">
+                                </span>
+
+                                Revocado
+
+                            </span>
+
+                            }
+
+                        </td>
+
+                    </ng-container>
+
+
+                    <!-- ===================================== -->
+                    <!-- ACTIONS -->
+                    <!-- ===================================== -->
+
+                    <ng-container matColumnDef="actions">
+
+                        <th mat-header-cell *matHeaderCellDef class="!text-right !pr-5">
+
+                            Acciones
+
+                        </th>
+
+                        <td mat-cell *matCellDef="let row" class="!text-right !pr-5">
+
+                            <div class="flex
+                                        items-center
+                                        justify-end
+                                        gap-1">
+
+                                <!-- DETAILS -->
+
+                                <button type="button" title="Ver detalles" class="w-8 h-8
+                                           cursor-pointer
+                                           rounded-lg
+                                           text-slate-400
+                                           hover:text-indigo-600
+                                           hover:bg-indigo-50
+                                           transition" (click)="openDetails(row)">
+
+                                    <iconify-icon icon="lucide:eye">
+                                    </iconify-icon>
+
+                                </button>
+
+
+                                <!-- UPDATE -->
+
+                                <button type="button" title="Editar" class="w-8 h-8
+                                           cursor-pointer
+                                           rounded-lg
+                                           text-slate-400
+                                           hover:text-sky-600
+                                           hover:bg-sky-50
+                                           transition" (click)="openUpdate(row)">
+
+                                    <iconify-icon icon="lucide:pencil">
+                                    </iconify-icon>
+
+                                </button>
+
+
+                                <!-- REVOKE -->
+
+                                @if (!row.revoked) {
+
+                                <button type="button" title="Revocar" class="w-8 h-8
+                                           cursor-pointer
+                                           rounded-lg
+                                           text-slate-400
+                                           hover:text-amber-600
+                                           hover:bg-amber-50
+                                           transition" (click)="revokeToken(row)">
+
+                                    <iconify-icon icon="lucide:ban">
+                                    </iconify-icon>
+
+                                </button>
+
+                                }
+
+
+                                <!-- DELETE -->
+
+                                <button type="button" title="Eliminar" class="w-8 h-8
+                                           cursor-pointer
+                                           rounded-lg
+                                           text-slate-400
+                                           hover:text-rose-600
+                                           hover:bg-rose-50
+                                           transition" (click)="openDelete(row)">
+
+                                    <iconify-icon icon="lucide:trash-2">
+                                    </iconify-icon>
+
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </ng-container>
+
+
+                    <!-- ===================================== -->
+                    <!-- ROWS -->
+                    <!-- ===================================== -->
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns" class="!bg-slate-50">
+                    </tr>
+
+                    <tr mat-row *matRowDef="
+                            let row;
+                            columns: displayedColumns
+                        " class="hover:!bg-slate-50/70
+                               transition-colors">
+                    </tr>
+
+                </table>
+
+            </div>
+
+            }
+
+        </section>
+
+    </div>
+
+</section>
+
+
+<!-- ========================================================= -->
+<!-- CREATE MODAL -->
+<!-- ========================================================= -->
+
+@if (activeModal() === 'create') {
+
+<div class="fixed inset-0 z-[1000]
+            flex items-center justify-center
+            bg-slate-950/40
+            backdrop-blur-sm
+            p-4">
+
+    <div class="w-full max-w-2xl
+                bg-white
+                rounded-2xl
+                border border-slate-200
+                shadow-2xl
+                overflow-hidden" (click)="$event.stopPropagation()">
+
+
+        <!-- HEADER -->
+
+        <div class="px-6 py-5
+                    border-b border-slate-200
+                    flex items-center
+                    justify-between">
+
+            <div>
+
+                <div class="flex items-center gap-2">
+
+                    <div class="w-8 h-8
+                                rounded-lg
+                                bg-indigo-50
+                                text-indigo-600
+                                flex items-center
+                                justify-center">
+
+                        <iconify-icon icon="lucide:key-round">
+                        </iconify-icon>
+
+                    </div>
+
+                    <h2 class="text-base
+                               font-semibold
+                               text-slate-900">
+
+                        Nuevo refresh token
+
+                    </h2>
+
+                </div>
+
+                <p class="text-xs
+                          text-slate-400
+                          mt-1">
+
+                    Registra manualmente una sesión.
+
+                </p>
+
+            </div>
+
+
+            <button type="button" class="w-8 h-8
+                       cursor-pointer
+                       rounded-lg
+                       text-slate-400
+                       hover:bg-slate-100
+                       hover:text-slate-700" (click)="closeModal()">
+
+                <iconify-icon icon="lucide:x">
+                </iconify-icon>
+
+            </button>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="p-6 space-y-5">
+
+
+            @if (createError()) {
+
+            <div class="rounded-xl
+                        border border-rose-200
+                        bg-rose-50
+                        px-4 py-3
+                        text-xs
+                        text-rose-700">
+
+                {{ createError() }}
+
+            </div>
+
+            }
+
+
+            <!-- USER / HASH -->
+
+            <div class="grid md:grid-cols-2 gap-4">
+
+                <div>
+
+                    <label class="block
+                                  text-xs
+                                  font-semibold
+                                  text-slate-600
+                                  mb-2">
+
+                        ID Usuario
+
+                    </label>
+
+                    <input type="text" placeholder="UUID del usuario" class="w-full
+                               rounded-xl
+                               border border-slate-200
+                               bg-slate-50
+                               px-3.5 py-2.5
+                               text-sm
+                               outline-none
+                               focus:bg-white
+                               focus:border-indigo-300
+                               focus:ring-2
+                               focus:ring-indigo-100" [value]="createForm.user_id" (input)="setCreateField(
+                            'user_id',
+                            $any($event.target).value
+                        )" />
+
+                </div>
+
+
+                <div>
+
+                    <label class="block
+                                  text-xs
+                                  font-semibold
+                                  text-slate-600
+                                  mb-2">
+
+                        Token Hash
+
+                    </label>
+
+                    <input type="text" placeholder="Hash del refresh token" class="w-full
+                               rounded-xl
+                               border border-slate-200
+                               bg-slate-50
+                               px-3.5 py-2.5
+                               text-sm
+                               font-mono
+                               outline-none
+                               focus:bg-white
+                               focus:border-indigo-300
+                               focus:ring-2
+                               focus:ring-indigo-100" [value]="createForm.token_hash" (input)="setCreateField(
+                            'token_hash',
+                            $any($event.target).value
+                        )" />
+
+                </div>
+
+            </div>
+
+
+            <!-- EXPIRATION -->
+
+            <div>
+
+                <label class="block
+                              text-xs
+                              font-semibold
+                              text-slate-600
+                              mb-2">
+
+                    Fecha de expiración
+
+                </label>
+
+                <input type="datetime-local" class="w-full
+                           rounded-xl
+                           border border-slate-200
+                           bg-slate-50
+                           px-3.5 py-2.5
+                           text-sm
+                           outline-none
+                           focus:bg-white
+                           focus:border-indigo-300
+                           focus:ring-2
+                           focus:ring-indigo-100" [value]="createForm.expires_at" (input)="setCreateField(
+                        'expires_at',
+                        $any($event.target).value
+                    )" />
+
+            </div>
+
+
+            <!-- DEVICE -->
+
+            <div>
+
+                <div class="flex
+                            items-center
+                            justify-between
+                            mb-2">
+
+                    <label class="text-xs
+                                  font-semibold
+                                  text-slate-600">
+
+                        Información del dispositivo
+
+                    </label>
+
+                    <span class="text-[10px]
+                                 text-slate-400">
+
+                        JSON
+
+                    </span>
+
+                </div>
+
+                <textarea rows="5" spellcheck="false" class="w-full
+                           rounded-xl
+                           border border-slate-200
+                           bg-slate-50
+                           px-3.5 py-3
+                           text-xs
+                           font-mono
+                           text-slate-700
+                           outline-none
+                           resize-none
+                           focus:bg-white
+                           focus:border-indigo-300
+                           focus:ring-2
+                           focus:ring-indigo-100" [value]="createForm.device_info" (input)="setCreateField(
+                        'device_info',
+                        $any($event.target).value
+                    )">
+                </textarea>
+
+            </div>
+
+
+            <!-- REVOKED -->
+
+            <button type="button" class="w-full
+                       flex items-center
+                       justify-between
+                       rounded-xl
+                       border px-4 py-3
+                       text-left
+                       transition" [ngClass]="
+                    createForm.revoked
+                        ? 'border-rose-200 bg-rose-50'
+                        : 'border-slate-200 bg-slate-50'
+                " (click)="toggleCreateRevoked()">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-9 h-9
+                               rounded-lg
+                               flex items-center
+                               justify-center" [ngClass]="
+                            createForm.revoked
+                                ? 'bg-rose-100 text-rose-600'
+                                : 'bg-slate-200 text-slate-500'
+                        ">
+
+                        <iconify-icon [icon]="
+                                createForm.revoked
+                                    ? 'lucide:shield-x'
+                                    : 'lucide:shield-check'
+                            ">
+                        </iconify-icon>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-sm
+                                  font-semibold" [ngClass]="
+                                createForm.revoked
+                                    ? 'text-rose-700'
+                                    : 'text-slate-700'
+                           ">
+
+                            {{
+                            createForm.revoked
+                            ? 'Token revocado'
+                            : 'Token activo'
+                            }}
+
+                        </p>
+
+                        <p class="text-xs
+                                  text-slate-400">
+
+                            Estado inicial de la sesión.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="relative
+                           w-10 h-5
+                           rounded-full" [ngClass]="
+                        createForm.revoked
+                            ? 'bg-rose-500'
+                            : 'bg-slate-300'
+                    ">
+
+                    <span class="absolute
+                               top-0.5
+                               w-4 h-4
+                               rounded-full
+                               bg-white
+                               transition-transform" [ngClass]="
+                            createForm.revoked
+                                ? 'translate-x-5'
+                                : 'translate-x-0.5'
+                        ">
+                    </span>
+
+                </div>
+
+            </button>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="px-6 py-4
+                    border-t border-slate-200
+                    flex justify-end gap-2">
+
+            <button type="button" class="px-4 py-2.5
+                       cursor-pointer
+                       rounded-xl
+                       border border-slate-200
+                       bg-white
+                       text-sm
+                       font-medium
+                       text-slate-600
+                       hover:bg-slate-50" (click)="closeModal()">
+
+                Cancelar
+
+            </button>
+
+            <button type="button" class="px-5 py-2.5
+                       cursor-pointer
+                       rounded-xl
+                       bg-slate-900
+                       text-white
+                       text-sm
+                       font-semibold
+                       hover:bg-slate-800
+                       disabled:opacity-50
+                       disabled:cursor-not-allowed" [disabled]="isCreating()" (click)="submitCreate()">
+
+                @if (isCreating()) {
+
+                <span class="flex items-center gap-2">
+
+                    <span class="w-3.5 h-3.5
+                               rounded-full
+                               border-2
+                               border-white/30
+                               border-t-white
+                               animate-spin">
+                    </span>
+
+                    Creando...
+
+                </span>
+
+                } @else {
+
+                Crear token
+
+                }
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+}
+
+
+<!-- ========================================================= -->
+<!-- DETAILS MODAL -->
+<!-- ========================================================= -->
+
+@if (activeModal() === 'details' && selectedToken) {
+
+<div class="fixed inset-0 z-[1000]
+            flex items-center justify-center
+            bg-slate-950/40
+            backdrop-blur-sm
+            p-4">
+
+    <div class="w-full max-w-2xl 
+                max-h-[90vh] 
+                bg-white 
+                rounded-2xl 
+                border border-slate-200 
+                shadow-2xl 
+                overflow-hidden 
+                flex flex-col"
+        (click)="$event.stopPropagation()">
+
+
+        <!-- HEADER -->
+
+        <div class="px-6 py-5
+                    border-b border-slate-200
+                    flex items-center
+                    justify-between">
+
+            <div>
+
+                <div class="flex items-center gap-2">
+
+                    <div class="w-8 h-8
+                                rounded-lg
+                                bg-indigo-50
+                                text-indigo-600
+                                flex items-center
+                                justify-center">
+
+                        <iconify-icon icon="lucide:shield-check">
+                        </iconify-icon>
+
+                    </div>
+
+                    <h2 class="text-base
+                               font-semibold
+                               text-slate-900">
+
+                        Detalles de la sesión
+
+                    </h2>
+
+                </div>
+
+                <p class="text-xs
+                          text-slate-400
+                          mt-1">
+
+                    Información del refresh token.
+
+                </p>
+
+            </div>
+
+
+            <button type="button" class="w-8 h-8
+                       cursor-pointer
+                       rounded-lg
+                       text-slate-400
+                       hover:bg-slate-100" (click)="closeDetails()">
+
+                <iconify-icon icon="lucide:x">
+                </iconify-icon>
+
+            </button>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="p-6 
+            flex-1 
+            min-h-0 
+            overflow-y-auto 
+            space-y-5">
+
+
+            <!-- STATUS -->
+
+            <div class="rounded-xl
+                       border
+                       px-4 py-3
+                       flex items-center
+                       justify-between" [ngClass]="
+                    getStatus(selectedToken) === 'active'
+                        ? 'border-emerald-200 bg-emerald-50'
+                        : getStatus(selectedToken) === 'expired'
+                            ? 'border-amber-200 bg-amber-50'
+                            : 'border-rose-200 bg-rose-50'
+                ">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-9 h-9
+                               rounded-lg
+                               flex items-center
+                               justify-center" [ngClass]="
+                            getStatus(selectedToken) === 'active'
+                                ? 'bg-emerald-100 text-emerald-600'
+                                : getStatus(selectedToken) === 'expired'
+                                    ? 'bg-amber-100 text-amber-600'
+                                    : 'bg-rose-100 text-rose-600'
+                        ">
+
+                        <iconify-icon [icon]="
+                                getStatus(selectedToken) === 'active'
+                                    ? 'lucide:shield-check'
+                                    : getStatus(selectedToken) === 'expired'
+                                        ? 'lucide:clock-3'
+                                        : 'lucide:shield-x'
+                            ">
+                        </iconify-icon>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-sm
+                                  font-semibold">
+
+                            {{
+                            getStatus(selectedToken) === 'active'
+                            ? 'Sesión activa'
+                            : getStatus(selectedToken) === 'expired'
+                            ? 'Sesión expirada'
+                            : 'Sesión revocada'
+                            }}
+
+                        </p>
+
+                        <p class="text-xs
+                                  text-slate-500">
+
+                            {{ selectedToken.user_id }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- IDENTIFIERS -->
+            <!-- ================================================= -->
+
+            <div>
+
+                <div class="flex items-center justify-between mb-3">
+
+                    <h3 class="text-[11px]
+                   font-semibold
+                   uppercase
+                   tracking-[0.12em]
+                   text-slate-400">
+
+                        Identificación
+
+                    </h3>
+
+                    <span class="text-[10px]
+                     font-medium
+                     text-slate-400">
+
+                        SESSION
+
+                    </span>
+
+                </div>
+
+
+                <div class="overflow-hidden
+                rounded-2xl
+                border border-slate-200
+                bg-white">
+
+                    <!-- TOKEN ID -->
+
+                    <div class="px-4 py-3.5
+                    flex items-center gap-4
+                    border-b border-slate-100">
+
+                        <div class="shrink-0
+                        w-9 h-9
+                        rounded-xl
+                        bg-indigo-50
+                        text-indigo-600
+                        flex items-center justify-center">
+
+                            <iconify-icon icon="lucide:fingerprint" class="text-base">
+                            </iconify-icon>
+
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <p class="text-[10px]
+                          font-medium
+                          uppercase
+                          tracking-wider
+                          text-slate-400">
+
+                                Token ID
+
+                            </p>
+
+                            <p class="mt-1
+                          text-xs
+                          font-mono
+                          text-slate-700
+                          break-all">
+
+                                {{ selectedToken.id }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- USER -->
+
+                    <div class="px-4 py-3.5
+                    flex items-center gap-4">
+
+                        <div class="shrink-0
+                        w-9 h-9
+                        rounded-xl
+                        bg-slate-100
+                        text-slate-600
+                        flex items-center justify-center">
+
+                            <iconify-icon icon="lucide:user-round" class="text-base">
+                            </iconify-icon>
+
+                        </div>
+
+                        <div class="min-w-0 flex-1">
+
+                            <p class="text-[10px]
+                          font-medium
+                          uppercase
+                          tracking-wider
+                          text-slate-400">
+
+                                Usuario
+
+                            </p>
+
+                            <p class="mt-1
+                          text-xs
+                          font-mono
+                          text-slate-700
+                          break-all">
+
+                                {{ selectedToken.user_id }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- DEVICE -->
+            <!-- ================================================= -->
+
+            <div>
+
+                <div class="flex items-center justify-between mb-3">
+
+                    <h3 class="text-[11px]
+                   font-semibold
+                   uppercase
+                   tracking-[0.12em]
+                   text-slate-400">
+
+                        Dispositivo
+
+                    </h3>
+
+                    <iconify-icon icon="lucide:monitor-smartphone" class="text-sm text-slate-300">
+                    </iconify-icon>
+
+                </div>
+
+
+                <div class="rounded-2xl
+                border border-slate-200
+                overflow-hidden
+                bg-slate-50/50">
+
+
+                    <!-- DEVICE SUMMARY -->
+
+                    <div class="px-4 py-4
+                    bg-white
+                    border-b border-slate-200
+                    flex items-center gap-3">
+
+                        <div class="w-11 h-11
+                        shrink-0
+                        rounded-xl
+                        bg-indigo-50
+                        border border-indigo-100
+                        text-indigo-600
+                        flex items-center justify-center">
+
+                            <iconify-icon [icon]="
+                        getDeviceValue(selectedToken, 'deviceType')
+                        === 'Desktop'
+                            ? 'lucide:monitor'
+                            : 'lucide:smartphone'
+                    " class="text-lg">
+                            </iconify-icon>
+
+                        </div>
+
+
+                        <div class="min-w-0">
+
+                            <p class="text-sm
+                          font-semibold
+                          text-slate-800">
+
+                                {{ getDeviceValue(selectedToken, 'deviceType') }}
+
+                            </p>
+
+                            <p class="text-xs
+                          text-slate-400
+                          mt-0.5">
+
+                                {{ getDeviceValue(selectedToken, 'os') }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- DEVICE DATA -->
+
+                    <div class="grid grid-cols-2
+                    divide-x divide-slate-200
+                    border-b border-slate-200
+                    bg-white">
+
+                        <!-- OS -->
+
+                        <div class="p-3.5">
+
+                            <p class="text-[10px]
+                          font-medium
+                          uppercase
+                          tracking-wider
+                          text-slate-400">
+
+                                Sistema
+
+                            </p>
+
+                            <p class="mt-1.5
+                          text-sm
+                          font-medium
+                          text-slate-700
+                          truncate">
+
+                                {{ getDeviceValue(selectedToken, 'os') }}
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- IP -->
+
+                        <div class="p-3.5">
+
+                            <p class="text-[10px]
+                          font-medium
+                          uppercase
+                          tracking-wider
+                          text-slate-400">
+
+                                Dirección IP
+
+                            </p>
+
+                            <p class="mt-1.5
+                          text-sm
+                          font-mono
+                          text-slate-700
+                          truncate">
+
+                                {{ getDeviceValue(selectedToken, 'ipAddress') }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- USER AGENT -->
+
+                    <div class="p-3.5">
+
+                        <div class="flex items-center
+                        justify-between mb-2">
+
+                            <p class="text-[10px]
+                          font-medium
+                          uppercase
+                          tracking-wider
+                          text-slate-400">
+
+                                User Agent
+
+                            </p>
+
+                            <span class="text-[9px]
+                             font-semibold
+                             uppercase
+                             tracking-wider
+                             text-slate-300">
+
+                                Client
+
+                            </span>
+
+                        </div>
+
+                        <div class="rounded-xl
+                        bg-slate-900
+                        px-3.5 py-3
+                        overflow-hidden">
+
+                            <p class="text-[11px]
+                          leading-relaxed
+                          font-mono
+                          text-slate-300
+                          break-all">
+
+                                {{ getDeviceValue(selectedToken, 'userAgent') }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- DATES -->
+
+            <div>
+
+                <h3 class="text-xs
+               font-semibold
+               uppercase
+               tracking-wider
+               text-slate-400
+               mb-3">
+
+                    Actividad
+
+                </h3>
+
+                <div class="grid md:grid-cols-3 gap-3">
+
+                    <!-- LAST EXTENDED -->
+
+                    <div class="rounded-xl
+                        bg-slate-50
+                        border border-slate-200
+                        p-3">
+
+                        <p class="text-[11px]
+                        text-slate-400">
+
+                            Última extensión
+
+                        </p>
+
+                        <p class="mt-1
+                            text-sm
+                            font-medium
+                            text-slate-700">
+
+                            {{ formatDate(selectedToken.last_extended_at) }}
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- LAST ACTIVITY -->
+
+                    <div class="rounded-xl
+                    bg-slate-50
+                    border border-slate-200
+                    p-3">
+
+                        <p class="text-[11px]
+                      text-slate-400">
+
+                            Última actividad
+
+                        </p>
+
+                        <p class="mt-1
+                      text-sm
+                      font-medium
+                      text-slate-700">
+
+                            {{ selectedToken.last_activity_at
+                            ? (selectedToken.last_activity_at
+                            | date:'dd/MM/yyyy HH:mm')
+                            : 'Sin actividad registrada'
+                            }}
+
+                        </p>
+
+                    </div>
+
+
+                    <!-- EXPIRATION -->
+
+                    <div class="rounded-xl
+                    border p-3" [ngClass]="
+                isExpired(selectedToken)
+                    ? 'bg-rose-50 border-rose-200'
+                    : 'bg-slate-50 border-slate-200'
+             ">
+
+                        <p class="text-[11px]
+                      text-slate-400">
+
+                            Expira
+
+                        </p>
+
+                        <p class="mt-1
+                      text-sm
+                      font-medium" [ngClass]="
+                isExpired(selectedToken)
+                    ? 'text-rose-700'
+                    : 'text-slate-700'
+             ">
+
+                            {{ selectedToken.expires_at
+                            | date:'dd/MM/yyyy HH:mm'
+                            }}
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- HASH -->
+
+            <div>
+
+                <h3 class="text-xs
+                           font-semibold
+                           uppercase
+                           tracking-wider
+                           text-slate-400
+                           mb-3">
+
+                    Token
+
+                </h3>
+
+                <div class="rounded-xl
+                            bg-slate-950
+                            px-4 py-3">
+
+                    <p class="text-[11px]
+                              text-slate-500
+                              mb-1">
+
+                        Token hash
+
+                    </p>
+
+                    <p class="font-mono
+                              text-xs
+                              text-slate-300
+                              break-all">
+
+                        {{ getMaskedHash(selectedToken) }}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="px-6 py-4
+                    border-t border-slate-200
+                    flex justify-end">
+
+            <button type="button" class="px-4 py-2.5
+                       cursor-pointer
+                       rounded-xl
+                       bg-slate-900
+                       text-white
+                       text-sm
+                       font-medium
+                       hover:bg-slate-800" (click)="closeDetails()">
+
+                Cerrar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+}
+
+
+<!-- ========================================================= -->
+<!-- UPDATE MODAL -->
+<!-- ========================================================= -->
+
+@if (activeModal() === 'update' && updateTarget) {
+
+<div class="fixed inset-0 z-[1000]
+            flex items-center justify-center
+            bg-slate-950/40
+            backdrop-blur-sm
+            p-4">
+
+    <div class="w-full max-w-lg
+                bg-white
+                rounded-2xl
+                border border-slate-200
+                shadow-2xl
+                overflow-hidden" (click)="$event.stopPropagation()">
+
+
+        <!-- HEADER -->
+
+        <div class="px-6 py-5
+                    border-b border-slate-200
+                    flex items-center
+                    justify-between">
+
+            <div>
+
+                <h2 class="text-base
+                           font-semibold
+                           text-slate-900">
+
+                    Actualizar sesión
+
+                </h2>
+
+                <p class="text-xs
+                          text-slate-400
+                          mt-1">
+
+                    {{ updateTarget.user_id }}
+
+                </p>
+
+            </div>
+
+
+            <button type="button" class="w-8 h-8
+                       cursor-pointer
+                       rounded-lg
+                       text-slate-400
+                       hover:bg-slate-100" (click)="closeModal()">
+
+                <iconify-icon icon="lucide:x">
+                </iconify-icon>
+
+            </button>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="p-6 space-y-5">
+
+            @if (updateError()) {
+
+            <div class="rounded-xl
+                        border border-rose-200
+                        bg-rose-50
+                        px-4 py-3
+                        text-xs
+                        text-rose-700">
+
+                {{ updateError() }}
+
+            </div>
+
+            }
+
+
+            <div>
+
+                <label class="block
+                              text-xs
+                              font-semibold
+                              text-slate-600
+                              mb-2">
+
+                    Fecha de expiración
+
+                </label>
+
+                <input type="datetime-local" class="w-full
+                           rounded-xl
+                           border border-slate-200
+                           bg-slate-50
+                           px-3.5 py-2.5
+                           text-sm
+                           outline-none
+                           focus:bg-white
+                           focus:border-indigo-300
+                           focus:ring-2
+                           focus:ring-indigo-100" [value]="updateForm.expires_at" (input)="setUpdateField(
+                        'expires_at',
+                        $any($event.target).value
+                    )" />
+
+            </div>
+
+
+            <div>
+
+                <label class="block
+                              text-xs
+                              font-semibold
+                              text-slate-600
+                              mb-2">
+
+                    Última actividad
+
+                </label>
+
+                <input type="datetime-local" class="w-full
+                           rounded-xl
+                           border border-slate-200
+                           bg-slate-50
+                           px-3.5 py-2.5
+                           text-sm
+                           outline-none
+                           focus:bg-white
+                           focus:border-indigo-300
+                           focus:ring-2
+                           focus:ring-indigo-100" [value]="updateForm.last_activity_at" (input)="setUpdateField(
+                        'last_activity_at',
+                        $any($event.target).value
+                    )" />
+
+            </div>
+
+
+            <!-- REVOKED -->
+
+            <button type="button" class="w-full
+                       rounded-xl
+                       border
+                       p-4
+                       flex items-center
+                       justify-between
+                       text-left" [ngClass]="
+                    updateForm.revoked
+                        ? 'border-rose-200 bg-rose-50'
+                        : 'border-emerald-200 bg-emerald-50'
+                " (click)="toggleUpdateRevoked()">
+
+                <div class="flex items-center gap-3">
+
+                    <div class="w-9 h-9
+                               rounded-lg
+                               flex items-center
+                               justify-center" [ngClass]="
+                            updateForm.revoked
+                                ? 'bg-rose-100 text-rose-600'
+                                : 'bg-emerald-100 text-emerald-600'
+                        ">
+
+                        <iconify-icon [icon]="
+                                updateForm.revoked
+                                    ? 'lucide:shield-x'
+                                    : 'lucide:shield-check'
+                            ">
+                        </iconify-icon>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-sm
+                                  font-semibold" [ngClass]="
+                                updateForm.revoked
+                                    ? 'text-rose-700'
+                                    : 'text-emerald-700'
+                           ">
+
+                            {{
+                            updateForm.revoked
+                            ? 'Sesión revocada'
+                            : 'Sesión activa'
+                            }}
+
+                        </p>
+
+                        <p class="text-xs
+                                  text-slate-400">
+
+                            Puedes cambiar el estado
+                            de esta sesión.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="relative
+                           w-10 h-5
+                           rounded-full" [ngClass]="
+                        updateForm.revoked
+                            ? 'bg-rose-500'
+                            : 'bg-emerald-500'
+                    ">
+
+                    <span class="absolute
+                               top-0.5
+                               w-4 h-4
+                               rounded-full
+                               bg-white
+                               transition-transform" [ngClass]="
+                            updateForm.revoked
+                                ? 'translate-x-5'
+                                : 'translate-x-0.5'
+                        ">
+                    </span>
+
+                </div>
+
+            </button>
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="px-6 py-4
+                    border-t border-slate-200
+                    flex justify-between">
+
+            <button type="button" class="px-4 py-2.5
+                       rounded-xl
+                       text-sm
+                       font-medium
+                       text-slate-500
+                       hover:bg-slate-100
+                       disabled:opacity-40" [disabled]="!hasUpdateChanges()" (click)="resetUpdate()">
+
+                Restablecer
+
+            </button>
+
+
+            <div class="flex gap-2">
+
+                <button type="button" class="px-4 py-2.5
+                           cursor-pointer
+                           rounded-xl
+                           border border-slate-200
+                           text-sm
+                           font-medium
+                           text-slate-600
+                           hover:bg-slate-50" (click)="closeModal()">
+
+                    Cancelar
+
+                </button>
+
+                <button type="button" class="px-5 py-2.5
+                           rounded-xl
+                           bg-slate-900
+                           text-white
+                           text-sm
+                           font-semibold
+                           hover:bg-slate-800
+                           disabled:opacity-50" [disabled]="
+                        isUpdating() ||
+                        !hasUpdateChanges()
+                    " (click)="submitUpdate()">
+
+                    @if (isUpdating()) {
+
+                    <span class="flex items-center gap-2">
+
+                        <span class="w-3.5 h-3.5
+                                   rounded-full
+                                   border-2
+                                   border-white/30
+                                   border-t-white
+                                   animate-spin">
+                        </span>
+
+                        Guardando...
+
+                    </span>
+
+                    } @else {
+
+                    Guardar cambios
+
+                    }
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+}
+
+
+<!-- ========================================================= -->
+<!-- DELETE MODAL -->
+<!-- ========================================================= -->
+
+@if (activeModal() === 'delete' && deleteTarget) {
+
+<div class="fixed inset-0 z-[1000]
+            flex items-center justify-center
+            bg-slate-950/40
+            backdrop-blur-sm
+            p-4">
+
+    <div class="w-full max-w-md
+                bg-white
+                rounded-2xl
+                border border-slate-200
+                shadow-2xl
+                overflow-hidden" (click)="$event.stopPropagation()">
+
+
+        <!-- BODY -->
+
+        <div class="p-6">
+
+            <div class="w-11 h-11
+                        rounded-xl
+                        bg-rose-50
+                        text-rose-600
+                        flex items-center
+                        justify-center">
+
+                <iconify-icon icon="lucide:trash-2" class="text-xl">
+                </iconify-icon>
+
+            </div>
+
+
+            <h2 class="mt-4
+                       text-base
+                       font-semibold
+                       text-slate-900">
+
+                Eliminar refresh token
+
+            </h2>
+
+
+            <p class="mt-2
+                      text-sm
+                      leading-relaxed
+                      text-slate-500">
+
+                Esta acción eliminará permanentemente
+                la sesión asociada a este refresh token.
+
+            </p>
+
+
+            <div class="mt-4
+                        rounded-xl
+                        bg-slate-50
+                        border border-slate-200
+                        px-4 py-3">
+
+                <p class="text-[11px]
+                          text-slate-400">
+
+                    Usuario
+
+                </p>
+
+                <p class="mt-1
+                          text-xs
+                          font-mono
+                          text-slate-700
+                          break-all">
+
+                    {{ deleteTarget.user_id }}
+
+                </p>
+
+            </div>
+
+
+            @if (deleteError()) {
+
+            <div class="mt-4
+                        rounded-xl
+                        border border-rose-200
+                        bg-rose-50
+                        px-4 py-3
+                        text-xs
+                        text-rose-700">
+
+                {{ deleteError() }}
+
+            </div>
+
+            }
+
+        </div>
+
+
+        <!-- FOOTER -->
+
+        <div class="px-6 py-4
+                    border-t border-slate-200
+                    flex justify-end gap-2">
+
+            <button type="button" class="px-4 py-2.5
+                       cursor-pointer
+                       rounded-xl
+                       border border-slate-200
+                       text-sm
+                       font-medium
+                       text-slate-600
+                       hover:bg-slate-50" (click)="closeModal()">
+
+                Cancelar
+
+            </button>
+
+
+            <button type="button" class="px-5 py-2.5
+                       cursor-pointer
+                       rounded-xl
+                       bg-rose-600
+                       text-white
+                       text-sm
+                       font-semibold
+                       hover:bg-rose-700
+                       disabled:opacity-50" [disabled]="isDeleting()" (click)="confirmDelete()">
+
+                @if (isDeleting()) {
+
+                <span class="flex items-center gap-2">
+
+                    <span class="w-3.5 h-3.5
+                               rounded-full
+                               border-2
+                               border-white/30
+                               border-t-white
+                               animate-spin">
+                    </span>
+
+                    Eliminando...
+
+                </span>
+
+                } @else {
+
+                Eliminar
+
+                }
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+}

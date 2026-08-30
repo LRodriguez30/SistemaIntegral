@@ -1,0 +1,330 @@
+:host {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.phone-country-select {
+    font-size: 0.875rem;
+    color: #334155;
+}
+
+/* =========================
+   TABLE BASE (PASOS LIGHT)
+========================= */
+
+.premium-table {
+    width: 100%;
+    table-layout: auto;
+
+    .mat-mdc-header-cell {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+
+        background: #24242a;
+        border-bottom: 1px solid #000000;
+
+        padding: 14px 18px;
+
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .14em;
+
+        color: #ffffff;
+    }
+
+    .mat-mdc-cell {
+        padding: 14px 18px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+        color: #334155;
+        background: #ffffff;
+    }
+}
+
+.icon-spin {
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================
+   ROWS
+========================= */
+
+.table-row {
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+.table-row:hover {
+    background: rgba(99, 102, 241, 0.045);
+    box-shadow: inset 0 1px 0 rgba(99, 102, 241, 0.04);
+    transform: scale(0.998);
+}
+
+.table-row:active {
+    transform: scale(.997);
+}
+
+/* =========================
+   CELLS
+========================= */
+
+.cell-content {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    letter-spacing: .03em;
+
+    color: #334155;
+
+    transition: color .16s ease;
+}
+
+.table-row:hover .cell-content {
+    color: #1e1b4b;
+}
+
+/* =========================
+   NUMBERS / DATES
+========================= */
+
+.number-cell {
+    display: flex;
+    justify-content: center;
+
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+
+    color: #334155;
+}
+
+.date-cell,
+.datetime-cell {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* =========================
+   CURRENCY
+========================= */
+
+.currency-cell {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.currency-positive {
+    color: #16a34a;
+}
+
+.currency-negative {
+    color: #dc2626;
+}
+
+.currency-neutral {
+    color: #64748b;
+}
+
+/* =========================
+   STATUS CHIP (PASOS)
+========================= */
+
+.role-chip {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+    border-radius: 999px;
+
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .04em;
+
+    transition: all .14s ease;
+}
+
+.table-row:hover .status-chip {
+    transform: translateY(-1px);
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-button {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    color: #64748b;
+
+    transition: all .16s ease;
+}
+
+.action-button:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: #232328;
+    transform: translateY(-1px);
+}
+
+.action-button:active {
+    transform: scale(.96);
+}
+
+/* =========================
+   TOOLBAR BUTTONS
+========================= */
+
+.toolbar-btn {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+
+    color: #64748b;
+
+    cursor: pointer;
+
+    transition: all .18s ease;
+
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.toolbar-btn:hover {
+    background: #f8fafc;
+    border-color: #c7d2fe;
+    color: #141418;
+    transform: translateY(-1px);
+}
+
+/* =========================
+   CREATE BUTTON
+========================= */
+
+.create-btn {
+    height: 40px;
+    padding: 0 16px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    border-radius: 12px;
+
+    border: 1px solid rgba(79, 70, 229, .35);
+
+    background: linear-gradient(
+        180deg,
+        #29292c 0%,
+        #1e1d22 100%
+    );
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    letter-spacing: .02em;
+
+    cursor: pointer;
+
+    box-shadow: 0 4px 14px rgba(79, 70, 229, .20);
+
+    transition:
+        transform .14s ease,
+        box-shadow .18s ease,
+        filter .18s ease;
+}
+
+.create-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(79, 70, 229, .28);
+}
+
+.create-btn:active {
+    transform: scale(.97);
+}
+
+/* =========================
+   EMPTY BUTTON
+========================= */
+
+.refresh-empty-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    height: 40px;
+    padding: 0 16px;
+
+    border-radius: 14px;
+
+    border: 1px solid #c7d2fe;
+
+    background: #ffffff;
+
+    color: #111115;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all .18s ease;
+
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.refresh-empty-btn:hover {
+    background: #eef2ff;
+    border-color: #a5b4fc;
+    transform: translateY(-1px);
+}
+
+.refresh-empty-btn:active {
+    transform: scale(.98);
+}
+
+/* =========================
+   LIGHT BACKGROUND
+========================= */
+
+.yes {
+    background-color: #ffffff;
+}

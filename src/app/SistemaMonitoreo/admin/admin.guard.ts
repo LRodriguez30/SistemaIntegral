@@ -1,51 +1,78 @@
 import { CanActivateFn, Router } from '@angular/router';
-import { inject, PLATFORM_ID } from '@angular/core';
+import { inject } from '@angular/core';
 
 import { catchError, map, of } from 'rxjs';
 
 import { AuthService } from '../../services/auth.service';
-import { isPlatformBrowser } from '@angular/common';
 
 export const adminGuard: CanActivateFn = (_, state) => {
 
-  const platformId = inject(PLATFORM_ID);
+    const auth = inject(AuthService);
+    const router = inject(Router);
 
-  const auth = inject(AuthService);
-  const router = inject(Router);
+    return auth.getCurrentUser().pipe(
 
-  return auth.getCurrentUser().pipe(
+        map(response => {
 
-    map(res => {
+            // console.log(
+            //     'ADMIN GUARD - Datos del usuario recibido:',
+            //     response
+            // );
 
-      const allowedRoles = ['Admin', 'Dueño'];
-      const role = res.user.role;
+            // =====================================================
+            // SESIÓN VÁLIDA
+            // =====================================================
 
-      if (allowedRoles.includes(role)) {
-        return true;
-      }
+            if (response && response.user.estado === true) {
 
+                // console.log(
+                //     'ADMIN GUARD - Acceso permitido:',
+                //     state.url
+                // );
 
-      if (isPlatformBrowser(platformId)) {
-        localStorage.setItem('redirectAfterLogin', state.url);
-        return router.createUrlTree(['/unauthorized']);
-      }
+                return true;
+            }
 
-      return false
+            // =====================================================
+            // NO AUTENTICADO
+            // =====================================================
 
-    }),
+            // console.log(
+            //     'ADMIN GUARD - Redirigiendo al login:',
+            //     state.url
+            // );
 
-    catchError(() => {
+            return router.createUrlTree(
+                ['/auth/login'],
+                {
+                    queryParams: {
+                        returnUrl: state.url
+                    }
+                }
+            );
 
-      if (isPlatformBrowser(platformId)) {
-        localStorage.setItem('redirectAfterLogin', state.url);
-      }
+        }),
 
-      return of(
-        router.createUrlTree(['/unauthorized'])
-      );
+        catchError(error => {
 
-    })
+            // console.error(
+            //     'ADMIN GUARD - Error verificando sesión:',
+            //     error
+            // );
 
-  );
+            return of(
+                router.createUrlTree(
+                    ['/auth/login'],
+                    {
+                        queryParams: {
+                            returnUrl: state.url
+                        }
+                    }
+                )
+            );
+
+        })
+
+    );
 
 };

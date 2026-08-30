@@ -1,22 +1,28 @@
-import { Component, inject } from '@angular/core';
-import { Router, } from '@angular/router';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, inject } from '@angular/core';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-not-found',
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './not-found.component.html'
 })
 export class NotFoundComponent {
 
   private router = inject(Router);
+  private location = inject(Location);
 
-  goHome() {
-    console.log('Navegando a home...');
+  goBack(): void {
+    this.location.back();
+  }
+
+  goHome(): void {
     this.router.navigate(['/home']);
   }
 
-  goCatalog() {
-    console.log('Navegando a catalog...');
+  goCatalog(): void {
     this.router.navigate(['/catalog']);
   }
+
 }

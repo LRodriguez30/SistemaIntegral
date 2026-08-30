@@ -1,35 +1,231 @@
-<div class="relative min-h-screen transition-all duration-500 ease-in-out"
-  [class.opacity-0]="navigating"
-  [class.scale-95]="navigating">
+<div
+    class="
+        relative
+        min-h-screen
+        transition-all
+        duration-500
+        ease-in-out
+    "
+    [class.opacity-0]="navigating"
+    [class.scale-95]="navigating"
+>
 
-  <!-- LOADER OVERLAY (NO BLOQUEANTE) -->
-  <div
-    class="fixed inset-0 flex items-center justify-center bg-[#09090b]/70 backdrop-blur-md z-50
-           transition-all duration-500 ease-in-out pointer-events-none"
-    [class.opacity-0]="!loader.loading()"
-    [class.opacity-100]="loader.loading()"
-    [class.scale-95]="!loader.loading()"
-    [class.scale-100]="loader.loading()"
-  >
-    <div class="flex flex-col items-center gap-4">
+    <!-- =========================================================
+         LOADER OVERLAY
+    ========================================================== -->
 
-      <img
-        ngSrc="assets/unicolab.png"
-        width="60"
-        height="60"
-        class="animate-pulse opacity-80"
-      />
+    <div
+        class="
+            fixed
+            inset-0
+            z-50
 
-      <div class="w-7 h-7 border-2 border-[#27272a] border-t-[#f97316] rounded-full animate-spin"></div>
+            flex
+            items-center
+            justify-center
 
-      <p class="text-sm text-[#a1a1aa]">
-        {{ loader.message() || 'Cargando...' }}
-      </p>
+            bg-white/90
+            backdrop-blur-md
+
+            transition-all
+            duration-500
+            ease-in-out
+
+            pointer-events-none
+        "
+        [class.opacity-0]="!loader.loading()"
+        [class.opacity-100]="loader.loading()"
+        [class.scale-95]="!loader.loading()"
+        [class.scale-100]="loader.loading()"
+    >
+
+        <!-- =====================================================
+             DECORACIÓN CONTALAB
+        ====================================================== -->
+
+        <div
+            class="
+                absolute
+                -top-40
+                -left-40
+                w-[520px]
+                h-[520px]
+                rounded-full
+                border-[70px]
+                border-[#FEBA03]/10
+            "
+        ></div>
+
+        <div
+            class="
+                absolute
+                -bottom-48
+                -right-48
+                w-[620px]
+                h-[620px]
+                rounded-full
+                border-[90px]
+                border-[#FEBA03]/10
+            "
+        ></div>
+
+        <div
+            class="
+                absolute
+                top-1/2
+                right-[-180px]
+                w-[380px]
+                h-[380px]
+                rounded-full
+                border-[50px]
+                border-[#FEBA03]/10
+            "
+        ></div>
+
+
+        <!-- =====================================================
+             CONTENIDO DEL LOADER
+        ====================================================== -->
+
+        <div
+            class="
+                relative
+                z-10
+
+                flex
+                flex-col
+                items-center
+
+                gap-5
+                px-8
+
+                text-center
+            "
+        >
+
+            <!-- =================================================
+                 LOGO
+            ================================================== -->
+
+            <div
+                class="
+                    flex
+                    items-center
+                    justify-center
+                    min-h-20
+                    min-w-20
+                "
+            >
+
+                <img
+                    ngSrc="/Contalab Rounded/Contalab Client Rounded.png"
+                    width="180"
+                    height="180"
+                    alt="Contalab"
+                    class="
+                        w-auto
+                        h-20
+                        sm:h-24
+                        object-contain
+                        animate-pulse
+                    "
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 IDENTIDAD
+            ================================================== -->
+
+            <div
+                class="
+                    max-w-sm
+                "
+            >
+
+                <p
+                    class="
+                        text-xs
+                        sm:text-sm
+                        font-bold
+                        uppercase
+                        tracking-[0.25em]
+                        text-neutral-400
+                    "
+                >
+                    Sistema integral Contalab
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        text-sm
+                        font-medium
+                        text-neutral-500
+                    "
+                >
+                    Gestión contable y administrativa
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 SEPARADOR
+            ================================================== -->
+
+            <div
+                class="
+                    h-px
+                    w-16
+                    bg-neutral-200
+                "
+            ></div>
+
+
+            <!-- =================================================
+                 SPINNER
+            ================================================== -->
+
+            <div
+                class="
+                    w-7
+                    h-7
+
+                    border-2
+                    border-neutral-200
+                    border-t-[#FEBA03]
+
+                    rounded-full
+                    animate-spin
+                "
+            ></div>
+
+
+            <!-- =================================================
+                 MENSAJE
+            ================================================== -->
+
+            <p
+                class="
+                    text-sm
+                    font-medium
+                    text-neutral-500
+                "
+            >
+                {{ loader.message() || 'Cargando...' }}
+            </p>
+
+        </div>
 
     </div>
-  </div>
 
-  <!-- CONTENIDO AUTH -->
-  <router-outlet></router-outlet>
+
+    <!-- =========================================================
+         CONTENIDO AUTH
+    ========================================================== -->
+
+    <router-outlet></router-outlet>
 
 </div>

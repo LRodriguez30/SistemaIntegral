@@ -1,96 +1,650 @@
-import { CommonModule, NgOptimizedImage } from "@angular/common";
+import { CommonModule } from '@angular/common';
+
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   OnInit,
   signal
-} from "@angular/core";
+} from '@angular/core';
+
 import {
+  NavigationEnd,
   Router,
   RouterLink,
   RouterLinkActive,
   RouterOutlet
-} from "@angular/router";
+} from '@angular/router';
 
-import { AuthService } from "../../services/auth.service";
+import { filter } from 'rxjs';
 
-interface NavItem {
-  label: string;
-  icon: string;
-  route?: string;
-  children?: NavItem[];
-  badge?: string;
+import { AuthService, AuthUser } from '../../services/auth.service';
+import { UsersResponse } from '../../services/users.service';
+import { PersonasResponse } from '../../services/personas.service';
+
+
+// =========================================================
+// IDENTIDAD DE CADA SECCIÓN
+// =========================================================
+
+interface SectionIdentity {
+
+  title: string;
+
+  subtitle: string;
+
+  logo: string;
+
+  logoAlt: string;
+
+  accent: string;
+
 }
 
+
+// =========================================================
+// SECCIONES ADMINISTRATIVAS
+// =========================================================
+
+type AdminSection =
+  | 'panel'
+  | 'contalab'
+  | 'pasos';
+
+
+// =========================================================
+// ITEM DE NAVEGACIÓN
+// =========================================================
+
+interface NavItem {
+
+  label: string;
+
+  icon: string;
+
+  route: string;
+
+  home?: boolean;
+
+}
+
+
+// =========================================================
+// GRUPO DE NAVEGACIÓN
+// =========================================================
+
+interface NavGroup {
+
+  label: string;
+
+  icon: string;
+
+  items: NavItem[];
+
+  defaultOpen?: boolean;
+
+}
+
+
+// =========================================================
+// RESPUESTA DEL USUARIO
+// =========================================================
+
+interface CurrentUser {
+
+  usuario_id: number;
+
+  persona_id: number;
+
+  nombre_usuario: string;
+
+  correo_electronico: string;
+
+  rol_id: number;
+
+  estado: boolean;
+
+}
+
+
+// =========================================================
+// PERSONA
+// =========================================================
+
+interface CurrentPerson {
+
+  persona_id?: number;
+
+  primer_nombre?: string;
+
+  segundo_nombre?: string;
+
+  primer_apellido?: string;
+
+  segundo_apellido?: string;
+
+  telefono?: string;
+
+}
+
+
+// =========================================================
+// RESPUESTA /AUTH/ME
+// =========================================================
+
+interface CurrentUserResponse {
+
+  user: CurrentUser;
+
+  persona?: CurrentPerson;
+
+  profile?: any;
+
+}
+
+
+// =========================================================
+// COMPONENTE
+// =========================================================
+
 @Component({
+
   selector: 'app-admin',
+
   imports: [
     CommonModule,
     RouterOutlet,
-    NgOptimizedImage,
     RouterLink,
     RouterLinkActive
   ],
+
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
+
   templateUrl: './admin.html',
+
   styleUrl: './admin.css',
+
 })
+
+
 export class Admin implements OnInit {
+
+
+  // =========================================================
+  // SIDEBAR
+  // =========================================================
 
   sidebarOpen = false;
 
+
+  // =========================================================
+  // MENÚ DE USUARIO
+  // =========================================================
+
+  userMenuOpen = false;
+
+
+  // =========================================================
+  // GRUPOS ABIERTOS
+  // =========================================================
+
+  expandedGroups: Record<string, boolean> = {};
+
+
+  // =========================================================
+  // USUARIO
+  // =========================================================
+
   userName = signal('');
+
+  userEmail = signal('');
+
   userRole = signal('');
+
   userImage = signal('');
 
+
+  // =========================================================
+  // SECCIÓN ACTUAL
+  // =========================================================
+
+  currentSection: AdminSection = 'panel';
+
+
+  // =========================================================
+  // IDENTIDAD ACTUAL
+  // =========================================================
+
+  currentIdentity: SectionIdentity = {
+
+    title: 'Panel Maestro',
+
+    subtitle: 'Administración',
+
+    logo: 'Marca Pasos Ico.svg',
+
+    logoAlt: 'PASOS',
+
+    accent: 'zinc'
+
+  };
+
+
+  // =========================================================
+  // INFORMACIÓN DEL LAYOUT
+  // =========================================================
+
+  adminTitle = 'Panel Maestro';
+
+  adminSubtitle = 'Administración';
+
+  pageTitle = 'Panel Maestro';
+
+
+  // =========================================================
+  // CONSTRUCTOR
+  // =========================================================
+
   constructor(
-    private auth: AuthService,
-    private router: Router
-  ) {}
+
+    private readonly auth: AuthService,
+
+    private readonly router: Router
+
+  ) { }
+
+
+  // =========================================================
+  // INIT
+  // =========================================================
+
+  ngOnInit(): void {
+
+    this.loadCurrentUser();
+
+    this.updateSection(this.router.url);
+
+    this.openActiveGroup(this.router.url);
+
+
+    this.router.events
+
+      .pipe(
+        filter(
+          event => event instanceof NavigationEnd
+        )
+      )
+
+      .subscribe(event => {
+
+        const navigation =
+          event as NavigationEnd;
+
+        const url =
+          navigation.urlAfterRedirects;
+
+        this.updateSection(url);
+
+        this.openActiveGroup(url);
+
+        // Cerramos el menú de usuario al navegar.
+
+        this.userMenuOpen = false;
+
+      });
+
+  }
+
+
+  // =========================================================
+  // CARGAR USUARIO AUTENTICADO
+  // =========================================================
+
+  private loadCurrentUser(): void {
+
+    this.auth.getCurrentUser().subscribe({
+
+      next: (response: AuthUser) => {
+
+        // ================================================
+        // GUARDAR USUARIO EN EL SERVICIO
+        // ================================================
+
+        this.auth.setCurrentUser(response);
+
+
+        // ================================================
+        // DE LA RESPUESTA SEGMENTAR DATOS
+        // ================================================
+
+        const user: UsersResponse = response.user;
+        const persona: PersonasResponse = response.persona;
+
+
+        // ================================================
+        // NOMBRE
+        // ================================================
+
+        const nombreCompleto = [
+
+          persona.primer_nombre,
+
+          persona.segundo_nombre,
+
+          persona.primer_apellido,
+
+          persona.segundo_apellido
+
+        ]
+
+          .filter(Boolean)
+
+          .join(' ');
+
+
+        this.userName.set(
+
+          nombreCompleto ||
+          'Usuario'
+
+        );
+
+
+        this.userEmail.set(
+          user.correo_electronico ||
+          'correo@gmail.com'
+        )
+
+
+        // ================================================
+        // ROL
+        // ================================================
+
+        this.userRole.set(
+
+          this.getRoleName(user.rol_id)
+
+        );
+
+
+        // ================================================
+        // IMAGEN
+        // ================================================
+
+        this.userImage.set('');
+
+      },
+
+
+      error: (error) => {
+
+        console.error(
+          'No se pudo obtener el usuario actual:',
+          error
+        );
+
+      }
+
+    });
+
+  }
+
+  // =========================================================
+  // CONSTRUIR NOMBRE
+  // =========================================================
+
+  private buildFullName(
+    persona: CurrentPerson | undefined,
+    fallback: string
+  ): string {
+
+    if (!persona) {
+      return fallback;
+    }
+
+
+    const parts = [
+
+      persona.primer_nombre,
+
+      persona.segundo_nombre,
+
+      persona.primer_apellido,
+
+      persona.segundo_apellido
+
+    ];
+
+
+    const fullName =
+      parts
+        .filter(
+          value =>
+            typeof value === 'string' &&
+            value.trim().length > 0
+        )
+        .join(' ');
+
+
+    return fullName || fallback;
+
+  }
+
+
+  // =========================================================
+  // NOMBRE DEL ROL
+  // =========================================================
+
+  private getRoleName(roleId: number): string {
+
+    const roles: Record<number, string> = {
+
+      1: 'Superadministrador',
+
+      2: 'Administrador Gerencial',
+
+      3: 'Administrador Contable',
+
+      4: 'Administrador Operativo',
+
+      5: 'Usuario Estándar'
+
+    };
+
+
+    return roles[roleId] ??
+      `Rol ${roleId}`;
+
+  }
+
+
+  // =========================================================
+  // MENÚ DE USUARIO
+  // =========================================================
+
+  toggleUserMenu(): void {
+
+    this.userMenuOpen =
+      !this.userMenuOpen;
+
+  }
+
+
+  // =========================================================
+  // CERRAR SESIÓN
+  // =========================================================
+
+  logout(): void {
+
+    this.userMenuOpen = false;
+
+
+    this.auth.logout().subscribe({
+
+      next: () => {
+
+        this.clearUserState();
+
+        this.router.navigate(['/auth']);
+
+      },
+
+
+      error: (error) => {
+
+        console.error(
+          'Error al cerrar sesión:',
+          error
+        );
+
+
+        /*
+         * Aunque el backend falle, no debemos
+         * dejar al usuario atrapado en el panel.
+         *
+         * El access token ya podría estar
+         * invalidado, por lo que limpiamos
+         * igualmente el estado local.
+         */
+
+        this.clearUserState();
+
+        this.router.navigate(['/']);
+
+      }
+
+    });
+
+  }
+
+
+  // =========================================================
+  // LIMPIAR ESTADO DEL USUARIO
+  // =========================================================
+
+  private clearUserState(): void {
+
+    this.userName.set('');
+
+    this.userEmail.set('');
+
+    this.userRole.set('');
+
+    this.userImage.set('');
+
+    // this.auth.setLoggedIn(false);
+
+  }
+
 
   // =========================================================
   // SIDEBAR
   // =========================================================
 
   toggleSidebar(): void {
-    this.sidebarOpen = !this.sidebarOpen;
+
+    this.sidebarOpen =
+      !this.sidebarOpen;
+
   }
+
 
   closeSidebar(): void {
+
     this.sidebarOpen = false;
+
   }
 
+
   // =========================================================
-  // USUARIO ACTUAL
+  // GRUPOS
   // =========================================================
 
-  ngOnInit(): void {
-    this.auth.getCurrentUser().subscribe({
-      next: (res) => {
+  toggleGroup(group: NavGroup): void {
 
-        const allowedRoles = ['Admin', 'Dueño'];
+    this.expandedGroups[group.label] =
+      !this.isGroupExpanded(group);
 
-        const user = res.user;
-        const profile = res.profile;
+  }
 
-        if (!allowedRoles.includes(user.role)) {
-          // this.router.navigate(['/unauthorized']);
-          return;
-        }
 
-        this.userName.set(user.name);
-        this.userRole.set(user.role);
+  // =========================================================
+  // ESTADO DEL GRUPO
+  // =========================================================
 
-        this.userImage.set(
-          (profile as any)?.imageUrl || ''
+  isGroupExpanded(group: NavGroup): boolean {
+
+    if (
+      this.expandedGroups[group.label]
+      !== undefined
+    ) {
+
+      return this.expandedGroups[group.label];
+
+    }
+
+    return group.defaultOpen ?? false;
+
+  }
+
+
+  // =========================================================
+  // ABRIR GRUPO ACTIVO
+  // =========================================================
+
+  private openActiveGroup(url: string): void {
+
+    const groups =
+      this.currentNavGroups;
+
+    for (const group of groups) {
+
+      const hasActiveRoute =
+        group.items.some(item =>
+          this.isRouteActive(
+            item.route,
+            url
+          )
         );
-      },
 
-      error: () => {
-        // this.router.navigate(['/unauthorized']);
+
+      if (hasActiveRoute) {
+
+        this.expandedGroups[group.label] =
+          true;
+
       }
-    });
+
+    }
+
   }
+
+
+  // =========================================================
+  // RUTA ACTIVA
+  // =========================================================
+
+  isRouteActive(
+    route: string,
+    url: string
+  ): boolean {
+
+    if (
+      route === '/admin/contalab' ||
+      route === '/admin/pasos' ||
+      route === '/admin/panel'
+    ) {
+
+      return (
+        url === route ||
+        url === `${route}/`
+      );
+
+    }
+
+    return url.startsWith(route);
+
+  }
+
 
   // =========================================================
   // AVATAR
@@ -98,318 +652,789 @@ export class Admin implements OnInit {
 
   getAvatar(): string {
 
-    const image = this.userImage();
+    const image =
+      this.userImage();
+
 
     const isValidImage =
+
       typeof image === 'string' &&
+
       image.trim().length > 0 &&
-      !['null', 'undefined', ''].includes(image.trim());
+
+      ![
+        'null',
+        'undefined'
+      ].includes(
+        image.trim()
+      );
+
 
     if (isValidImage) {
+
       return image;
+
     }
+
 
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      this.userName() || 'User'
+      this.userName() || 'Usuario'
     )}&background=000000&color=ffffff&size=128`;
+
   }
 
+
   // =========================================================
-  // POSTGRESQL
+  // DETECTAR SECCIÓN
   // =========================================================
 
-  postgresNav: NavItem[] = [
+  private updateSection(url: string): void {
+
 
     // -------------------------------------------------------
-    // AUTENTICACIÓN Y SEGURIDAD
+    // CONTALAB
     // -------------------------------------------------------
 
-    {
-      label: 'Autenticación',
-      icon: 'lucide:shield-check',
+    if (url.startsWith('/admin/contalab')) {
 
-      children: [
-        {
-          label: 'Usuarios',
-          icon: 'lucide:users',
-          route: 'panel/users'
-        },
-        {
-          label: 'Roles y permisos',
-          icon: 'lucide:shield',
-          route: '/db/roles'
-        },
-        {
-          label: 'Refresh Tokens',
-          icon: 'lucide:key-round',
-          route: '/db/refresh-tokens'
-        }
-      ]
-    },
+      this.currentSection = 'contalab';
 
-    // -------------------------------------------------------
-    // PERSONAL
-    // -------------------------------------------------------
+      this.currentIdentity = {
 
-    {
-      label: 'Personal',
-      icon: 'lucide:briefcase-business',
+        title: 'CONTALAB',
 
-      children: [
-        {
-          label: 'Empleados',
-          icon: 'lucide:user-round',
-          route: '/db/employees'
-        },
-        {
-          label: 'Departamentos',
-          icon: 'lucide:building-2',
-          route: '/db/departments'
-        },
-        {
-          label: 'Turnos',
-          icon: 'lucide:clock-3',
-          route: '/db/shifts'
-        },
-        {
-          label: 'Asistencia',
-          icon: 'lucide:calendar-check',
-          route: '/db/attendance'
-        }
-      ]
-    },
+        subtitle: 'Administración contable',
 
-    // -------------------------------------------------------
-    // FÁBRICA / PRODUCCIÓN
-    // -------------------------------------------------------
+        logo: '/Contalab Rounded/Contalab Light Rounded.png',
 
-    {
-      label: 'Fábrica',
-      icon: 'lucide:factory',
+        logoAlt: 'Contalab',
 
-      children: [
-        {
-          label: 'Productos',
-          icon: 'lucide:package',
-          route: '/db/products'
-        },
-        {
-          label: 'Materias primas',
-          icon: 'lucide:boxes',
-          route: '/db/raw-materials'
-        },
-        {
-          label: 'Inventario',
-          icon: 'lucide:warehouse',
-          route: '/db/inventory'
-        },
-        {
-          label: 'Producción',
-          icon: 'lucide:clipboard-list',
-          route: '/db/production'
-        },
-        {
-          label: 'Órdenes de producción',
-          icon: 'lucide:factory',
-          route: '/db/production-orders'
-        },
-        {
-          label: 'Movimientos de inventario',
-          icon: 'lucide:arrow-left-right',
-          route: '/db/inventory-movements'
-        }
-      ]
-    },
+        accent: 'amber'
 
-    // -------------------------------------------------------
-    // PEDIDOS Y VENTAS
-    // -------------------------------------------------------
+      };
 
-    {
-      label: 'Pedidos y ventas',
-      icon: 'lucide:shopping-cart',
+      this.adminTitle =
+        this.currentIdentity.title;
 
-      children: [
-        {
-          label: 'Pedidos',
-          icon: 'lucide:receipt',
-          route: '/db/orders'
-        },
-        {
-          label: 'Detalle de pedidos',
-          icon: 'lucide:list-checks',
-          route: '/db/order-details'
-        },
-        {
-          label: 'Clientes',
-          icon: 'lucide:contact',
-          route: '/db/customers'
-        },
-        {
-          label: 'Ventas',
-          icon: 'lucide:badge-dollar-sign',
-          route: '/db/sales'
-        },
-        {
-          label: 'Devoluciones',
-          icon: 'lucide:undo-2',
-          route: '/db/returns'
-        }
-      ]
-    },
+      this.adminSubtitle =
+        this.currentIdentity.subtitle;
 
-    // -------------------------------------------------------
-    // SUCURSALES / LOCALES
-    // -------------------------------------------------------
+      this.pageTitle =
+        this.getPageTitle(url);
 
-    {
-      label: 'Sucursales',
-      icon: 'lucide:store',
+      return;
 
-      children: [
-        {
-          label: 'Locales',
-          icon: 'lucide:store',
-          route: '/db/branches'
-        },
-        {
-          label: 'Personal por sucursal',
-          icon: 'lucide:users-round',
-          route: '/db/branch-employees'
-        },
-        {
-          label: 'Inventario por sucursal',
-          icon: 'lucide:boxes',
-          route: '/db/branch-inventory'
-        },
-        {
-          label: 'Ventas por sucursal',
-          icon: 'lucide:chart-no-axes-combined',
-          route: '/db/branch-sales'
-        },
-        {
-          label: 'Horarios',
-          icon: 'lucide:calendar-clock',
-          route: '/db/branch-schedules'
-        }
-      ]
-    },
-
-    // -------------------------------------------------------
-    // CONTABILIDAD Y FINANZAS
-    // -------------------------------------------------------
-
-    {
-      label: 'Contabilidad',
-      icon: 'lucide:landmark',
-
-      children: [
-        {
-          label: 'Cuentas contables',
-          icon: 'lucide:book-open',
-          route: '/db/accounting-accounts'
-        },
-        {
-          label: 'Movimientos contables',
-          icon: 'lucide:arrow-left-right',
-          route: '/db/accounting-movements'
-        },
-        {
-          label: 'Ingresos',
-          icon: 'lucide:circle-arrow-down',
-          route: '/db/income'
-        },
-        {
-          label: 'Gastos',
-          icon: 'lucide:circle-arrow-up',
-          route: '/db/expenses'
-        },
-        {
-          label: 'Pagos',
-          icon: 'lucide:credit-card',
-          route: '/db/payments'
-        },
-        {
-          label: 'Reportes financieros',
-          icon: 'lucide:chart-column',
-          route: '/db/financial-reports'
-        }
-      ]
-    },
-
-    // -------------------------------------------------------
-    // SESIONES Y OPERACIÓN DEL SISTEMA
-    // -------------------------------------------------------
-
-    {
-      label: 'Sesiones',
-      icon: 'lucide:monitor-cog',
-
-      children: [
-        {
-          label: 'Sesiones activas',
-          icon: 'lucide:monitor-dot',
-          route: '/db/sessions'
-        },
-        {
-          label: 'Historial de sesiones',
-          icon: 'lucide:history',
-          route: '/db/session-history'
-        },
-        {
-          label: 'Dispositivos',
-          icon: 'lucide:smartphone',
-          route: '/db/devices'
-        },
-        {
-          label: 'Actividad de usuarios',
-          icon: 'lucide:activity',
-          route: '/db/user-activity'
-        }
-      ]
     }
 
-  ];
+
+    // -------------------------------------------------------
+    // PASOS
+    // -------------------------------------------------------
+
+    if (url.startsWith('/admin/pasos')) {
+
+      this.currentSection = 'pasos';
+
+      this.currentIdentity = {
+
+        title: 'PASOS',
+
+        subtitle: 'Administración',
+
+        logo: 'Marca Pasos Ico.svg',
+
+        logoAlt: 'PASOS',
+
+        accent: 'emerald'
+
+      };
+
+      this.adminTitle =
+        this.currentIdentity.title;
+
+      this.adminSubtitle =
+        this.currentIdentity.subtitle;
+
+      this.pageTitle =
+        this.getPageTitle(url);
+
+      return;
+
+    }
+
+
+    // -------------------------------------------------------
+    // PANEL MAESTRO
+    // -------------------------------------------------------
+
+    this.currentSection = 'panel';
+
+    this.currentIdentity = {
+
+      title: 'Panel Maestro',
+
+      subtitle: 'Administración',
+
+      logo: 'Marca Pasos Ico.svg',
+
+      logoAlt: 'PASOS',
+
+      accent: 'zinc'
+
+    };
+
+    this.adminTitle =
+      this.currentIdentity.title;
+
+    this.adminSubtitle =
+      this.currentIdentity.subtitle;
+
+    this.pageTitle =
+      this.getPageTitle(url);
+
+  }
+
 
   // =========================================================
-  // MONGODB
+  // TÍTULO DE LA PÁGINA
   // =========================================================
 
-  mongoNav: NavItem[] = [
+  private getPageTitle(url: string): string {
+
+    if (
+      url === '/admin/panel' ||
+      url === '/admin/panel/'
+    ) {
+
+      return 'Panel Maestro';
+
+    }
+
+
+    if (url.includes('/admin/modulos')) {
+
+      return 'Módulos';
+
+    }
+
+
+    if (url.includes('/admin/administradores')) {
+
+      return 'Administradores';
+
+    }
+
+
+    if (url.includes('/admin/configuracion')) {
+
+      return 'Configuración';
+
+    }
+
+
+    if (url.includes('/admin/seguridad')) {
+
+      return 'Seguridad';
+
+    }
+
+
+    if (url.includes('/admin/auditoria')) {
+
+      return 'Auditoría';
+
+    }
+
+
+    if (url.includes('/admin/sistema')) {
+
+      return 'Estado del sistema';
+
+    }
+
+
+    // -------------------------------------------------------
+    // CONTALAB
+    // -------------------------------------------------------
+
+    if (url.includes('/admin/contalab/usuarios')) {
+
+      return 'Usuarios';
+
+    }
+
+
+    if (url.includes('/admin/contalab/roles')) {
+
+      return 'Roles y permisos';
+
+    }
+
+
+    if (url.includes('/admin/contalab/personas')) {
+
+      return 'Personas';
+
+    }
+
+
+    if (url.includes('/admin/contalab/refresh-tokens')) {
+
+      return 'Refresh Tokens';
+
+    }
+
+
+    if (url.includes('/admin/contalab/cuentas')) {
+
+      return 'Catálogo de cuentas';
+
+    }
+
+
+    if (url.includes('/admin/contalab/asientos')) {
+
+      return 'Asientos contables';
+
+    }
+
+
+    if (url.includes('/admin/contalab/clientes')) {
+
+      return 'Clientes';
+
+    }
+
+
+    if (url.includes('/admin/contalab/facturas')) {
+
+      return 'Facturas';
+
+    }
+
+
+    if (url.includes('/admin/contalab/cobros')) {
+
+      return 'Cobros';
+
+    }
+
+
+    if (url.includes('/admin/contalab/proveedores')) {
+
+      return 'Proveedores';
+
+    }
+
+
+    if (url.includes('/admin/contalab/compras')) {
+
+      return 'Compras';
+
+    }
+
+
+    if (url.includes('/admin/contalab/pagos-proveedores')) {
+
+      return 'Pagos a proveedores';
+
+    }
+
+
+    if (url.includes('/admin/contalab/empleados')) {
+
+      return 'Empleados';
+
+    }
+
+
+    if (url.includes('/admin/contalab/nomina')) {
+
+      return 'Nómina';
+
+    }
+
+
+    if (url.includes('/admin/contalab/reportes')) {
+
+      return 'Reportes';
+
+    }
+
+
+    if (
+      url.includes(
+        '/admin/contalab/estados-financieros'
+      )
+    ) {
+
+      return 'Estados financieros';
+
+    }
+
+
+    if (url.includes('/admin/contalab/graficas')) {
+
+      return 'Gráficas';
+
+    }
+
+
+    if (
+      url === '/admin/contalab' ||
+      url === '/admin/contalab/'
+    ) {
+
+      return 'Contalab';
+
+    }
+
+
+    // -------------------------------------------------------
+    // PASOS
+    // -------------------------------------------------------
+
+    if (
+      url === '/admin/pasos' ||
+      url === '/admin/pasos/'
+    ) {
+
+      return 'PASOS';
+
+    }
+
+
+    if (url.includes('/admin/pasos/usuarios')) {
+
+      return 'Usuarios';
+
+    }
+
+
+    return 'Administración';
+
+  }
+
+
+  // =========================================================
+  // NAVEGACIÓN GLOBAL
+  // =========================================================
+
+  goToMasterPanel(): void {
+
+    if (this.currentSection === 'panel') {
+      return;
+    }
+
+    this.router.navigate(['/admin/panel']);
+
+  }
+
+
+  goToPasos(): void {
+
+    if (this.currentSection === 'pasos') {
+      return;
+    }
+
+    this.router.navigate(['/admin/pasos']);
+
+  }
+
+
+  goToContalab(): void {
+
+    if (this.currentSection === 'contalab') {
+      return;
+    }
+
+    this.router.navigate(['/admin/contalab']);
+
+  }
+
+
+  goToCommercialSite(): void {
+
+    this.router.navigate(['/']);
+
+  }
+
+
+  // =========================================================
+  // PANEL MAESTRO
+  // =========================================================
+
+  panelNavGroups: NavGroup[] = [
 
     {
-      label: 'Registros del sistema',
-      icon: 'lucide:database',
 
-      children: [
+      label: 'Inicio',
+
+      icon: 'lucide:layout-dashboard',
+
+      defaultOpen: true,
+
+      items: [
+
+        {
+          label: 'Panel Maestro',
+          icon: 'lucide:layout-dashboard',
+          route: '/admin/panel',
+          home: true
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Administración',
+
+      icon: 'lucide:settings',
+
+      defaultOpen: true,
+
+      items: [
+
+        {
+          label: 'Módulos',
+          icon: 'lucide:blocks',
+          route: '/admin/modulos'
+        },
+
+        {
+          label: 'Administradores',
+          icon: 'lucide:user-cog',
+          route: '/admin/administradores'
+        },
+
+        {
+          label: 'Configuración',
+          icon: 'lucide:settings',
+          route: '/admin/configuracion'
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Seguridad',
+
+      icon: 'lucide:shield-check',
+
+      items: [
+
+        {
+          label: 'Seguridad',
+          icon: 'lucide:shield-check',
+          route: '/admin/seguridad'
+        },
 
         {
           label: 'Auditoría',
           icon: 'lucide:file-clock',
-          route: '/mongo/audit-logs'
-        },
-
-        {
-          label: 'Eventos del sistema',
-          icon: 'lucide:zap',
-          route: '/mongo/events'
-        },
-
-        {
-          label: 'Actividad administrativa',
-          icon: 'lucide:shield-alert',
-          route: '/mongo/admin-activity'
-        },
-
-        {
-          label: 'Historial de cambios',
-          icon: 'lucide:history',
-          route: '/mongo/change-history'
+          route: '/admin/auditoria'
         }
 
       ]
+
+    },
+
+    {
+
+      label: 'Sistema',
+
+      icon: 'lucide:activity',
+
+      items: [
+
+        {
+          label: 'Estado del sistema',
+          icon: 'lucide:activity',
+          route: '/admin/sistema'
+        }
+
+      ]
+
     }
 
   ];
+
+
+  // =========================================================
+  // CONTALAB
+  // =========================================================
+
+  contalabNavGroups: NavGroup[] = [
+
+    {
+
+      label: 'Inicio',
+
+      icon: 'lucide:layout-dashboard',
+
+      defaultOpen: true,
+
+      items: [
+
+        {
+          label: 'Panel',
+          icon: 'lucide:layout-dashboard',
+          route: '/admin/contalab',
+          home: true
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Seguridad y acceso',
+
+      icon: 'lucide:shield-check',
+
+      items: [
+
+        {
+          label: 'Usuarios',
+          icon: 'lucide:users',
+          route: '/admin/contalab/usuarios'
+        },
+
+        {
+          label: 'Roles y permisos',
+          icon: 'lucide:shield',
+          route: '/admin/contalab/roles'
+        },
+
+        {
+          label: 'Personas',
+          icon: 'lucide:user-round',
+          route: '/admin/contalab/personas'
+        },
+
+        {
+          label: 'Refresh Tokens',
+          icon: 'lucide:key-round',
+          route: '/admin/contalab/refresh-tokens'
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Contabilidad',
+
+      icon: 'lucide:book-open',
+
+      items: [
+
+        {
+          label: 'Catálogo de cuentas',
+          icon: 'lucide:book-open',
+          route: '/admin/contalab/cuentas'
+        },
+
+        {
+          label: 'Asientos contables',
+          icon: 'lucide:receipt-text',
+          route: '/admin/contalab/asientos'
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Ventas',
+
+      icon: 'lucide:shopping-bag',
+
+      items: [
+
+        {
+          label: 'Clientes',
+          icon: 'lucide:users-round',
+          route: '/admin/contalab/clientes'
+        },
+
+        {
+          label: 'Facturas',
+          icon: 'lucide:file-text',
+          route: '/admin/contalab/facturas'
+        },
+
+        {
+          label: 'Cobros',
+          icon: 'lucide:hand-coins',
+          route: '/admin/contalab/cobros'
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Compras',
+
+      icon: 'lucide:truck',
+
+      items: [
+
+        {
+          label: 'Proveedores',
+          icon: 'lucide:truck',
+          route: '/admin/contalab/proveedores'
+        },
+
+        {
+          label: 'Compras',
+          icon: 'lucide:shopping-cart',
+          route: '/admin/contalab/compras'
+        },
+
+        {
+          label: 'Pagos a proveedores',
+          icon: 'lucide:credit-card',
+          route: '/admin/contalab/pagos-proveedores'
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Personal',
+
+      icon: 'lucide:users-round',
+
+      items: [
+
+        {
+          label: 'Empleados',
+          icon: 'lucide:user-round',
+          route: '/admin/contalab/empleados'
+        },
+
+        {
+          label: 'Nómina',
+          icon: 'lucide:wallet-cards',
+          route: '/admin/contalab/nomina'
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Análisis',
+
+      icon: 'lucide:chart-no-axes-combined',
+
+      items: [
+
+        {
+          label: 'Reportes',
+          icon: 'lucide:file-chart-column',
+          route: '/admin/contalab/reportes'
+        },
+
+        {
+          label: 'Estados financieros',
+          icon: 'lucide:chart-column',
+          route: '/admin/contalab/estados-financieros'
+        },
+
+        {
+          label: 'Gráficas',
+          icon: 'lucide:chart-pie',
+          route: '/admin/contalab/graficas'
+        }
+
+      ]
+
+    }
+
+  ];
+
+
+  // =========================================================
+  // PASOS
+  // =========================================================
+
+  pasosNavGroups: NavGroup[] = [
+
+    {
+
+      label: 'Inicio',
+
+      icon: 'lucide:layout-dashboard',
+
+      defaultOpen: true,
+
+      items: [
+
+        {
+          label: 'Panel',
+          icon: 'lucide:layout-dashboard',
+          route: '/admin/pasos',
+          home: true
+        }
+
+      ]
+
+    },
+
+    {
+
+      label: 'Administración',
+
+      icon: 'lucide:settings',
+
+      items: [
+
+        {
+          label: 'Usuarios',
+          icon: 'lucide:users',
+          route: '/admin/pasos/usuarios'
+        }
+
+      ]
+
+    }
+
+  ];
+
+
+  // =========================================================
+  // NAVEGACIÓN ACTUAL
+  // =========================================================
+
+  get currentNavGroups(): NavGroup[] {
+
+    switch (this.currentSection) {
+
+      case 'contalab':
+        return this.contalabNavGroups;
+
+      case 'pasos':
+        return this.pasosNavGroups;
+
+      default:
+        return this.panelNavGroups;
+
+    }
+
+  }
 
 }

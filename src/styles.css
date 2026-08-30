@@ -124,26 +124,17 @@ input[type="time"]::-webkit-calendar-picker-indicator {
    WHITE / BLACK
 ========================================================= */
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+html {
+  scroll-behavior: smooth;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--clr-bg-100);
+body {
+  overflow-y: visible;
 }
-
-::-webkit-scrollbar-thumb {
-  background: var(--clr-primary-500);
-
-  border-radius: 999px;
-
-  transition:
-    background 160ms ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--clr-primary-700);
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #d4d4d8 transparent;
 }
 
 

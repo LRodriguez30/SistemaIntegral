@@ -96,11 +96,10 @@ export class Unauthorized implements OnInit {
     this.authError.set(null);
 
     const payload: LoginUser = {
-      email: account.email,
-      password_hash: password,
+      correo_electronico: account.email,
+      contraseña: password,
       device_info: {
         deviceType: this.getDeviceType(),
-        deviceName: navigator.platform,
         os: this.getOS(),
         browser: this.getBrowser()
       }
@@ -120,7 +119,7 @@ export class Unauthorized implements OnInit {
                 return;
               }
 
-              this.authService.setLoggedIn(true);
+              // this.authService.setLoggedIn(true);
 
               this.updateStoredAccount({
                 name: me.user?.name ?? account.name,

@@ -2,10 +2,10 @@ import { DataType, FilterEngine, FilterType } from "../../engines/FilterEngine";
 import { RolesType } from "../../../../services/users.service";
 
 export interface UserFilter {
-    usuarioId: string;
-    personaId: string;
-    correoElectronico: string;
-    rolId: RolesType[];
+    usuario_id: string;
+    persona_id: string;
+    correo_electronico: string;
+    rol_id: RolesType[];
     estado: boolean | null;
 }
 
@@ -14,37 +14,37 @@ export function InitializeFilterEngine() {
     return new FilterEngine<UserFilter>(
         [
             {
-                field: 'rolId',
+                field: 'rol_id',
                 filter: {
                     label: "Rol de Usuario",
                     filterType: FilterType.MULTI_SELECT,
                     dataType: DataType.SELECT,
                     options: [
                         {
-                            label: 'SUPERADMINISTRADOR',
+                            label: 'Superadministrador',
                             value: RolesType.SUPERADMINISTRADOR
                         },
                         {
-                            label: 'ADMINISTRADOR GERENCIAL',
+                            label: 'Administrador Gerencial',
                             value: RolesType.ADMINISTRADORGERENCIAL
                         },
                         {
-                            label: 'ADMINISTRADOR CONTABLE',
+                            label: 'Administrador Contable',
                             value: RolesType.ADMINISTRADORCONTABLE
                         },
                         {
-                            label: 'ADMINISTRADOR OPERATIVO',
+                            label: 'Administrador Operativo',
                             value: RolesType.ADMINISTRADOROPERATIVO
                         },
                         {
-                            label: 'USUARIO ESTÁNDAR',
+                            label: 'Usuario Estándar',
                             value: RolesType.USUARIOESTANDAR
                         }
                     ]
                 }
             },
             {
-                field: 'correoElectronico',
+                field: 'correo_electronico',
                 filter: {
                     label: "Correo electrónico",
                     filterType: FilterType.EQUALS,
@@ -52,7 +52,7 @@ export function InitializeFilterEngine() {
                 }
             },
             {
-                field: 'usuarioId',
+                field: 'usuario_id',
                 filter: {
                     label: "ID Usuario",
                     filterType: FilterType.EQUALS,
@@ -60,7 +60,7 @@ export function InitializeFilterEngine() {
                 }
             },
             {
-                field: 'personaId',
+                field: 'persona_id',
                 filter: {
                     label: "ID Persona",
                     filterType: FilterType.EQUALS,
@@ -87,10 +87,10 @@ export function InitializeFilterEngine() {
             }
         ],
         {
-            rolId: [],
-            correoElectronico: '',
-            usuarioId: '',
-            personaId: '',
+            rol_id: [],
+            correo_electronico: '',
+            usuario_id: '',
+            persona_id: '',
             estado: null
         }
     );

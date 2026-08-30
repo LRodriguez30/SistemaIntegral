@@ -24,7 +24,7 @@ import { MatOptionModule } from '@angular/material/core';
 
 import { DynamicCreateModel } from '../../helpers/ActionsHelper';
 
-import { InitializeTableSchema, GUID_COLUMNS } from './users.schema';
+import { InitializeTableSchema, HIDDEN_COLUMNS } from './users.schema';
 import { InitializeFilterEngine } from './users.filter';
 import {
     getRoleClass,
@@ -160,10 +160,10 @@ export class Users {
                     .map(h => h.trim());
 
                 const requiredColumns = [
-                    'personaId',
-                    'correoElectronico',
+                    'persona_id',
+                    'correo_electronico',
                     'contraseña',
-                    'rolId',
+                    'rol_id',
                     'estado'
                 ];
 
@@ -251,10 +251,10 @@ export class Users {
                     .map(h => h.trim());
 
                 const requiredColumns = [
-                    'personaId',
-                    'correoElectronico',
+                    'persona_id',
+                    'correo_electronico',
                     'contraseña',
-                    'rolId',
+                    'rol_id',
                     'estado'
                 ];
 
@@ -285,7 +285,7 @@ export class Users {
                         row[header] = values[index] ?? '';
                     });
 
-                    row['personaId'] = Number(row['personaId']);
+                    row['persona_id'] = Number(row['persona_id']);
                     row['estado'] =
                         String(row['estado']).toLowerCase() === 'true';
 
@@ -313,10 +313,10 @@ export class Users {
     downloadCsvTemplate() {
 
         const headers = [
-            'personaId',
-            'correoElectronico',
+            'persona_id',
+            'correo_electronico',
             'contraseña',
-            'rolId',
+            'rol_id',
             'estado'
         ];
 
@@ -434,19 +434,19 @@ export class Users {
 
         title: 'Nuevo usuario',
 
-        endpoint: `/users/sqlServer`,
+        endpoint: `/users`,
 
         fields: [
 
             {
-                key: 'personaId',
+                key: 'persona_id',
                 label: 'Persona',
                 type: 'int',
                 required: true
             },
 
             {
-                key: 'correoElectronico',
+                key: 'correo_electronico',
                 label: 'Correo electrónico',
                 type: 'text',
                 required: true
@@ -460,7 +460,7 @@ export class Users {
             },
 
             {
-                key: 'rolId',
+                key: 'rol_id',
                 label: 'Rol',
                 type: 'select',
                 required: true,
@@ -525,28 +525,13 @@ export class Users {
     readonly filterRules =
         this.filterEngine.rules;
 
-    toggleMulti(
-        field: UserFilterKey,
-        valor: string
-    ) {
+    toggleMulti(field: UserFilterKey, valor: RolesType) {
+        const current = this.filterState[field] as RolesType[];
+        const idx = current.indexOf(valor);
 
-        if (field !== 'rolId') return;
-
-        const current =
-            this.filterState.rolId as RolesType[];
-
-        const idx =
-            current.indexOf(valor as RolesType);
-
-        const newValue =
-            idx === -1
-                ? [...current, valor as RolesType]
-                : current.filter(v => v !== valor);
-
-        this.filterState = {
-            ...this.filterState,
-            rolId: newValue
-        };
+        (this.filterState[field] as RolesType[]) = idx === -1
+            ? [...current, valor]
+            : current.filter(v => v !== valor);
     }
 
     setRangeValue(
@@ -683,18 +668,20 @@ export class Users {
     }
 
     applyFilter() {
-
         const f = this.filterState;
 
         this.loadFilters(f);
 
-        const count =
-            this.filterEngine.countActive(f);
+        let count = 0;
+
+        if (f.rol_id.length > 0) count += f.rol_id.length;
+        if (f.correo_electronico.length > 0) count++;
+        if (f.usuario_id != "") count++;
+        if (f.persona_id != "") count++;
 
         this.activeFilterCount.set(count);
 
-        this.savedFilterState =
-            structuredClone(this.filterState);
+        this.savedFilterState = structuredClone(this.filterState);
 
         this.closeFilter();
     }
@@ -707,40 +694,123 @@ export class Users {
 
     loadFilters(f: UserFilter) {
 
-        this.dataSource.filterPredicate =
-            (row: UsersResponse, filter: string) => {
+        this.dataSource.filterPredicate = (
+            row: UsersResponse
+        ) => {
 
-                const globalValue =
-                    filter.trim().toLowerCase();
+            // =====================================================
+            // BÚSQUEDA GLOBAL
+            // =====================================================
 
-                if (
-                    globalValue &&
-                    !this.buildSearchText(row)
-                        .includes(globalValue)
-                ) {
+            const search = this.searchText()
+                .trim()
+                .toLowerCase();
+
+            if (search) {
+
+                const searchableText =
+                    this.buildSearchText(row);
+
+                if (!searchableText.includes(search)) {
                     return false;
                 }
+            }
 
-                return this.filterEngine.apply(
-                    {
-                        usuarioId: row.usuarioId,
-                        personaId: row.personaId,
-                        correoElectronico: row.correoElectronico,
-                        rolId: row.rolId,
-                        estado: this.normalizeBoolean(row.estado)
-                    } as any,
-                    f as any
-                );
-            };
 
-        this.dataSource.filter =
-            this.searchText() || 'active';
+            // =====================================================
+            // FILTRO POR ROL
+            // =====================================================
+
+            if (
+                f.rol_id.length > 0 &&
+                !f.rol_id.includes(row.rol_id)
+            ) {
+                return false;
+            }
+
+
+            // =====================================================
+            // FILTRO POR ESTADO
+            // =====================================================
+
+            if (
+                f.estado !== null &&
+                row.estado !== f.estado
+            ) {
+                return false;
+            }
+
+
+            // =====================================================
+            // FILTRO POR CORREO
+            // =====================================================
+
+            if (
+                f.correo_electronico &&
+                !row.correo_electronico
+                    .toLowerCase()
+                    .includes(
+                        f.correo_electronico
+                            .toLowerCase()
+                    )
+            ) {
+                return false;
+            }
+
+
+            // =====================================================
+            // FILTRO POR USUARIO ID
+            // =====================================================
+
+            if (
+                f.usuario_id &&
+                !row.usuario_id
+                    .toString()
+                    .toLowerCase()
+                    .includes(
+                        f.usuario_id
+                            .toLowerCase()
+                    )
+            ) {
+                return false;
+            }
+
+
+            // =====================================================
+            // FILTRO POR PERSONA ID
+            // =====================================================
+
+            if (
+                f.persona_id &&
+                !row.persona_id
+                    .toString()
+                    .toLowerCase()
+                    .includes(
+                        f.persona_id
+                            .toLowerCase()
+                    )
+            ) {
+                return false;
+            }
+
+            return true;
+        };
+
+
+        // Cualquier valor distinto de '' hace que
+        // MatTableDataSource ejecute el filterPredicate.
+        this.dataSource.filter = 'active';
     }
 
     clearFilter() {
 
-        this.filterState =
-            this.filterEngine.reset() as UserFilter;
+        this.filterState = {
+            rol_id: [],
+            correo_electronico: '',
+            usuario_id: '',
+            persona_id: '',
+            estado: false
+        };
 
         this.savedFilterState =
             structuredClone(this.filterState);
@@ -773,10 +843,10 @@ export class Users {
     ): string {
 
         return [
-            row.usuarioId,
-            row.personaId,
-            row.correoElectronico,
-            row.rolId,
+            row.usuario_id,
+            row.persona_id,
+            row.correo_electronico,
+            row.rol_id,
             row.estado
         ]
             .join(' ')
@@ -794,7 +864,7 @@ export class Users {
         }
 
         return this.displayedColumns.filter(
-            col => !this.guidColumns.includes(col)
+            col => !this.hiddenColumns.includes(col)
         );
     }
 
@@ -835,7 +905,7 @@ export class Users {
         );
     }
 
-    guidColumns = GUID_COLUMNS;
+    hiddenColumns = HIDDEN_COLUMNS;
 
     // =========================================================
     // DATA LOADING
@@ -956,17 +1026,17 @@ export class Users {
 
             const payload: CreateUser = {
 
-                personaId:
-                    Number(row['personaId']),
+                persona_id:
+                    Number(row['persona_id']),
 
-                correoElectronico:
-                    row['correoElectronico'],
+                correo_electronico:
+                    row['correo_electronico'],
 
                 contraseña:
                     row['contraseña'],
 
-                rolId:
-                    row['rolId'],
+                rol_id:
+                    row['rol_id'],
 
                 estado:
                     Boolean(row['estado'])
@@ -1062,14 +1132,14 @@ export class Users {
 
         const payload: CreateUser = {
 
-            personaId:
+            persona_id:
                 Number(
-                    this.formCreateState['personaId']
+                    this.formCreateState['persona_id']
                 ),
 
-            correoElectronico:
+            correo_electronico:
                 this.formCreateState[
-                'correoElectronico'
+                'correo_electronico'
                 ],
 
             contraseña:
@@ -1077,8 +1147,8 @@ export class Users {
                 'contraseña'
                 ],
 
-            rolId:
-                this.formCreateState['rolId'],
+            rol_id:
+                this.formCreateState['rol_id'],
 
             estado:
                 Boolean(
@@ -1140,7 +1210,7 @@ export class Users {
             fields: [
 
                 {
-                    key: 'rolId',
+                    key: 'rol_id',
                     label: 'Rol',
                     type: 'select',
                     required: true,
@@ -1185,9 +1255,9 @@ export class Users {
 
         this.formUpdateState = {
 
-            rolId: row.rolId,
+            rol_id: row.rol_id,
 
-            estado: row.estado
+            estado: row.rol_id
 
         };
 
@@ -1215,8 +1285,8 @@ export class Users {
 
         const payload: UpdateUser = {
 
-            rolId:
-                this.formUpdateState['rolId'],
+            rol_id:
+                this.formUpdateState['rol_id'],
 
             estado:
                 Boolean(
@@ -1227,7 +1297,7 @@ export class Users {
         this.usersService
             .grantRole(
                 payload,
-                this.updateTarget.usuarioId
+                this.updateTarget.usuario_id
             )
             .subscribe({
 
@@ -1287,7 +1357,7 @@ export class Users {
 
         this.usersService
             .deleteUser(
-                this.deleteTarget.usuarioId
+                this.deleteTarget.usuario_id
             )
             .subscribe({
 

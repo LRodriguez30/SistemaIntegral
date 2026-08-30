@@ -166,8 +166,11 @@
             PASOS
           </h2>
 
-          <p class="text-sm text-zinc-400 mt-2">
-            © 2026 PASOS — Grupo Chang Xing S.A.
+          <p
+              class="text-sm text-zinc-400 mt-2 cursor-default select-none"
+              (click)="handleAdminAccess()"
+          >
+              © 2026 PASOS — Grupo Chang Xing S.A.
           </p>
         </div>
 
@@ -195,7 +198,8 @@
           Instagram
         </a>
 
-        <a href="https://wa.me/50582692155?text=Hola%20PASOS.%20He%20visitado%20su%20p%C3%A1gina%20web%20y%20tengo%20algunas%20consultas%20sobre%20sus%20productos%2C%20disponibilidad%2C%20precios%20y%20otros%20aspectos%20relacionados%20con%20la%20marca.%20Agradecer%C3%ADa%20su%20ayuda.%20Gracias." target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-4 py-2 rounded-full
+        <a href="https://wa.me/50582692155?text=Hola%20PASOS.%20He%20visitado%20su%20p%C3%A1gina%20web%20y%20tengo%20algunas%20consultas%20sobre%20sus%20productos%2C%20disponibilidad%2C%20precios%20y%20otros%20aspectos%20relacionados%20con%20la%20marca.%20Agradecer%C3%ADa%20su%20ayuda.%20Gracias."
+          target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 px-4 py-2 rounded-full
           text-zinc-300 hover:text-white hover:bg-white/10
           transition-all duration-200 ease-out cursor-pointer
           active:scale-95 active:translate-y-[1px]">
@@ -294,6 +298,7 @@
       </div>
 
     </div>
+
   </footer>
 
 </main>

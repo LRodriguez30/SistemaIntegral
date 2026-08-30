@@ -1,0 +1,310 @@
+<div class="min-h-screen bg-neutral-100">
+
+    <div class="min-h-screen flex flex-col lg:flex-row">
+
+        <!-- =====================================================
+             PANEL DE CONTALAB
+        ====================================================== -->
+        <aside class="
+                relative
+                w-full
+                min-h-[230px]
+                sm:min-h-[280px]
+                lg:min-h-screen
+                lg:w-1/2
+                bg-[#FEBA03]
+                overflow-hidden
+                shrink-0
+            ">
+
+            <!-- =================================================
+                 ELEMENTOS DECORATIVOS
+            ================================================== -->
+
+            <div class="
+                    absolute
+                    -top-40
+                    -left-40
+                    w-[520px]
+                    h-[520px]
+                    rounded-full
+                    border-[70px]
+                    border-black/5
+                "></div>
+
+            <div class="
+                    absolute
+                    -bottom-48
+                    -right-48
+                    w-[620px]
+                    h-[620px]
+                    rounded-full
+                    border-[90px]
+                    border-black/5
+                "></div>
+
+            <div class="
+                    absolute
+                    top-1/2
+                    right-[-180px]
+                    w-[380px]
+                    h-[380px]
+                    rounded-full
+                    border-[50px]
+                    border-black/5
+                "></div>
+
+
+            <!-- =================================================
+                 CONTENIDO DEL PANEL
+            ================================================== -->
+
+            <div class="
+                    relative
+                    z-10
+                    h-full
+                    min-h-[230px]
+                    sm:min-h-[280px]
+                    lg:min-h-screen
+                    flex
+                    flex-col
+                    justify-between
+                    p-7
+                    sm:p-10
+                    lg:p-14
+                    xl:p-16
+                ">
+
+                <!-- =================================================
+                     LOGO
+                ================================================== -->
+
+                <div>
+
+                    <img ngSrc="/Contalab Rounded/Contalab Client Rounded.png" alt="Contalab" width="90" height="90"
+                        class="
+                            w-auto
+                            h-20
+                            sm:h-24
+                            lg:h-32
+                            xl:h-36
+                            object-contain
+                            object-left
+                        ">
+
+                </div>
+
+
+                <!-- =================================================
+                     PRESENTACIÓN
+                ================================================== -->
+
+                <div class="
+                        hidden
+                        sm:block
+                        max-w-xl
+                        lg:mb-10
+                    ">
+
+                    <p class="
+                            text-xs
+                            sm:text-sm
+                            font-bold
+                            uppercase
+                            tracking-[0.25em]
+                            text-black/60
+                            mb-4
+                        ">
+                        Sistema integral Contalab
+                    </p>
+
+                    <h1 class="
+                            text-4xl
+                            sm:text-5xl
+                            lg:text-6xl
+                            xl:text-7xl
+                            font-black
+                            leading-[0.95]
+                            tracking-tight
+                            text-black
+                        ">
+                        Todo el control
+                        <br>
+                        de tu negocio.
+                    </h1>
+
+                    <p class="
+                            mt-6
+                            text-base
+                            lg:text-lg
+                            xl:text-xl
+                            text-black/65
+                            max-w-lg
+                            leading-relaxed
+                        ">
+                        Gestiona la información contable y administrativa
+                        de tu empresa desde un solo lugar.
+                    </p>
+
+                </div>
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+                <div class="
+                        hidden
+                        lg:flex
+                        items-center
+                        justify-between
+                        text-sm
+                        font-semibold
+                        text-black/50
+                    ">
+
+                    <span>
+                        © {{ currentYear }} Contalab
+                    </span>
+
+                </div>
+
+            </div>
+
+        </aside>
+
+
+        <!-- =====================================================
+             ÁREA DEL FORMULARIO
+        ====================================================== -->
+
+        <main class="
+                flex-1
+                min-w-0
+                bg-neutral-100
+                flex
+                flex-col
+            ">
+
+            <!-- =================================================
+                 BARRA SUPERIOR
+            ================================================== -->
+
+            <header class="
+                    h-16
+                    sm:h-20
+                    flex
+                    items-center
+                    justify-between
+                    px-5
+                    sm:px-8
+                    lg:px-10
+                    border-b
+                    border-neutral-200
+                    bg-white
+                ">
+
+                <!-- Móvil -->
+
+                <span class="
+                        lg:hidden
+                        text-sm
+                        font-semibold
+                        text-neutral-500
+                    ">
+                    Contalab
+                </span>
+
+
+                <!-- Desktop -->
+
+                <div class="hidden lg:block"></div>
+
+
+                <!-- Volver -->
+
+                <button type="button" (click)="goBack()" class="
+                        cursor-pointer
+                        inline-flex
+                        items-center
+                        gap-2
+                        px-3
+                        sm:px-4
+                        py-2
+                        rounded-lg
+                        text-sm
+                        font-semibold
+                        text-neutral-600
+                        hover:text-black
+                        hover:bg-neutral-100
+                        transition-colors
+                    ">
+
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+
+                    <span>
+                        Volver
+                    </span>
+
+                </button>
+
+
+                <button type="button" (click)="goToLanding()" class="
+                    cursor-pointer
+                    inline-flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-2
+                    rounded-lg
+                    text-sm
+                    font-medium
+                    text-neutral-500
+                    hover:text-black
+                    hover:bg-neutral-100
+                    transition-colors
+                ">
+                    <iconify-icon icon="lucide:house" class="text-base"></iconify-icon>
+                    Inicio
+                </button>
+
+            </header>
+
+
+            <!-- =================================================
+                 CONTENIDO
+            ================================================== -->
+
+            <section class="
+                    flex-1
+                    flex
+                    items-start
+                    lg:items-center
+                    justify-center
+                    px-4
+                    py-8
+                    sm:px-8
+                    sm:py-10
+                    lg:px-10
+                    xl:px-16
+                    overflow-y-auto
+                ">
+
+                <div class="
+                        w-full
+                        max-w-md
+                    ">
+
+                    <router-outlet></router-outlet>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</div>

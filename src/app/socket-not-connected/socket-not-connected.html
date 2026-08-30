@@ -1,0 +1,51 @@
+<main class="grid min-h-screen place-items-center bg-[#09090b] px-6 py-24 sm:py-32 lg:px-8">
+  <div class="text-center max-w-md">
+
+    <p class="text-4xl font-extrabold text-[#f97316]">Socket</p>
+
+    <!-- Animación de reconexión -->
+    @if (loading()) {
+      <h1 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+        Conectando al servidor
+      </h1>
+
+      <div class="mt-6 flex justify-center items-center space-x-2">
+        <div class="w-4 h-4 rounded-full animate-bounce bg-[#f97316]"></div>
+        <div class="w-4 h-4 rounded-full animate-bounce delay-150 bg-[#f97316]"></div>
+        <div class="w-4 h-4 rounded-full animate-bounce delay-300 bg-[#f97316]"></div>
+        <span class="text-white ml-2">Reconectando...</span>
+      </div>
+    } @else {
+      <h1 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
+        Conexión no disponible
+      </h1>
+
+      <p class="mt-4 text-lg text-[#a1a1aa]">
+      No se pudo establecer la conexión en tiempo real.
+      Es posible que el servidor no esté disponible o que la sesión haya expirado.
+    </p>
+    }
+
+    <!-- Botones -->
+    <div class="mt-8 flex justify-center gap-4">
+      <button (click)="goBack()"
+        class="inline-block border border-[#27272a] text-[#a1a1aa] hover:text-white font-medium rounded-md px-6 py-3 transition cursor-pointer">
+        Volver
+      </button>
+
+      <button (click)="toggleReconnect()"
+        class="inline-block border border-[#f97316] text-[#f97316] hover:text-white font-medium rounded-md px-6 py-3 transition cursor-pointer">
+        @if(isReconnecting()) { Cancelar } @else { Reconectar }
+      </button>
+    </div>
+
+    <!-- Error -->
+    @if(failedAttempt()) {
+      <div class="mt-6 text-left text-[#a1a1aa] text-sm">
+        <p class="font-semibold">Error de conexión:</p>
+        <p>{{ failedAttempt()!.msg }}</p>
+      </div>
+    }
+
+  </div>
+</main>

@@ -1,6 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, signal, ViewChild } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, ElementRef, inject, signal, ViewChild } from '@angular/core';
+import { RouterOutlet, RouterLink, Router } from '@angular/router';
 
 @Component({
   selector: 'app-base',
@@ -12,12 +12,44 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 export class BaseComercial {
   protected readonly title = signal('SistemaComercial');
 
+  private router = inject(Router);
+
   isMenuOpen = signal(false);
 
   showDevelopers = signal(false);
 
   @ViewChild('developersSection')
   developersSection!: ElementRef<HTMLElement>;
+
+  private adminClicks = 0;
+  private adminClickTimer: ReturnType<typeof setTimeout> | null = null;
+
+  handleAdminAccess(): void {
+
+    this.adminClicks++;
+
+    // Reiniciar el contador después del intervalo
+    if (this.adminClickTimer) {
+      clearTimeout(this.adminClickTimer);
+    }
+
+    if (this.adminClicks >= 3) {
+
+      this.adminClicks = 0;
+
+      this.router.navigate(['/admin']);
+
+      return;
+    }
+
+    this.adminClickTimer = setTimeout(() => {
+
+      this.adminClicks = 0;
+
+      this.adminClickTimer = null;
+
+    }, 1500);
+  }
 
   toggleDevelopers(): void {
     this.showDevelopers.update(value => !value);

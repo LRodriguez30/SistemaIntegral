@@ -1,128 +1,288 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, of, switchMap, throwError } from 'rxjs';
 import { baseUrl } from '../app';
-import { BehaviorSubject, catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
-import { Profile } from './profiles.service';
+import { PersonasResponse } from './personas.service';
+import { UsersResponse } from './users.service';
 
-interface User {
-  name: string;
-  email: string;
-  password_hash: string;
-  role: string;
+
+// =========================================================
+// USUARIO AUTENTICADO
+// =========================================================
+
+export interface AuthUser {
+  persona: PersonasResponse;
+  user: UsersResponse;
 }
 
-interface GetUser {
-  id: string;
-  name: string;
-  email: string;
-  password_hash: string;
-  role: string;
-}
 
-interface DeviceInfo {
-  deviceType: 'desktop' | 'mobile' | 'tablet';
-  deviceName: string;
-  os: string;
-  browser: string;
-}
-
-interface RegisterUser {
-  user: User;
-  device_info: object
-}
+// =========================================================
+// LOGIN
+// =========================================================
 
 export interface LoginUser {
-  email: string,
-  password_hash: string,
-  device_info: DeviceInfo
+  correo_electronico: string;
+  contraseña: string;
+  device_info: {
+    deviceType: string;
+    os: string;
+    browser: string;
+  };
 }
 
-@Injectable({ providedIn: 'root' })
+
+// =========================================================
+// REGISTER
+// =========================================================
+
+export interface RegisterUser {
+  persona: {
+    primer_nombre: string;
+    segundo_nombre?: string;
+    primer_apellido: string;
+    segundo_apellido?: string;
+    telefono: string;
+  };
+
+  user: {
+    nombre_usuario: string;
+    correo_electronico: string;
+    contraseña: string;
+    rol_id: number;
+  };
+
+  device_info: {
+    deviceType: string;
+    os: string;
+    browser: string;
+  };
+}
+
+
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
 
-  private url = `${baseUrl}/auth`;
+  private readonly url = `${baseUrl}/auth`;
 
-  constructor(private http: HttpClient) { }
+  // =======================================================
+  // ESTADO
+  // =======================================================
 
-  private loggedIn = false;
+  private readonly currentUserSubject =
+    new BehaviorSubject<AuthUser | null>(null);
 
-  private sessionReady = new BehaviorSubject<boolean>(false);
-  sessionReady$ = this.sessionReady.asObservable();
-
-
-  withAuth<T>(request$: Observable<T>) {
-    return request$.pipe(
-      catchError(err => {
-
-        // 🔴 ERROR DE RED / BACKEND CAÍDO
-        if (!err.status || err.status === 0) {
-          return throwError(() => ({
-            ...err,
-            code: 'NETWORK_ERROR'
-          }));
-        }
-
-        // 🔐 TOKEN EXPIRADO
-        if (err.status === 401) {
-          return this.refresh().pipe(
-            switchMap(() => request$),
-            catchError(refreshErr => {
-              this.logout();
-              return throwError(() => refreshErr);
-            })
-          );
-        }
-
-        return throwError(() => err);
-      })
-    );
-  }
-
-  setLoggedIn(value: boolean) {
-    this.loggedIn = value;
-  }
-
-  isLoggedIn(): boolean {
-    return this.loggedIn;
-  }
+  readonly currentUser$ =
+    this.currentUserSubject.asObservable();
 
 
-  getCurrentUser(): Observable<{ user: GetUser; profile: Profile }> {
-    return this.http.get<{ user: GetUser; profile: Profile }>(
-      `${this.url}/me`,
-      { withCredentials: true }
-    );
-  }
+  private readonly sessionReadySubject =
+    new BehaviorSubject<boolean>(false);
 
-  login(data: LoginUser) {
+  readonly sessionReady$ =
+    this.sessionReadySubject.asObservable();
+
+
+  constructor(
+    private readonly http: HttpClient
+  ) { }
+
+
+  // =======================================================
+  // LOGIN
+  // =======================================================
+
+  login(data: LoginUser): Observable<any> {
+
     return this.http.post(
       `${this.url}/login`,
       data,
-      { withCredentials: true }
+      {
+        withCredentials: true
+      }
     );
   }
 
-  register(data: RegisterUser) {
-    return this.http.post(
-      `${this.url}/register`,
-      data,
-      { withCredentials: true }
+
+  // =======================================================
+  // USUARIO ACTUAL
+  // =======================================================
+
+  getCurrentUser(): Observable<AuthUser> {
+
+    return this.http.get<AuthUser>(
+      `${this.url}/me`,
+      {
+        withCredentials: true
+      }
     );
   }
 
-  logout() {
-    return this.http.post(
-      `${this.url}/logout`,
-      {},
-      { withCredentials: true }
+
+  // =======================================================
+  // CARGAR SESIÓN
+  // =======================================================
+
+  loadCurrentUser(): Observable<AuthUser | null> {
+
+    return this.getCurrentUser().pipe(
+
+      catchError(() => {
+
+        this.currentUserSubject.next(null);
+        this.sessionReadySubject.next(true);
+
+        return of(null);
+
+      })
+
     );
+
   }
 
-  refresh() {
+
+  // =======================================================
+  // ESTABLECER USUARIO
+  // =======================================================
+
+  setCurrentUser(response: AuthUser): void {
+
+    this.currentUserSubject.next(response);
+
+    this.sessionReadySubject.next(true);
+
+  }
+
+
+  // =======================================================
+  // OBTENER USUARIO EN MEMORIA
+  // =======================================================
+
+  getCurrentUserSnapshot(): AuthUser | null {
+
+    return this.currentUserSubject.value;
+
+  }
+
+
+  // =======================================================
+  // REFRESH
+  // =======================================================
+
+  refresh(): Observable<any> {
+
     return this.http.post(
       `${this.url}/refresh`,
       {},
-      { withCredentials: true }
+      {
+        withCredentials: true
+      }
     );
+
   }
+
+
+  // =======================================================
+  // LOGOUT
+  // =======================================================
+
+  logout(): Observable<any> {
+
+    return this.http.post(
+      `${this.url}/logout`,
+      {},
+      {
+        withCredentials: true
+      }
+    ).pipe(
+
+      catchError(error => {
+
+        // Aunque el backend falle,
+        // limpiamos la sesión local.
+
+        this.currentUserSubject.next(null);
+        this.sessionReadySubject.next(true);
+
+        return throwError(() => error);
+
+      })
+
+    );
+
+  }
+
+
+  // =======================================================
+  // INTERCEPTAR PETICIONES CON AUTENTICACIÓN
+  // =======================================================
+
+  withAuth<T>(request$: Observable<T>): Observable<T> {
+
+    return request$.pipe(
+
+      catchError(error => {
+
+        // Backend caído / error de red
+        if (!error.status || error.status === 0) {
+
+          return throwError(() => ({
+            ...error,
+            code: 'NETWORK_ERROR'
+          }));
+
+        }
+
+
+        // Access Token expirado
+        if (error.status === 401) {
+
+          return this.refresh().pipe(
+
+            switchMap(() => {
+
+              return request$;
+
+            }),
+
+            catchError(refreshError => {
+
+              this.currentUserSubject.next(null);
+              this.sessionReadySubject.next(true);
+
+              return throwError(() => refreshError);
+
+            })
+
+          );
+
+        }
+
+
+        return throwError(() => error);
+
+      })
+
+    );
+
+  }
+
+
+  // =======================================================
+  // REGISTRO
+  // =======================================================
+
+  register(data: RegisterUser): Observable<any> {
+
+    return this.http.post(
+      `${this.url}/register`,
+      data,
+      {
+        withCredentials: true
+      }
+    );
+
+  }
+
 }

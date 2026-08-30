@@ -10,7 +10,8 @@ export type FieldType =
     | 'badge'
     | 'select'
     | 'guid'
-    | 'actions';
+    | 'actions'
+    | 'phone-country';
 
 type TableKey<T> = keyof T | string;
 

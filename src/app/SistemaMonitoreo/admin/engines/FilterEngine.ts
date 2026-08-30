@@ -4,7 +4,8 @@ export enum FilterType {
     MULTI_SELECT = "multi-select",
     DATE_RANGE = "date-range",
     SELECT = "select",
-    BOOLEAN = "boolean"
+    BOOLEAN = "boolean",
+    PHONE_COUNTRY = "phone-country",
 }
 
 export enum DataType {
@@ -15,29 +16,36 @@ export enum DataType {
     SELECT = 'select',
     BOOLEAN = 'boolean',
     GUID = 'guid',
-    INT = 'int'
+    INT = 'int',
 }
 
 export interface FilterOption<T = any> {
     label: string;
     value: T;
+    meta?: Record<string, any>;
 }
 
-export interface FilterField<T = any> {
+export interface FilterField<
+    TValue = any,
+    TOption = TValue
+> {
     styleClass?: string;
     label: string;
     filterType: FilterType;
     dataType: DataType;
-    options?: readonly FilterOption<T>[];
+    options?: readonly FilterOption<TOption>[];
+    resolver?: (value: TValue) => any;
 }
 
-export type FilterRule<
-    T,
-    K extends keyof T = keyof T
-> = {
-    field: K;
-    filter: FilterField<T[K]>;
-}
+export type FilterRule<T> = {
+    [K in keyof T]: {
+        field: K;
+        filter: FilterField<
+            T[K],
+            T[K] extends readonly (infer U)[] ? U : T[K]
+        >;
+    }
+}[keyof T];
 
 export class FilterEngine<T extends Record<string, any>> {
 
@@ -198,6 +206,43 @@ export class FilterEngine<T extends Record<string, any>> {
                     }
 
                     break;
+
+                case FilterType.PHONE_COUNTRY:
+
+                    if (!rowValue) {
+                        return false;
+                    }
+
+                    const selectedCountry =
+                        rule.filter.options?.find(
+                            option => option.value === value
+                        );
+
+                    if (!selectedCountry) {
+                        return false;
+                    }
+
+                    const dialCode =
+                        selectedCountry.meta?.['dialCode'];
+
+                    if (!dialCode) {
+                        return false;
+                    }
+
+                    const phone =
+                        String(rowValue)
+                            .replace(/\D/g, '');
+
+                    const prefix =
+                        String(dialCode)
+                            .replace(/\D/g, '');
+
+                    if (!phone.startsWith(prefix)) {
+                        return false;
+                    }
+
+                    break;
+
             }
         }
 

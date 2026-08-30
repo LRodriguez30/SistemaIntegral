@@ -1,0 +1,268 @@
+<div>
+
+    <!-- Encabezado -->
+    <div class="mb-8">
+
+        <h2 class="text-3xl font-black tracking-tight text-neutral-950">
+            Iniciar sesión
+        </h2>
+
+        <p class="mt-2 text-sm text-neutral-500">
+            Ingresa tus credenciales para continuar.
+        </p>
+
+    </div>
+
+    <!-- Error general -->
+    @if (errorMessage()) {
+
+    <div class="mb-5 border border-red-200 bg-red-50 px-4 py-4 rounded-lg">
+
+        <div class="flex items-start justify-between gap-4">
+
+            <div class="min-w-0">
+
+                <p class="text-sm font-medium text-red-700">
+                    {{ errorMessage() }}
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    }
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" class="space-y-5">
+
+        <!-- Email -->
+        <div>
+
+            <label for="email" class="block text-sm font-semibold text-neutral-800 mb-2">
+                Correo electrónico
+            </label>
+
+            <input id="email" type="email" formControlName="email" autocomplete="email" placeholder="correo@ejemplo.com"
+                class="w-full h-12 px-4 border rounded-lg bg-white text-sm outline-none transition-colors
+                       border-neutral-300
+                       focus:border-yellow-500 focus:ring-2 focus:ring-yellow-400/20"
+                [class.border-red-400]="email.invalid && email.touched">
+
+            @if (email.invalid && email.touched) {
+
+            <p class="mt-1.5 text-xs font-medium text-red-600">
+
+                @if (email.errors?.['required']) {
+                El correo electrónico es obligatorio.
+                }
+
+                @if (email.errors?.['email']) {
+                Ingresa un correo electrónico válido.
+                }
+
+            </p>
+
+            }
+
+        </div>
+
+        <!-- Contraseña -->
+        <div>
+
+            <div class="flex items-center justify-between mb-2">
+
+                <label for="password" class="block text-sm font-semibold text-neutral-800">
+                    Contraseña
+                </label>
+
+            </div>
+
+            <div class="relative">
+
+                <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                    autocomplete="current-password" placeholder="Ingresa tu contraseña" class="w-full h-12 px-4 pr-12 border rounded-lg bg-white text-sm outline-none transition-colors
+                           border-neutral-300
+                           focus:border-yellow-500 focus:ring-2 focus:ring-yellow-400/20"
+                    [class.border-red-400]="password.invalid && password.touched">
+
+                <button type="button" (click)="togglePassword()"
+                    class="cursor-pointer absolute right-0 top-0 h-12 w-12 flex items-center justify-center text-neutral-400 hover:text-black"
+                    [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+
+                    @if (showPassword()) {
+
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3l18 18M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-.58M9.88 9.88A3 3 0 0114.12 14.12M6.71 6.71C4.68 8.17 3.2 10.01 2.5 12c1.5 4.25 5.5 7 9.5 7 1.39 0 2.72-.31 3.91-.86M17.29 17.29C19.32 15.83 20.8 13.99 21.5 12c-.76-2.15-2.31-4.06-4.46-5.51" />
+                    </svg>
+
+                    } @else {
+
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z" />
+
+                        <circle cx="12" cy="12" r="3" />
+                    </svg>
+
+                    }
+
+                </button>
+
+            </div>
+
+            @if (password.invalid && password.touched) {
+
+            <p class="mt-1.5 text-xs font-medium text-red-600">
+                La contraseña es obligatoria.
+            </p>
+
+            }
+
+        </div>
+
+        <!-- Login -->
+        <button type="submit" [disabled]="loading()" class="w-full h-12 rounded-lg bg-yellow-400 text-black font-bold text-sm
+                   cursor-pointer
+                 hover:bg-yellow-300
+                   disabled:opacity-60 disabled:cursor-not-allowed
+                   transition-colors">
+
+            @if (loading()) {
+
+            <span class="flex items-center justify-center gap-2">
+
+                <span class="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin"></span>
+
+                Iniciando sesión...
+
+            </span>
+
+            } @else {
+
+            Iniciar sesión
+
+            }
+
+        </button>
+
+    </form>
+
+    <!-- Separador -->
+    <!-- <div class="relative my-7">
+
+        <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-neutral-200"></div>
+        </div>
+
+        <div class="relative flex justify-center">
+            <span class="px-3 bg-neutral-100 text-xs text-neutral-400">
+                O continúa con
+            </span>
+        </div>
+
+    </div> -->
+
+    <!-- Microsoft -->
+    <!-- <button type="button" (click)="loginWithMicrosoft()" class="w-full h-12 flex items-center justify-center gap-3 rounded-lg
+               cursor-pointer
+               border border-neutral-300 bg-white
+               text-sm font-semibold text-neutral-800
+               hover:bg-neutral-50
+               transition-colors">
+
+        <svg class="w-5 h-5" viewBox="0 0 24 24">
+            <rect x="2" y="2" width="9" height="9" fill="#F25022" />
+            <rect x="13" y="2" width="9" height="9" fill="#7FBA00" />
+            <rect x="2" y="13" width="9" height="9" fill="#00A4EF" />
+            <rect x="13" y="13" width="9" height="9" fill="#FFB900" />
+        </svg>
+
+        Continuar con Microsoft
+
+    </button> -->
+
+    <!-- Solicitud de cuenta -->
+    <div class="
+        mt-8
+        p-4
+        sm:p-5
+        rounded-xl
+        border
+        border-neutral-200
+        bg-white
+    ">
+
+        <div class="flex gap-3">
+
+            <!-- Icono -->
+            <div class="
+                shrink-0
+                w-9
+                h-9
+                rounded-lg
+                bg-yellow-100
+                flex
+                items-center
+                justify-center
+                text-yellow-700
+            ">
+
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+
+                    <circle cx="9" cy="7" r="4" />
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 8v6M22 11h-6" />
+                </svg>
+
+            </div>
+
+
+            <!-- Texto -->
+            <div>
+
+                <h3 class="
+                    text-sm
+                    font-bold
+                    text-neutral-900
+                ">
+                    ¿Necesitas una cuenta?
+                </h3>
+
+                <p class="
+                    mt-1
+                    text-xs
+                    sm:text-sm
+                    text-neutral-500
+                    leading-relaxed
+                ">
+                    Las cuentas de Contalab son creadas por un
+                    administrador superior. Ponte en contacto con él
+                    para solicitar acceso al sistema.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Información -->
+    <div class="mt-6 text-center">
+
+        <p class="
+            text-xs
+            text-neutral-400
+            leading-relaxed
+        ">
+            Una vez aprobada tu solicitud, el administrador te
+            proporcionará las indicaciones necesarias para acceder.
+        </p>
+
+    </div>
+
+</div>

@@ -1,7 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthLoaderService {
+
   loading = signal(false);
   message = signal('');
 
@@ -16,4 +19,5 @@ export class AuthLoaderService {
       this.message.set('');
     }, delay);
   }
+
 }

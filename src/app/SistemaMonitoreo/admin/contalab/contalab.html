@@ -1,0 +1,1274 @@
+<div class="w-full max-w-7xl mx-auto space-y-8">
+
+
+    <!-- =========================================================
+         ENCABEZADO
+    ========================================================== -->
+
+    <section>
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+                lg:flex-row
+                lg:items-end
+                lg:justify-between
+            "
+        >
+
+            <div>
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        gap-2
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-[0.18em]
+                        text-zinc-400
+                    "
+                >
+
+                    <span>Contalab</span>
+
+                    <span class="text-zinc-300">/</span>
+
+                    <span>Administración contable</span>
+
+                </div>
+
+
+                <h1
+                    class="
+                        mt-2
+                        text-2xl
+                        sm:text-3xl
+                        font-black
+                        tracking-tight
+                        text-zinc-950
+                    "
+                >
+                    Centro contable
+                </h1>
+
+
+                <p
+                    class="
+                        mt-2
+                        max-w-2xl
+                        text-sm
+                        sm:text-base
+                        leading-relaxed
+                        text-zinc-500
+                    "
+                >
+                    {{ moduleDescription }}
+                </p>
+
+            </div>
+
+
+            <!-- ESTADO -->
+
+            <div
+                class="
+                    inline-flex
+                    items-center
+                    gap-3
+                    self-start
+                    rounded-xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    px-4
+                    py-3
+                "
+            >
+
+                <span
+                    class="
+                        h-2.5
+                        w-2.5
+                        rounded-full
+                        bg-emerald-500
+                    "
+                ></span>
+
+
+                <div>
+
+                    <p
+                        class="
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-zinc-400
+                        "
+                    >
+                        Estado contable
+                    </p>
+
+                    <p
+                        class="
+                            mt-0.5
+                            text-sm
+                            font-bold
+                            text-zinc-950
+                        "
+                    >
+                        {{ moduleStatus }}
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         RESUMEN CONTABLE
+    ========================================================== -->
+
+    <section>
+
+        <div class="mb-4">
+
+            <h2
+                class="
+                    text-sm
+                    font-bold
+                    text-zinc-950
+                "
+            >
+                Resumen contable
+            </h2>
+
+            <p
+                class="
+                    mt-1
+                    text-sm
+                    text-zinc-500
+                "
+            >
+                Estado general de la información contable registrada.
+            </p>
+
+        </div>
+
+
+        <div
+            class="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                xl:grid-cols-4
+                gap-4
+            "
+        >
+
+
+            <!-- CUENTAS -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                    "
+                >
+
+                    <div>
+
+                        <p
+                            class="
+                                text-xs
+                                font-semibold
+                                uppercase
+                                tracking-wider
+                                text-zinc-400
+                            "
+                        >
+                            Cuentas
+                        </p>
+
+                        <p
+                            class="
+                                mt-2
+                                text-2xl
+                                font-black
+                                text-zinc-950
+                            "
+                        >
+                            {{ accountingStats.accounts }}
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-zinc-500
+                            "
+                        >
+                            Catálogo contable
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-zinc-100
+                            text-zinc-600
+                        "
+                    >
+
+                        <iconify-icon
+                            icon="lucide:book-open"
+                            class="text-lg"
+                        ></iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ASIENTOS -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                    "
+                >
+
+                    <div>
+
+                        <p
+                            class="
+                                text-xs
+                                font-semibold
+                                uppercase
+                                tracking-wider
+                                text-zinc-400
+                            "
+                        >
+                            Asientos
+                        </p>
+
+                        <p
+                            class="
+                                mt-2
+                                text-2xl
+                                font-black
+                                text-zinc-950
+                            "
+                        >
+                            {{ accountingStats.journalEntries }}
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-zinc-500
+                            "
+                        >
+                            Movimientos contables
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-zinc-100
+                            text-zinc-600
+                        "
+                    >
+
+                        <iconify-icon
+                            icon="lucide:receipt-text"
+                            class="text-lg"
+                        ></iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- CLIENTES -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                    "
+                >
+
+                    <div>
+
+                        <p
+                            class="
+                                text-xs
+                                font-semibold
+                                uppercase
+                                tracking-wider
+                                text-zinc-400
+                            "
+                        >
+                            Clientes
+                        </p>
+
+                        <p
+                            class="
+                                mt-2
+                                text-2xl
+                                font-black
+                                text-zinc-950
+                            "
+                        >
+                            {{ accountingStats.customers }}
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-zinc-500
+                            "
+                        >
+                            Clientes registrados
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-zinc-100
+                            text-zinc-600
+                        "
+                    >
+
+                        <iconify-icon
+                            icon="lucide:users-round"
+                            class="text-lg"
+                        ></iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- PROVEEDORES -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                    "
+                >
+
+                    <div>
+
+                        <p
+                            class="
+                                text-xs
+                                font-semibold
+                                uppercase
+                                tracking-wider
+                                text-zinc-400
+                            "
+                        >
+                            Proveedores
+                        </p>
+
+                        <p
+                            class="
+                                mt-2
+                                text-2xl
+                                font-black
+                                text-zinc-950
+                            "
+                        >
+                            {{ accountingStats.suppliers }}
+                        </p>
+
+                        <p
+                            class="
+                                mt-1
+                                text-xs
+                                text-zinc-500
+                            "
+                        >
+                            Proveedores registrados
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            flex
+                            h-10
+                            w-10
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-zinc-100
+                            text-zinc-600
+                        "
+                    >
+
+                        <iconify-icon
+                            icon="lucide:truck"
+                            class="text-lg"
+                        ></iconify-icon>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         OPERACIONES
+    ========================================================== -->
+
+    <section>
+
+        <div class="mb-4">
+
+            <h2
+                class="
+                    text-sm
+                    font-bold
+                    text-zinc-950
+                "
+            >
+                Operaciones
+            </h2>
+
+            <p
+                class="
+                    mt-1
+                    text-sm
+                    text-zinc-500
+                "
+            >
+                Actividad comercial relacionada con la contabilidad.
+            </p>
+
+        </div>
+
+
+        <div
+            class="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                xl:grid-cols-4
+                gap-4
+            "
+        >
+
+
+            <!-- FACTURAS -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <p
+                    class="
+                        text-xs
+                        font-semibold
+                        uppercase
+                        tracking-wider
+                        text-zinc-400
+                    "
+                >
+                    Facturas
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        text-2xl
+                        font-black
+                        text-zinc-950
+                    "
+                >
+                    {{ operationStats.invoices }}
+                </p>
+
+                <p
+                    class="
+                        mt-1
+                        text-xs
+                        text-zinc-500
+                    "
+                >
+                    Documentos registrados
+                </p>
+
+            </div>
+
+
+
+            <!-- COBROS -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <p
+                    class="
+                        text-xs
+                        font-semibold
+                        uppercase
+                        tracking-wider
+                        text-zinc-400
+                    "
+                >
+                    Cobros
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        text-2xl
+                        font-black
+                        text-zinc-950
+                    "
+                >
+                    {{ operationStats.collections }}
+                </p>
+
+                <p
+                    class="
+                        mt-1
+                        text-xs
+                        text-zinc-500
+                    "
+                >
+                    Operaciones registradas
+                </p>
+
+            </div>
+
+
+
+            <!-- COMPRAS -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <p
+                    class="
+                        text-xs
+                        font-semibold
+                        uppercase
+                        tracking-wider
+                        text-zinc-400
+                    "
+                >
+                    Compras
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        text-2xl
+                        font-black
+                        text-zinc-950
+                    "
+                >
+                    {{ operationStats.purchases }}
+                </p>
+
+                <p
+                    class="
+                        mt-1
+                        text-xs
+                        text-zinc-500
+                    "
+                >
+                    Compras registradas
+                </p>
+
+            </div>
+
+
+
+            <!-- PAGOS -->
+
+            <div
+                class="
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-5
+                "
+            >
+
+                <p
+                    class="
+                        text-xs
+                        font-semibold
+                        uppercase
+                        tracking-wider
+                        text-zinc-400
+                    "
+                >
+                    Pagos
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        text-2xl
+                        font-black
+                        text-zinc-950
+                    "
+                >
+                    {{ operationStats.supplierPayments }}
+                </p>
+
+                <p
+                    class="
+                        mt-1
+                        text-xs
+                        text-zinc-500
+                    "
+                >
+                    Pagos a proveedores
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         ACCIONES RÁPIDAS
+    ========================================================== -->
+
+    <section>
+
+        <div class="mb-4">
+
+            <h2
+                class="
+                    text-sm
+                    font-bold
+                    text-zinc-950
+                "
+            >
+                Accesos rápidos
+            </h2>
+
+            <p
+                class="
+                    mt-1
+                    text-sm
+                    text-zinc-500
+                "
+            >
+                Accede directamente a las principales áreas de Contalab.
+            </p>
+
+        </div>
+
+
+        <div
+            class="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                xl:grid-cols-3
+                gap-4
+            "
+        >
+
+            @for (action of quickActions; track action.route) {
+
+                <a
+                    [routerLink]="action.route"
+                    class="
+                        group
+                        rounded-2xl
+                        border
+                        border-zinc-200
+                        bg-white
+                        p-5
+                        transition-all
+                        duration-200
+                        hover:-translate-y-0.5
+                        hover:border-zinc-300
+                        hover:shadow-sm
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            items-start
+                            justify-between
+                            gap-4
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                h-11
+                                w-11
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-zinc-100
+                                text-zinc-700
+                                transition-colors
+                                group-hover:bg-zinc-950
+                                group-hover:text-white
+                            "
+                        >
+
+                            <iconify-icon
+                                [icon]="action.icon"
+                                class="text-[19px]"
+                            ></iconify-icon>
+
+                        </div>
+
+
+                        <iconify-icon
+                            icon="lucide:arrow-up-right"
+                            class="
+                                text-[17px]
+                                text-zinc-300
+                                transition-colors
+                                group-hover:text-zinc-950
+                            "
+                        ></iconify-icon>
+
+                    </div>
+
+
+                    <div class="mt-5">
+
+                        <h3
+                            class="
+                                text-lg
+                                font-black
+                                tracking-tight
+                                text-zinc-950
+                            "
+                        >
+                            {{ action.label }}
+                        </h3>
+
+
+                        <p
+                            class="
+                                mt-1
+                                text-sm
+                                leading-relaxed
+                                text-zinc-500
+                            "
+                        >
+                            {{ action.description }}
+                        </p>
+
+                    </div>
+
+                </a>
+
+            }
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         SERVICIOS
+    ========================================================== -->
+
+    <section>
+
+        <div class="mb-4">
+
+            <h2
+                class="
+                    text-sm
+                    font-bold
+                    text-zinc-950
+                "
+            >
+                Servicios de Contalab
+            </h2>
+
+            <p
+                class="
+                    mt-1
+                    text-sm
+                    text-zinc-500
+                "
+            >
+                Estado de los componentes utilizados por el módulo.
+            </p>
+
+        </div>
+
+
+        <div
+            class="
+                rounded-2xl
+                border
+                border-zinc-200
+                bg-white
+                divide-y
+                divide-zinc-100
+            "
+        >
+
+            @for (service of services; track service.name) {
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                        p-4
+                        sm:p-5
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            items-center
+                            gap-3
+                            min-w-0
+                        "
+                    >
+
+                        <div
+                            class="
+                                flex
+                                h-10
+                                w-10
+                                flex-shrink-0
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-zinc-100
+                                text-zinc-600
+                            "
+                        >
+
+                            <iconify-icon
+                                [icon]="service.icon"
+                                class="text-lg"
+                            ></iconify-icon>
+
+                        </div>
+
+
+                        <div class="min-w-0">
+
+                            <p
+                                class="
+                                    text-sm
+                                    font-bold
+                                    text-zinc-950
+                                "
+                            >
+                                {{ service.name }}
+                            </p>
+
+                            <p
+                                class="
+                                    mt-0.5
+                                    text-xs
+                                    text-zinc-500
+                                    truncate
+                                "
+                            >
+                                {{ service.description }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            flex
+                            flex-shrink-0
+                            items-center
+                            gap-2
+                            text-xs
+                            font-semibold
+                            text-emerald-600
+                        "
+                    >
+
+                        <span
+                            class="
+                                h-2
+                                w-2
+                                rounded-full
+                                bg-emerald-500
+                            "
+                        ></span>
+
+                        {{ service.status }}
+
+                    </div>
+
+                </div>
+
+            }
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         ACTIVIDAD RECIENTE
+    ========================================================== -->
+
+    <section>
+
+        <div class="mb-4">
+
+            <h2
+                class="
+                    text-sm
+                    font-bold
+                    text-zinc-950
+                "
+            >
+                Actividad reciente
+            </h2>
+
+            <p
+                class="
+                    mt-1
+                    text-sm
+                    text-zinc-500
+                "
+            >
+                Últimas actividades registradas en Contalab.
+            </p>
+
+        </div>
+
+
+        <div
+            class="
+                rounded-2xl
+                border
+                border-zinc-200
+                bg-white
+                divide-y
+                divide-zinc-100
+            "
+        >
+
+            @for (activity of recentActivity; track activity.action) {
+
+                <div
+                    class="
+                        flex
+                        items-center
+                        gap-4
+                        p-4
+                        sm:p-5
+                    "
+                >
+
+                    <div
+                        class="
+                            flex
+                            h-9
+                            w-9
+                            flex-shrink-0
+                            items-center
+                            justify-center
+                            rounded-lg
+                            bg-zinc-100
+                            text-zinc-600
+                        "
+                    >
+
+                        <iconify-icon
+                            [icon]="activity.icon"
+                            class="text-[17px]"
+                        ></iconify-icon>
+
+                    </div>
+
+
+                    <div class="min-w-0 flex-1">
+
+                        <p
+                            class="
+                                text-sm
+                                font-semibold
+                                text-zinc-950
+                            "
+                        >
+                            {{ activity.action }}
+                        </p>
+
+                        <p
+                            class="
+                                mt-0.5
+                                text-xs
+                                text-zinc-500
+                                truncate
+                            "
+                        >
+                            {{ activity.description }}
+                        </p>
+
+                    </div>
+
+
+                    <span
+                        class="
+                            flex-shrink-0
+                            text-xs
+                            font-medium
+                            text-zinc-400
+                        "
+                    >
+                        {{ activity.date }}
+                    </span>
+
+                </div>
+
+            }
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =========================================================
+         INFORMACIÓN DEL MÓDULO
+    ========================================================== -->
+
+    <section
+        class="
+            rounded-2xl
+            border
+            border-zinc-200
+            bg-white
+            p-5
+            sm:p-6
+        "
+    >
+
+        <div
+            class="
+                flex
+                flex-col
+                gap-4
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+            "
+        >
+
+            <div>
+
+                <p
+                    class="
+                        text-xs
+                        font-bold
+                        uppercase
+                        tracking-[0.16em]
+                        text-zinc-400
+                    "
+                >
+                    Información del módulo
+                </p>
+
+
+                <h2
+                    class="
+                        mt-1
+                        text-base
+                        font-bold
+                        text-zinc-950
+                    "
+                >
+                    {{ moduleName }} {{ moduleVersion }}
+                </h2>
+
+
+                <p
+                    class="
+                        mt-1
+                        text-sm
+                        text-zinc-500
+                    "
+                >
+                    Entorno {{ moduleEnvironment }}.
+                </p>
+
+            </div>
+
+
+            <div
+                class="
+                    inline-flex
+                    items-center
+                    gap-2
+                    rounded-lg
+                    bg-zinc-50
+                    px-3
+                    py-2
+                    text-xs
+                    font-semibold
+                    text-zinc-600
+                "
+            >
+
+                <iconify-icon
+                    icon="lucide:calculator"
+                    class="text-sm"
+                ></iconify-icon>
+
+                Sistema contable PASOS
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>

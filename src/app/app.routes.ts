@@ -14,13 +14,23 @@ import { Contact } from './SistemaComercial/contact/contact';
 // Módulos Sistema Monitoreo
 import { Admin } from './SistemaMonitoreo/admin/admin';
 import { adminGuard } from './SistemaMonitoreo/admin/admin.guard';
-import { Users } from './SistemaMonitoreo/admin/auth/users/users';
+import { Users } from './SistemaMonitoreo/admin/contalab/users/users';
 
 
 // Layouts
 import { DashboardLayout } from './layouts/dashboard/dashboard-layout';
 import { Unauthorized } from './unauthorized/unauthorized';
 import { BaseComercial } from './SistemaComercial/base';
+import { Panel } from './SistemaMonitoreo/admin/panelMaestro/panelMaestro';
+import { Pasos } from './SistemaMonitoreo/admin/pasos/pasos';
+import { Contalab } from './SistemaMonitoreo/admin/contalab/contalab';
+import { LoginComponent } from './SistemaMonitoreo/admin/auth/login/login';
+import { AuthComponent } from './SistemaMonitoreo/admin/auth/auth';
+import { loginGuard } from './SistemaMonitoreo/admin/auth/login/login.guard';
+import { AuthLayout } from './layouts/auth/auth-layout';
+import { Roles } from './SistemaMonitoreo/admin/contalab/roles/roles';
+import { Personas } from './SistemaMonitoreo/admin/contalab/personas/personas';
+import { RefreshTokens } from './SistemaMonitoreo/admin/contalab/refresh_tokens/refresh_tokens';
 
 export const routes: Routes = [
     // Rutas Sistema Comercial
@@ -73,30 +83,103 @@ export const routes: Routes = [
         ]
     },
 
-    // Rutas Sistema Monitoreo
     {
-        path: 'admin',
-        title: 'Pasos',
-        component: DashboardLayout,
+        path: 'auth',
+        component: AuthLayout,
         children: [
             {
                 path: '',
-                title: 'Admin | Pasos',
-                component: Admin,
-                // canActivate: [adminGuard],
+                component: AuthComponent,
                 children: [
                     {
                         path: '',
-                        redirectTo: 'panel/users',
+                        redirectTo: 'login',
                         pathMatch: 'full'
                     },
                     {
-                        path: 'panel/users',
-                        title: 'Admin | Usuarios | Pasos',
-                        component: Users
+                        path: 'login',
+                        title: 'Iniciar sesión',
+                        component: LoginComponent,
+                        canActivate: [loginGuard]
                     }
                 ]
             }
+        ]
+    },
+
+    {
+        path: 'admin',
+        component: DashboardLayout,
+        canActivate: [adminGuard],
+        children: [
+            {
+                path: '',
+                component: Admin,
+                children: [
+                    // =====================================================
+                    // PANEL MAESTRO
+                    // =====================================================
+
+                    {
+                        path: '',
+                        redirectTo: 'panel',
+                        pathMatch: 'full'
+                    },
+
+                    {
+                        path: 'panel',
+                        title: 'PASOS | Panel Maestro',
+                        component: Panel
+                    },
+
+
+                    // =====================================================
+                    // PASOS
+                    // =====================================================
+
+                    {
+                        path: 'pasos',
+                        title: 'PASOS | Administración',
+                        component: Pasos,
+                    },
+
+
+                    // =====================================================
+                    // CONTALAB
+                    // =====================================================
+
+                    {
+                        path: 'contalab',
+                        title: 'Contalab | Administración',
+                        component: Contalab
+                    },
+
+                    {
+                        path: 'contalab/usuarios',
+                        title: 'Contalab | Usuarios',
+                        component: Users
+                    },
+
+                    {
+                        path: 'contalab/roles',
+                        title: 'Contalab | Roles y permisos',
+                        component: Roles
+                    },
+
+                    {
+                        path: 'contalab/personas',
+                        title: 'Contalab | Personas',
+                        component: Personas
+                    },
+
+                    {
+                        path: 'contalab/refresh-tokens',
+                        title: 'Contalab | Refresh Tokens',
+                        component: RefreshTokens
+                    },
+                ]
+            },
+
         ]
     },
 
