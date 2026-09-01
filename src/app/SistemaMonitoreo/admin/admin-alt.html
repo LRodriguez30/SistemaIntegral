@@ -1,0 +1,1019 @@
+<!-- =========================================================
+     OVERLAY MOBILE
+========================================================== -->
+
+@if (sidebarOpen) {
+
+<div
+    class="
+        fixed
+        inset-0
+        z-40
+        bg-black/40
+        backdrop-blur-sm
+        md:hidden
+    "
+    (click)="closeSidebar()">
+</div>
+
+}
+
+
+<!-- =========================================================
+     APP LAYOUT
+========================================================== -->
+
+<div
+    class="
+        flex
+        h-screen
+        w-full
+        overflow-hidden
+        bg-zinc-50
+        text-zinc-950
+    ">
+
+
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
+
+    <aside
+        class="
+            fixed
+            md:relative
+            z-50
+            top-0
+            left-0
+            h-full
+            w-72
+            flex-shrink-0
+            flex
+            flex-col
+            bg-white
+            border-r
+            border-zinc-200
+            transform
+            transition-transform
+            duration-300
+            ease-in-out
+        "
+        [class.-translate-x-full]="!sidebarOpen"
+        [class.translate-x-0]="sidebarOpen"
+        [class.md:translate-x-0]="true">
+
+
+        <!-- =================================================
+             SIDEBAR HEADER
+        ================================================== -->
+
+        <div
+            class="
+                h-16
+                flex-shrink-0
+                flex
+                items-center
+                justify-between
+                px-5
+                border-b
+                border-zinc-200
+            ">
+
+            <div class="flex items-center gap-3 min-w-0">
+
+
+                <!-- =================================================
+                     LOGO
+                ================================================== -->
+
+                <div
+                    routerLink="/"
+                    class="
+                        flex
+                        flex-shrink-0
+                        cursor-pointer
+                        items-center
+                        justify-center
+                    "
+                    title="Ir al sitio web">
+
+                    @if (currentSection === 'contalab') {
+
+                    <img
+                        [src]="currentIdentity.logo"
+                        [alt]="currentIdentity.logoAlt"
+                        class="
+                            h-9
+                            w-auto
+                            max-w-[115px]
+                            object-contain
+                        ">
+
+                    } @else {
+
+                    <img
+                        [src]="currentIdentity.logo"
+                        [alt]="currentIdentity.logoAlt"
+                        class="
+                            h-9
+                            w-9
+                            object-contain
+                        ">
+
+                    }
+
+                </div>
+
+
+                <!-- =================================================
+                     INFORMACIÓN
+                ================================================== -->
+
+                <div
+                    class="
+                        flex
+                        min-w-0
+                        flex-col
+                        leading-tight
+                    ">
+
+                    <span
+                        class="
+                            truncate
+                            text-sm
+                            font-bold
+                            tracking-tight
+                            text-zinc-950
+                        ">
+                        {{ adminTitle }}
+                    </span>
+
+                    <span
+                        class="
+                            truncate
+                            text-[11px]
+                            uppercase
+                            tracking-wider
+                            text-zinc-500
+                        ">
+                        {{ adminSubtitle }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 CLOSE MOBILE
+            ================================================== -->
+
+            <button
+                type="button"
+                class="
+                    flex
+                    h-9
+                    w-9
+                    flex-shrink-0
+                    items-center
+                    justify-center
+                    rounded-lg
+                    border
+                    border-zinc-200
+                    text-zinc-500
+                    transition
+                    hover:bg-zinc-100
+                    hover:text-zinc-950
+                    md:hidden
+                    cursor-pointer
+                "
+                (click)="closeSidebar()"
+                aria-label="Cerrar menú">
+
+                <iconify-icon icon="lucide:x"></iconify-icon>
+
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             SIDEBAR NAVIGATION
+        ================================================== -->
+
+        <nav
+            class="
+                flex-1
+                min-h-0
+                overflow-x-hidden
+                overflow-y-auto
+                p-3
+            ">
+
+            @for (
+            group of currentNavGroups;
+            track group.label
+            ) {
+
+            <section class="mb-2">
+
+
+                <!-- =================================================
+                     GRUPO DE INICIO
+                ================================================== -->
+
+                @if (
+                group.items.length === 1 &&
+                group.items[0].home
+                ) {
+
+                <a
+                    [routerLink]="group.items[0].route"
+                    routerLinkActive="nav-active-link"
+                    [routerLinkActiveOptions]="{
+                        exact: true
+                    }"
+                    (click)="closeSidebar()"
+                    class="
+                        flex
+                        items-center
+                        gap-3
+                        rounded-xl
+                        px-3
+                        py-2.5
+                        font-semibold
+                        text-zinc-800
+                        transition-all
+                        duration-200
+                        hover:bg-zinc-100
+                        hover:text-zinc-950
+                    ">
+
+                    <iconify-icon
+                        [icon]="group.items[0].icon"
+                        class="
+                            flex-shrink-0
+                            text-[18px]
+                        ">
+                    </iconify-icon>
+
+                    <span class="truncate">
+                        {{ group.items[0].label }}
+                    </span>
+
+                </a>
+
+
+                <!-- SEPARADOR -->
+
+                <div
+                    class="
+                        mt-3
+                        mb-3
+                        border-t
+                        border-zinc-200
+                    ">
+                </div>
+
+                } @else {
+
+
+                <!-- =================================================
+                     HEADER DEL GRUPO
+                ================================================== -->
+
+                <button
+                    type="button"
+                    class="
+                        flex
+                        w-full
+                        items-center
+                        justify-between
+                        gap-3
+                        rounded-lg
+                        px-3
+                        py-2
+                        text-zinc-400
+                        transition-colors
+                        duration-200
+                        hover:text-zinc-700
+                        cursor-pointer
+                    "
+                    (click)="toggleGroup(group)">
+
+                    <div
+                        class="
+                            flex
+                            min-w-0
+                            items-center
+                            gap-2.5
+                        ">
+
+                        <iconify-icon
+                            [icon]="group.icon"
+                            class="
+                                flex-shrink-0
+                                text-[15px]
+                            ">
+                        </iconify-icon>
+
+                        <span
+                            class="
+                                truncate
+                                text-[10px]
+                                font-bold
+                                uppercase
+                                tracking-[0.14em]
+                            ">
+                            {{ group.label }}
+                        </span>
+
+                    </div>
+
+
+                    <!-- CHEVRON -->
+
+                    <iconify-icon
+                        icon="lucide:chevron-down"
+                        class="
+                            flex-shrink-0
+                            text-[14px]
+                            transition-transform
+                            duration-200
+                        "
+                        [class.rotate-180]="isGroupExpanded(group)">
+                    </iconify-icon>
+
+                </button>
+
+
+                <!-- =================================================
+                     ITEMS
+                ================================================== -->
+
+                @if (isGroupExpanded(group)) {
+
+                <div
+                    class="
+                        nav-group-content
+                        relative
+                        mt-1
+                        ml-3
+                        pl-4
+                    ">
+
+                    <!-- LÍNEA -->
+
+                    <div
+                        class="
+                            absolute
+                            left-0
+                            top-1
+                            bottom-1
+                            w-px
+                            bg-zinc-200
+                        ">
+                    </div>
+
+
+                    <!-- ITEMS -->
+
+                    <div class="space-y-1">
+
+                        @for (
+                        item of group.items;
+                        track item.route
+                        ) {
+
+                        <a
+                            [routerLink]="item.route"
+                            routerLinkActive="nav-active-link"
+                            [routerLinkActiveOptions]="{
+                                exact:
+                                    item.route === '/admin/panel' ||
+                                    item.route === '/admin/pasos' ||
+                                    item.route === '/admin/contalab'
+                            }"
+                            (click)="closeSidebar()"
+                            class="
+                                group
+                                relative
+                                flex
+                                items-center
+                                gap-3
+                                rounded-lg
+                                px-3
+                                py-2
+                                text-sm
+                                text-zinc-600
+                                transition-all
+                                duration-200
+                                hover:bg-zinc-100
+                                hover:text-zinc-950
+                            ">
+
+                            <iconify-icon
+                                [icon]="item.icon"
+                                class="
+                                    flex-shrink-0
+                                    text-[16px]
+                                ">
+                            </iconify-icon>
+
+                            <span class="truncate">
+                                {{ item.label }}
+                            </span>
+
+                        </a>
+
+                        }
+
+                    </div>
+
+                </div>
+
+                }
+
+                }
+
+            </section>
+
+            }
+
+        </nav>
+
+    </aside>
+
+
+    <!-- =====================================================
+         MAIN AREA
+    ====================================================== -->
+
+    <div
+        class="
+            flex
+            h-full
+            min-w-0
+            flex-1
+            flex-col
+        ">
+
+
+        <!-- =================================================
+             TOPBAR
+        ================================================== -->
+
+        <header
+            class="
+                relative
+                flex
+                h-16
+                flex-shrink-0
+                items-center
+                justify-between
+                gap-3
+                border-b
+                border-zinc-200
+                bg-white
+                px-4
+                md:px-6
+            ">
+
+
+            <!-- =================================================
+                 LEFT
+            ================================================== -->
+
+            <div
+                class="
+                    flex
+                    min-w-0
+                    items-center
+                    gap-3
+                ">
+
+                <!-- MENU MOBILE -->
+
+                <button
+                    type="button"
+                    class="
+                        flex
+                        h-10
+                        w-10
+                        flex-shrink-0
+                        items-center
+                        justify-center
+                        rounded-xl
+                        border
+                        border-zinc-200
+                        text-zinc-500
+                        transition
+                        hover:bg-zinc-100
+                        hover:text-zinc-950
+                        md:hidden
+                        cursor-pointer
+                    "
+                    (click)="toggleSidebar()"
+                    aria-label="Abrir menú">
+
+                    <iconify-icon icon="lucide:menu"></iconify-icon>
+
+                </button>
+
+
+                <!-- TITLE -->
+
+                <div class="min-w-0">
+
+                    <div
+                        class="
+                            truncate
+                            text-sm
+                            font-semibold
+                            tracking-tight
+                            text-zinc-950
+                            md:text-[18px]
+                        ">
+                        {{ pageTitle }}
+                    </div>
+
+                    <div
+                        class="
+                            truncate
+                            text-[11px]
+                            text-zinc-500
+                            md:hidden
+                        ">
+                        {{ adminSubtitle }}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 USER
+            ================================================== -->
+
+            <div
+                class="
+                    flex
+                    min-w-0
+                    items-center
+                    gap-2
+                ">
+
+                <!-- USER INFORMATION -->
+
+                <div
+                    class="
+                        hidden
+                        min-w-0
+                        text-right
+                        leading-tight
+                        sm:block
+                    ">
+
+                    <div
+                        class="
+                            max-w-[180px]
+                            truncate
+                            text-sm
+                            font-semibold
+                            text-zinc-950
+                        ">
+                        {{ userName() }}
+                    </div>
+
+                    <div
+                        class="
+                            max-w-[220px]
+                            truncate
+                            text-[11px]
+                            text-zinc-500
+                        ">
+                        {{ userEmail() }}
+                    </div>
+
+                </div>
+
+
+                <!-- AVATAR -->
+
+                <button
+                    type="button"
+                    class="
+                        h-10
+                        w-10
+                        flex-shrink-0
+                        overflow-hidden
+                        rounded-full
+                        border-2
+                        border-zinc-200
+                        bg-zinc-100
+                        transition
+                        hover:border-zinc-400
+                        cursor-pointer
+                    "
+                    (click)="toggleUserMenu()"
+                    aria-label="Abrir menú de usuario">
+
+                    <img
+                        [src]="getAvatar()"
+                        alt="Avatar"
+                        class="
+                            h-full
+                            w-full
+                            object-cover
+                        " />
+
+                </button>
+
+
+                <!-- USER MENU -->
+
+                @if (userMenuOpen) {
+
+                <div
+                    class="
+                        absolute
+                        right-4
+                        top-[60px]
+                        z-50
+                        w-72
+                        overflow-hidden
+                        rounded-xl
+                        border
+                        border-zinc-200
+                        bg-white
+                        shadow-lg
+                        md:right-6
+                    ">
+
+                    <!-- USER HEADER -->
+
+                    <div
+                        class="
+                            border-b
+                            border-zinc-200
+                            px-4
+                            py-4
+                        ">
+
+                        <div class="flex items-center gap-3">
+
+                            <img
+                                [src]="getAvatar()"
+                                alt="Avatar"
+                                class="
+                                    h-11
+                                    w-11
+                                    rounded-full
+                                    border
+                                    border-zinc-200
+                                    object-cover
+                                ">
+
+                            <div class="min-w-0">
+
+                                <p
+                                    class="
+                                        truncate
+                                        text-sm
+                                        font-semibold
+                                        text-zinc-950
+                                    ">
+                                    {{ userName() }}
+                                </p>
+
+                                <p
+                                    class="
+                                        truncate
+                                        text-xs
+                                        text-zinc-500
+                                    ">
+                                    {{ userEmail() }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- USER DETAILS -->
+
+                    <div class="px-4 py-3">
+
+                        <div
+                            class="
+                                flex
+                                items-center
+                                justify-between
+                                gap-4
+                                text-xs
+                            ">
+
+                            <span class="text-zinc-500">
+                                Rol
+                            </span>
+
+                            <span
+                                class="
+                                    max-w-[150px]
+                                    truncate
+                                    font-medium
+                                    text-zinc-900
+                                ">
+                                {{ userRole() }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- LOGOUT -->
+
+                    <div
+                        class="
+                            border-t
+                            border-zinc-200
+                            p-2
+                        ">
+
+                        <button
+                            type="button"
+                            class="
+                                flex
+                                w-full
+                                items-center
+                                gap-3
+                                rounded-lg
+                                px-3
+                                py-2.5
+                                text-sm
+                                font-medium
+                                text-red-600
+                                transition
+                                hover:bg-red-50
+                                cursor-pointer
+                            "
+                            (click)="logout()">
+
+                            <iconify-icon
+                                icon="lucide:log-out"
+                                class="text-[17px]">
+                            </iconify-icon>
+
+                            <span>
+                                Cerrar sesión
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+                }
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             NAVEGACIÓN GLOBAL
+        ================================================== -->
+
+        <div
+            class="
+                px-4
+                pt-3
+                md:px-6
+            ">
+
+            <div
+                class="
+                    inline-flex
+                    max-w-full
+                    items-center
+                    gap-1
+                    rounded-full
+                    border
+                    border-zinc-200
+                    bg-white
+                    p-1
+                ">
+
+                <!-- PANEL MAESTRO -->
+
+                <button
+                    type="button"
+                    (click)="goToMasterPanel()"
+                    class="
+                        flex
+                        items-center
+                        gap-2
+                        rounded-full
+                        px-3
+                        py-1.5
+                        text-[11px]
+                        font-semibold
+                        transition-all
+                        duration-200
+                        cursor-pointer
+                    "
+                    [class.bg-zinc-950]="currentSection === 'panel'"
+                    [class.text-white]="currentSection === 'panel'"
+                    [class.text-zinc-500]="currentSection !== 'panel'"
+                    [class.hover:bg-zinc-100]="currentSection !== 'panel'"
+                    [class.hover:text-zinc-950]="currentSection !== 'panel'"
+                    title="Panel Maestro">
+
+                    <iconify-icon
+                        icon="lucide:layout-dashboard"
+                        class="text-[14px]">
+                    </iconify-icon>
+
+                    <span>
+                        Panel Maestro
+                    </span>
+
+                </button>
+
+
+                <!-- PASOS -->
+
+                <button
+                    type="button"
+                    (click)="goToPasos()"
+                    class="
+                        flex
+                        min-w-0
+                        items-center
+                        justify-center
+                        gap-1.5
+                        rounded-lg
+                        px-2
+                        py-2
+                        text-[11px]
+                        font-semibold
+                        transition-all
+                        duration-200
+                        cursor-pointer
+                    "
+                    [class.bg-white]="currentSection === 'pasos'"
+                    [class.text-zinc-950]="currentSection === 'pasos'"
+                    [class.ring-1]="currentSection === 'pasos'"
+                    [class.ring-zinc-200]="currentSection === 'pasos'"
+                    [class.text-zinc-500]="currentSection !== 'pasos'"
+                    [class.hover:bg-white]="currentSection !== 'pasos'"
+                    [class.hover:text-zinc-950]="currentSection !== 'pasos'"
+                    title="Administrar PASOS">
+
+                    <img
+                        src="Marca Pasos Ico.svg"
+                        alt="PASOS"
+                        class="
+                            h-4
+                            w-4
+                            object-contain
+                            flex-shrink-0
+                        ">
+
+                    <span class="truncate">
+                        PASOS
+                    </span>
+
+                </button>
+
+
+                <!-- CONTALAB -->
+
+                <button
+                    type="button"
+                    (click)="goToContalab()"
+                    class="
+                        flex
+                        min-w-0
+                        items-center
+                        justify-center
+                        gap-1.5
+                        rounded-lg
+                        px-2
+                        py-2
+                        text-[11px]
+                        font-semibold
+                        transition-all
+                        duration-200
+                        cursor-pointer
+                    "
+                    [class.bg-[#FEBA03]]="currentSection === 'contalab'"
+                    [class.text-black]="currentSection === 'contalab'"
+                    [class.text-zinc-500]="currentSection !== 'contalab'"
+                    [class.hover:bg-zinc-100]="currentSection !== 'contalab'"
+                    [class.hover:text-zinc-950]="currentSection !== 'contalab'"
+                    title="Administrar Contalab">
+
+                    <img
+                        src="/Contalab Rounded/Contalab Client Rounded.png"
+                        alt="Contalab"
+                        width="1200"
+                        height="1200"
+                        class="
+                            h-4
+                            w-auto
+                            max-w-[50px]
+                            flex-shrink-0
+                            object-contain
+                        "
+                    >
+
+                    <span>
+                        CONTALAB
+                    </span>
+
+                </button>
+
+
+                <!-- SEPARADOR -->
+
+                <div
+                    class="
+                        mx-1
+                        h-4
+                        w-px
+                        bg-zinc-200
+                    ">
+                </div>
+
+
+                <!-- SITIO WEB -->
+
+                <button
+                    type="button"
+                    (click)="goToCommercialSite()"
+                    class="
+                        flex
+                        items-center
+                        gap-2
+                        rounded-full
+                        px-3
+                        py-1.5
+                        text-[11px]
+                        font-semibold
+                        text-zinc-500
+                        transition-all
+                        duration-200
+                        hover:bg-zinc-100
+                        hover:text-zinc-950
+                        cursor-pointer
+                    "
+                    title="Ir al sitio web">
+
+                    <iconify-icon
+                        icon="lucide:globe"
+                        class="text-[14px]">
+                    </iconify-icon>
+
+                    <span>
+                        Sitio web
+                    </span>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <main
+            class="
+                flex-1
+                min-h-0
+                overflow-x-hidden
+                overflow-y-auto
+                bg-zinc-50
+                p-4
+                md:p-6
+            ">
+
+            <div class="min-w-0">
+
+                <router-outlet></router-outlet>
+
+            </div>
+
+        </main>
+
+    </div>
+
+</div>

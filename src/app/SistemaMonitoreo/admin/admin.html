@@ -391,7 +391,6 @@
                             [routerLinkActiveOptions]="{
                                 exact:
                                     item.route === '/admin/panel' ||
-                                    item.route === '/admin/pasos' ||
                                     item.route === '/admin/contalab'
                             }"
                             (click)="closeSidebar()"
@@ -809,7 +808,10 @@
                     p-1
                 ">
 
-                <!-- PANEL MAESTRO -->
+
+                <!-- =================================================
+                     PANEL MAESTRO
+                ================================================== -->
 
                 <button
                     type="button"
@@ -846,53 +848,9 @@
                 </button>
 
 
-                <!-- PASOS -->
-
-                <button
-                    type="button"
-                    (click)="goToPasos()"
-                    class="
-                        flex
-                        min-w-0
-                        items-center
-                        justify-center
-                        gap-1.5
-                        rounded-lg
-                        px-2
-                        py-2
-                        text-[11px]
-                        font-semibold
-                        transition-all
-                        duration-200
-                        cursor-pointer
-                    "
-                    [class.bg-white]="currentSection === 'pasos'"
-                    [class.text-zinc-950]="currentSection === 'pasos'"
-                    [class.ring-1]="currentSection === 'pasos'"
-                    [class.ring-zinc-200]="currentSection === 'pasos'"
-                    [class.text-zinc-500]="currentSection !== 'pasos'"
-                    [class.hover:bg-white]="currentSection !== 'pasos'"
-                    [class.hover:text-zinc-950]="currentSection !== 'pasos'"
-                    title="Administrar PASOS">
-
-                    <img
-                        src="Marca Pasos Ico.svg"
-                        alt="PASOS"
-                        class="
-                            h-4
-                            w-4
-                            object-contain
-                            flex-shrink-0
-                        ">
-
-                    <span class="truncate">
-                        PASOS
-                    </span>
-
-                </button>
-
-
-                <!-- CONTALAB -->
+                <!-- =================================================
+                     CONTALAB
+                ================================================== -->
 
                 <button
                     type="button"
@@ -904,7 +862,7 @@
                         justify-center
                         gap-1.5
                         rounded-lg
-                        px-2
+                        px-3
                         py-2
                         text-[11px]
                         font-semibold
@@ -940,7 +898,9 @@
                 </button>
 
 
-                <!-- SEPARADOR -->
+                <!-- =================================================
+                     SEPARADOR
+                ================================================== -->
 
                 <div
                     class="
@@ -952,7 +912,9 @@
                 </div>
 
 
-                <!-- SITIO WEB -->
+                <!-- =================================================
+                     SITIO WEB
+                ================================================== -->
 
                 <button
                     type="button"
