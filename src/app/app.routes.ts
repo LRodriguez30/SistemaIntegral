@@ -31,6 +31,9 @@ import { AuthLayout } from './layouts/auth/auth-layout';
 import { Roles } from './SistemaMonitoreo/admin/contalab/roles/roles';
 import { Personas } from './SistemaMonitoreo/admin/contalab/personas/personas';
 import { RefreshTokens } from './SistemaMonitoreo/admin/contalab/refresh_tokens/refresh_tokens';
+import { CatalogoCuentasComponent } from './SistemaMonitoreo/admin/contalab/contabilidad/catalogo_cuentas/catalogo_cuentas';
+import { AsientosContablesComponent } from './SistemaMonitoreo/admin/contalab/contabilidad/asientos_contables/asientos_contables';
+import { EstadosFinancierosComponent } from './SistemaMonitoreo/admin/contalab/analisis/estados_financieros/estados_financieros';
 
 export const routes: Routes = [
     // Rutas Sistema Comercial
@@ -176,6 +179,24 @@ export const routes: Routes = [
                         path: 'contalab/refresh-tokens',
                         title: 'Contalab | Refresh Tokens',
                         component: RefreshTokens
+                    },
+
+                    {
+                        path: 'contalab/contabilidad/catalogo-cuentas',
+                        title: 'Contalab | Contabilidad | Catálogo de Cuentas',
+                        component: CatalogoCuentasComponent
+                    },
+
+                    {
+                        path: 'contalab/contabilidad/asientos-contables',
+                        title: 'Contalab | Contabilidad | Asientos Contables',
+                        component: AsientosContablesComponent
+                    },
+
+                    {
+                        path: 'contalab/analisis/estados-financieros',
+                        title: 'Contalab | Análisis | Estados Financieros',
+                        component: EstadosFinancierosComponent
                     },
                 ]
             },

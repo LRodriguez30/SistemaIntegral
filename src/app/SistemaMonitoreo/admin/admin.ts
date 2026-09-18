@@ -1238,13 +1238,13 @@ export class Admin implements OnInit {
         {
           label: 'Catálogo de cuentas',
           icon: 'lucide:book-open',
-          route: '/admin/contalab/cuentas'
+          route: '/admin/contalab/contabilidad/catalogo-cuentas'
         },
 
         {
           label: 'Asientos contables',
           icon: 'lucide:receipt-text',
-          route: '/admin/contalab/asientos'
+          route: '/admin/contalab/contabilidad/asientos-contables'
         }
 
       ]
@@ -1352,7 +1352,7 @@ export class Admin implements OnInit {
         {
           label: 'Estados financieros',
           icon: 'lucide:chart-column',
-          route: '/admin/contalab/estados-financieros'
+          route: '/admin/contalab/analisis/estados-financieros'
         },
 
         {

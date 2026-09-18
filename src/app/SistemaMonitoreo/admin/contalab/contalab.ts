@@ -2,12 +2,14 @@ import { CommonModule } from '@angular/common';
 
 import {
   Component,
-  CUSTOM_ELEMENTS_SCHEMA
+  CUSTOM_ELEMENTS_SCHEMA,
+  inject
 } from '@angular/core';
 
 import {
   RouterLink
 } from '@angular/router';
+import { CatalogoCuentasService } from '../../../services/catalogo_cuentas.service';
 
 
 interface QuickAction {
@@ -56,7 +58,46 @@ interface ActivityItem {
 
 export class Contalab {
 
+  private readonly catalogoCuentasService =
+    inject(CatalogoCuentasService);
 
+  // =========================================================
+  // INICIALIZACIÓN
+  // =========================================================
+
+  ngOnInit(): void {
+
+    this.loadAccountingStats();
+
+  }
+
+  // =========================================================
+  // CARGAR ESTADÍSTICAS CONTABLES
+  // =========================================================
+
+  private loadAccountingStats(): void {
+
+  this.catalogoCuentasService
+    .getCatalogoCuentas()
+    .subscribe({
+      next: (cuentas) => {
+
+        this.accountingStats.accounts =
+          cuentas.length;
+
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error obteniendo las cuentas contables:',
+          error
+        );
+
+      }
+    });
+
+  }
   // =========================================================
   // INFORMACIÓN DEL MÓDULO
   // =========================================================
@@ -122,7 +163,7 @@ export class Contalab {
 
       icon: 'lucide:book-open',
 
-      route: '/admin/contalab/cuentas'
+      route: '/admin/contalab/contabilidad/catalogo-cuentas'
 
     },
 
@@ -135,7 +176,7 @@ export class Contalab {
 
       icon: 'lucide:receipt-text',
 
-      route: '/admin/contalab/asientos'
+      route: '/admin/contalab/contabilidad/asientos-contables'
 
     },
 

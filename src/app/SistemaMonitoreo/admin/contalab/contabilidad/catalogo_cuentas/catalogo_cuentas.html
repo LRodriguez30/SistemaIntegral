@@ -1,0 +1,2768 @@
+<section 
+  class=" 
+    min-h-full 
+    bg-[#f5f6f8] 
+    px-4 
+    py-5 
+    text-[#20252b] 
+    md:px-6 
+    md:py-6 
+  " 
+> 
+ 
+  <div 
+    class=" 
+      mx-auto 
+      max-w-[1400px] 
+      space-y-6 
+    " 
+  > 
+ 
+    <!-- ========================================================= 
+         HEADER 
+    ========================================================== --> 
+ 
+    <header> 
+ 
+      <div 
+        class=" 
+          mb-2 
+          flex 
+          items-center 
+          gap-2 
+          text-[12px] 
+          font-medium 
+          text-[#7b848d] 
+        " 
+      > 
+ 
+        <iconify-icon 
+          icon="lucide:book-open" 
+          class="text-[14px]" 
+        ></iconify-icon> 
+ 
+        <span>Contabilidad</span> 
+ 
+        <iconify-icon 
+          icon="lucide:chevron-right" 
+          class="text-[13px]" 
+        ></iconify-icon> 
+ 
+        <span class="text-[#4d5863]"> 
+          Catálogo de cuentas 
+        </span> 
+ 
+      </div> 
+ 
+ 
+      <div 
+        class=" 
+          flex 
+          flex-col 
+          gap-4 
+          sm:flex-row 
+          sm:items-end 
+          sm:justify-between 
+        " 
+      > 
+ 
+        <div> 
+ 
+          <h1 
+            class=" 
+              text-[24px] 
+              font-semibold 
+              tracking-[-0.02em] 
+              text-[#20252b] 
+            " 
+          > 
+            Catálogo de cuentas 
+          </h1> 
+ 
+          <p 
+            class=" 
+              mt-1 
+              text-[13px] 
+              text-[#7b848d] 
+            " 
+          > 
+            Administración y estructura del plan de cuentas contable. 
+          </p> 
+ 
+        </div> 
+ 
+
+        <div class="flex items-center gap-3">
+
+          <button
+            type="button"
+            (click)="getAccounts()"
+            [disabled]="loadingAccounts()"
+            title="Actualizar catálogo"
+            class="
+              cursor-pointer
+              inline-flex
+              items-center
+              gap-2
+              rounded-md
+              border
+              border-[#dfe3e7]
+              bg-white
+              px-3
+              py-2.5
+              text-[12px]
+              font-medium
+              text-[#343a40]
+              transition
+              hover:bg-[#f5f6f7]
+              disabled:cursor-not-allowed
+              disabled:opacity-70
+            "
+          >
+            <iconify-icon
+              icon="lucide:refresh-cw"
+              class="text-[14px]"
+              [class.animate-spin]="loadingAccounts()"
+            ></iconify-icon>
+
+            Actualizar
+          </button>
+
+          @if (!hasAccounts()) {
+            <button
+              type="button"
+              (click)="generateBaseAccounts()"
+              [disabled]="loadingAccounts()"
+              class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11Z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 8h8M8 12h8M8 16h5"
+                />
+              </svg>
+
+              Usar plantilla base
+            </button>
+          }
+
+          <button
+            type="button"
+            (click)="createAccount()"
+            class="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 5v14M5 12h14"
+              />
+            </svg>
+
+            Nueva cuenta
+          </button>
+
+        </div>
+  
+      </div>
+
+
+      <!-- =========================================================
+           TOOLBAR DE CUENTA SELECCIONADA
+      ========================================================== -->
+
+      @if (toolbarAccount(); as cuenta) {
+
+        <div
+          class="
+            mt-4
+            flex
+            flex-col
+            gap-3
+            rounded-lg
+            border
+            border-[#dfe3e7]
+            bg-white
+            px-4
+            py-3
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+          "
+        >
+
+          <!-- CUENTA SELECCIONADA -->
+
+          <div
+            class="
+              flex
+              min-w-0
+              items-center
+              gap-3
+            "
+          >
+
+            <div
+              class="
+                flex
+                h-8
+                w-8
+                flex-shrink-0
+                items-center
+                justify-center
+                rounded-md
+                bg-[#f1f3f5]
+                text-[#52606d]
+              "
+            >
+
+              @if (selectedAccountHasChildren()) {
+
+                <iconify-icon
+                  icon="lucide:folder-tree"
+                  class="text-[15px]"
+                ></iconify-icon>
+
+              } @else {
+
+                <iconify-icon
+                  icon="lucide:file-text"
+                  class="text-[15px]"
+                ></iconify-icon>
+
+              }
+
+            </div>
+
+
+            <div class="min-w-0">
+
+              <div
+                class="
+                  flex
+                  flex-wrap
+                  items-center
+                  gap-2
+                "
+              >
+
+                <span
+                  class="
+                    font-mono
+                    text-[11px]
+                    font-medium
+                    text-[#68737d]
+                  "
+                >
+                  {{ cuenta.codigo_cuenta }}
+                </span>
+
+                <span
+                  class="
+                    h-1
+                    w-1
+                    rounded-full
+                    bg-[#c4c9ce]
+                  "
+                ></span>
+
+                <span
+                  class="
+                    truncate
+                    text-[12px]
+                    font-medium
+                    text-[#30363c]
+                  "
+                >
+                  {{ cuenta.nombre_cuenta }}
+                </span>
+
+              </div>
+
+              <p
+                class="
+                  mt-0.5
+                  text-[11px]
+                  text-[#8b949d]
+                "
+              >
+                Cuenta seleccionada
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- ACCIONES -->
+
+          <div
+            class="
+              flex
+              flex-wrap
+              items-center
+              gap-2
+            "
+          >
+
+            <button
+              type="button"
+              (click)="addChildAccount(cuenta)"
+              [disabled]="!canAddChildSelectedAccount()"
+              title="Agregar subcuenta"
+              class="
+                cursor-pointer
+                inline-flex
+                items-center
+                gap-2
+                rounded-md
+                bg-[#111214]
+                px-3
+                py-2
+                text-[12px]
+                font-medium
+                text-white
+                transition
+                hover:bg-[#292b30]
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                disabled:hover:bg-[#111214]
+              "
+            >
+              <iconify-icon
+                icon="lucide:folder-plus"
+                class="text-[14px]"
+              ></iconify-icon>
+
+              Agregar subcuenta
+            </button>
+
+            <button
+              type="button"
+              (click)="editAccount(cuenta)"
+              [disabled]="!canEditSelectedAccount()"
+              title="Editar cuenta"
+              class="
+                cursor-pointer
+                inline-flex
+                items-center
+                gap-2
+                rounded-md
+                border
+                border-[#dfe3e7]
+                bg-white
+                px-3
+                py-2
+                text-[12px]
+                font-medium
+                text-[#343a40]
+                transition
+                hover:bg-[#f5f6f7]
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                disabled:hover:bg-white
+              "
+            >
+              <iconify-icon
+                icon="lucide:pencil"
+                class="text-[14px]"
+              ></iconify-icon>
+
+              Editar cuenta
+            </button>
+
+            <!-- ELIMINAR CUENTA -->
+
+            <button
+              type="button"
+              (click)="deleteAccount(cuenta)"
+              [disabled]="!canDeleteSelectedAccount()"
+              title="Eliminar solamente esta cuenta"
+              class="
+                inline-flex
+                cursor-pointer
+                items-center
+                gap-2
+                rounded-md
+                border
+                border-[#e1cfcf]
+                bg-white
+                px-3
+                py-2
+                text-[12px]
+                font-medium
+                text-[#9a6b6b]
+                transition
+                hover:bg-[#f9eeee]
+                hover:text-[#a94442]
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                disabled:hover:bg-white
+                disabled:hover:text-[#9a6b6b]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:trash-2"
+                class="text-[14px]"
+              ></iconify-icon>
+
+              Eliminar cuenta
+
+            </button>
+
+
+            <!-- ELIMINAR RAMA -->
+
+            <button
+              type="button"
+              (click)="deleteAccountBranch()"
+              [disabled]="!selectedAccountHasChildren()"
+              title="Eliminar esta cuenta y toda su jerarquía descendiente"
+              class="
+                cursor-pointer
+                inline-flex
+                items-center
+                gap-2
+                rounded-md
+                bg-[#a94442]
+                px-3
+                py-2
+                text-[12px]
+                font-medium
+                text-white
+                transition
+
+                hover:bg-[#923b39]
+
+                disabled:cursor-not-allowed
+                disabled:opacity-40
+                disabled:hover:bg-[#a94442]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:git-branch"
+                class="text-[14px]"
+              ></iconify-icon>
+
+              Eliminar rama
+
+            </button>
+
+
+            <!-- DESELECCIONAR -->
+
+            <button
+              type="button"
+              (click)="toolbarAccount.set(null)"
+              title="Quitar selección"
+              class="
+                flex
+                h-8
+                w-8
+                cursor-pointer
+                items-center
+                justify-center
+                rounded-md
+                text-[#8b949d]
+                transition
+                hover:bg-[#f1f3f5]
+                hover:text-[#30363c]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:x"
+                class="text-[15px]"
+              ></iconify-icon>
+
+            </button>
+
+          </div>
+
+        </div>
+
+      }
+
+  
+    </header>  
+  
+  
+    <!-- =========================================================  
+         SUMMARY CARDS  
+    ========================================================== -->  
+  
+    <div  
+      class="  
+        grid  
+        grid-cols-1  
+        gap-3  
+        sm:grid-cols-2  
+        xl:grid-cols-4  
+      "  
+    >  
+  
+      <!-- TOTAL -->  
+  
+      <div  
+        class="  
+          rounded-lg  
+          border  
+          border-[#e2e5e8]  
+          bg-white  
+          p-4  
+        "  
+      >  
+  
+        <div  
+          class="  
+            flex  
+            items-start  
+            justify-between  
+          "  
+        >  
+  
+          <div>  
+  
+            <p  
+              class="  
+                text-[12px]  
+                font-medium  
+                text-[#7b848d]  
+              "  
+            >  
+              Total de cuentas  
+            </p>  
+  
+            <p  
+              class="  
+                mt-1  
+                text-[24px]  
+                font-semibold  
+                text-[#20252b]  
+              "  
+            >  
+              {{ totalAccounts() }}  
+            </p>  
+  
+          </div>  
+  
+          <div  
+            class="  
+              flex  
+              h-9  
+              w-9  
+              items-center  
+              justify-center  
+              rounded-md  
+              bg-[#f1f3f5]  
+              text-[#52606d]  
+            "  
+          >  
+  
+            <iconify-icon  
+              icon="lucide:layers-3"  
+              class="text-[17px]"  
+            ></iconify-icon>  
+  
+          </div>  
+  
+        </div>  
+  
+      </div>  
+  
+  
+      <!-- ACTIVAS -->  
+  
+      <div  
+        class="  
+          rounded-lg  
+          border  
+          border-[#e2e5e8]  
+          bg-white  
+          p-4  
+        "  
+      >  
+  
+        <div  
+          class="  
+            flex  
+            items-start  
+            justify-between  
+          "  
+        >  
+  
+          <div>  
+  
+            <p  
+              class="  
+                text-[12px]  
+                font-medium  
+                text-[#7b848d]  
+              "  
+            >  
+              Cuentas activas  
+            </p>  
+  
+            <p  
+              class="  
+                mt-1  
+                text-[24px]  
+                font-semibold  
+                text-[#20252b]  
+              "  
+            >  
+              {{ activeAccounts() }}  
+            </p>  
+  
+          </div>  
+  
+          <div  
+            class="  
+              flex  
+              h-9  
+              w-9  
+              items-center  
+              justify-center  
+              rounded-md  
+              bg-[#f1f3f5]  
+              text-[#52606d]  
+            "  
+          >  
+  
+            <iconify-icon  
+              icon="lucide:circle-check"  
+              class="text-[17px]"  
+            ></iconify-icon>  
+  
+          </div>  
+  
+        </div>  
+  
+      </div>  
+  
+  
+      <!-- MOVIMIENTO -->  
+  
+      <div  
+        class="  
+          rounded-lg  
+          border  
+          border-[#e2e5e8]  
+          bg-white  
+          p-4  
+        "  
+      >  
+  
+        <div  
+          class="  
+            flex  
+            items-start  
+            justify-between  
+          "  
+        >  
+  
+          <div>  
+  
+            <p  
+              class="  
+                text-[12px]  
+                font-medium  
+                text-[#7b848d]  
+              "  
+            >  
+              Cuentas de movimiento  
+            </p>  
+  
+            <p  
+              class="  
+                mt-1  
+                text-[24px]  
+                font-semibold  
+                text-[#20252b]  
+              "  
+            >  
+              {{ movementAccounts() }}  
+            </p>  
+  
+          </div>  
+  
+          <div  
+            class="  
+              flex  
+              h-9  
+              w-9  
+              items-center  
+              justify-center  
+              rounded-md  
+              bg-[#f1f3f5]  
+              text-[#52606d]  
+            "  
+          >  
+  
+            <iconify-icon  
+              icon="lucide:arrow-left-right"  
+              class="text-[17px]"  
+            ></iconify-icon>  
+  
+          </div>  
+  
+        </div>  
+  
+      </div>  
+  
+  
+      <!-- ESTRUCTURALES -->  
+  
+      <div  
+        class="  
+          rounded-lg  
+          border  
+          border-[#e2e5e8]  
+          bg-white  
+          p-4  
+        "  
+      >  
+  
+        <div  
+          class="  
+            flex  
+            items-start  
+            justify-between  
+          "  
+        >  
+  
+          <div>  
+  
+            <p  
+              class="  
+                text-[12px]  
+                font-medium  
+                text-[#7b848d]  
+              "  
+            >  
+              Cuentas estructurales  
+            </p>  
+  
+            <p  
+              class="  
+                mt-1  
+                text-[24px]  
+                font-semibold  
+                text-[#20252b]  
+              "  
+            >  
+              {{ parentAccounts() }}  
+            </p>  
+  
+          </div>  
+  
+          <div  
+            class="  
+              flex  
+              h-9  
+              w-9  
+              items-center  
+              justify-center  
+              rounded-md  
+              bg-[#f1f3f5]  
+              text-[#52606d]  
+            "  
+          >  
+  
+            <iconify-icon  
+              icon="lucide:folder-tree"  
+              class="text-[17px]"  
+            ></iconify-icon>  
+  
+          </div>  
+  
+        </div>  
+  
+      </div>  
+  
+    </div>  
+  
+  
+    <!-- =========================================================  
+         MAIN PANEL  
+    ========================================================== -->  
+  
+    <div  
+      class="  
+        overflow-hidden  
+        rounded-lg  
+        border  
+        border-[#e2e5e8]  
+        bg-white  
+      "  
+    >  
+  
+      <!-- FILTERS -->  
+  
+      <div  
+        class="  
+          flex  
+          flex-col  
+          gap-3  
+          border-b  
+          border-[#e8eaed]  
+          p-4  
+          md:flex-row  
+          md:items-center  
+        "  
+      >  
+  
+        <!-- SEARCH -->  
+  
+        <div  
+          class="  
+            relative  
+            flex-1  
+          "  
+        >  
+  
+          <iconify-icon  
+            icon="lucide:search"  
+            class="  
+              pointer-events-none  
+              absolute  
+              left-3  
+              top-1/2  
+              -translate-y-1/2  
+              text-[15px]  
+              text-[#8b949d]  
+            "  
+          ></iconify-icon>  
+  
+          <input  
+            type="text"  
+            [value]="searchTerm()"  
+            (input)="searchTerm.set($any($event.target).value)"  
+            placeholder="Buscar por código o nombre..."  
+            class="  
+              w-full  
+              rounded-md  
+              border  
+              border-[#dfe3e7]  
+              bg-white  
+              py-2.5  
+              pl-9  
+              pr-3  
+              text-[13px]  
+              text-[#20252b]  
+              outline-none  
+              transition  
+              placeholder:text-[#9aa2aa]  
+              focus:border-[#aeb7c0]  
+              focus:ring-2  
+              focus:ring-[#17324d]/5  
+            "  
+          >  
+  
+        </div>  
+  
+  
+        <!-- TYPE -->  
+  
+        <select  
+          [value]="selectedType()"  
+          (change)="selectedType.set($any($event.target).value)"  
+          class="  
+            cursor-pointer  
+            rounded-md  
+            border  
+            border-[#dfe3e7]  
+            bg-white  
+            px-3  
+            py-2.5  
+            text-[13px]  
+            text-[#4d5863]  
+            outline-none  
+            focus:border-[#aeb7c0]  
+          "  
+        >  
+  
+          <option value="TODOS">  
+            Todos los tipos  
+          </option>  
+  
+          <option value="ACTIVO">  
+            Activo  
+          </option>  
+  
+          <option value="PASIVO">  
+            Pasivo  
+          </option>  
+  
+          <option value="PATRIMONIO">  
+            Patrimonio  
+          </option>  
+  
+          <option value="INGRESO">  
+            Ingreso  
+          </option>  
+  
+          <option value="COSTO">  
+            Costo  
+          </option>  
+  
+          <option value="GASTO">  
+            Gasto  
+          </option>  
+  
+        </select>  
+  
+  
+        <!-- STATUS -->  
+  
+        <select  
+          [value]="selectedStatus()"  
+          (change)="selectedStatus.set($any($event.target).value)"  
+          class="  
+            cursor-pointer  
+            rounded-md  
+            border  
+            border-[#dfe3e7]  
+            bg-white  
+            px-3  
+            py-2.5  
+            text-[13px]  
+            text-[#4d5863]  
+            outline-none  
+            focus:border-[#aeb7c0]  
+          "  
+        >  
+  
+          <option value="TODOS">  
+            Todos los estados  
+          </option>  
+  
+          <option value="ACTIVAS">  
+            Activas  
+          </option>  
+  
+          <option value="INACTIVAS">  
+            Inactivas  
+          </option>  
+  
+        </select>  
+  
+      </div>  
+  
+  
+      <!-- =======================================================  
+           TABLE  
+      ======================================================== -->  
+  
+      <div class="overflow-x-auto">  
+  
+        <table  
+          class="  
+            min-w-[900px]  
+            w-full  
+            border-collapse  
+          "  
+        >  
+  
+          <thead>  
+  
+            <tr  
+              class="  
+                border-b  
+                border-[#e8eaed]  
+                bg-[#fafbfc]  
+                text-left  
+              "  
+            >  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Código  
+              </th>  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Cuenta  
+              </th>  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Tipo  
+              </th>  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Naturaleza  
+              </th>  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Movimiento  
+              </th>  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Estado  
+              </th>  
+  
+              <th  
+                class="  
+                  px-4  
+                  py-3  
+                  text-right  
+                  text-[11px]  
+                  font-semibold  
+                  uppercase  
+                  tracking-[0.04em]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Acción  
+              </th>  
+  
+            </tr>  
+  
+          </thead>  
+  
+  
+          <tbody>  
+  
+            @if (loadingAccounts()) {
+              <tr>
+                <td
+                  colspan="7"
+                  class="h-[320px] text-center align-middle"
+                >
+                  <div class="flex items-center justify-center">
+                    <iconify-icon
+                      icon="lucide:loader-circle"
+                      class="animate-spin text-[28px] text-[#6b7280]"
+                    ></iconify-icon>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (  
+                cuenta of filteredAccounts();  
+                track cuenta.cuenta_id  
+              ) {  
+    
+                @if (isVisible(cuenta)) {  
+    
+                  <tr  
+                    (click)="selectAccountForToolbar(cuenta)"
+                    [class.bg-[#f5f7f9]]="
+                      toolbarAccount()?.cuenta_id === cuenta.cuenta_id
+                    "
+                    class="  
+                      group  
+                      cursor-pointer
+                      border-b  
+                      border-[#edf0f2]  
+                      transition-colors  
+                      hover:bg-[#fafbfc]  
+                    "  
+                  >  
+    
+                    <!-- CÓDIGO -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      <div  
+                        class="  
+                          flex  
+                          items-center  
+                        "  
+                        [style.padding-left.px]="  
+                          (cuenta.nivel_cuenta - 1) * 24  
+                        "  
+                      >  
+    
+                        @if (hasChildren(cuenta)) {  
+    
+                          <button  
+                            type="button"  
+                            (click)="toggleAccount(cuenta.cuenta_id); $event.stopPropagation()"  
+                            [title]="  
+                              isExpanded(cuenta.cuenta_id)  
+                                ? 'Contraer cuenta'  
+                                : 'Expandir cuenta'  
+                            "  
+                            class="  
+                              mr-2  
+                              flex  
+                              h-5  
+                              w-5  
+                              flex-shrink-0  
+                              cursor-pointer  
+                              items-center  
+                              justify-center  
+                              text-[#8b949d]  
+                              transition-colors  
+                              duration-150  
+                              hover:text-[#4d5863]  
+                            "  
+                          >  
+    
+                            <iconify-icon  
+                              icon="lucide:chevron-right"  
+                              class="  
+                                text-[13px]  
+                                transition-transform  
+                                duration-150  
+                              "  
+                              [class.rotate-90]="  
+                                isExpanded(cuenta.cuenta_id)  
+                              "  
+                            ></iconify-icon>  
+    
+                          </button>  
+    
+                        } @else {  
+    
+                          <span  
+                            class="  
+                              mr-2  
+                              h-5  
+                              w-5  
+                              flex-shrink-0  
+                            "  
+                          ></span>  
+    
+                        }  
+    
+    
+                        <span  
+                          class="  
+                            font-mono  
+                            text-[12px]  
+                            font-medium  
+                            text-[#52606d]  
+                          "  
+                        >  
+                          {{ cuenta.codigo_cuenta }}  
+                        </span>  
+    
+                      </div>  
+    
+                    </td>  
+    
+    
+                    <!-- CUENTA -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      <div  
+                        class="  
+                          flex  
+                          items-center  
+                          gap-2  
+                        "  
+                      >  
+    
+                        @if (!cuenta.permite_movimiento) {  
+    
+                          <iconify-icon  
+                            icon="lucide:folder"  
+                            class="  
+                              flex-shrink-0  
+                              text-[15px]  
+                              text-[#7b848d]  
+                            "  
+                          ></iconify-icon>  
+    
+                        }  
+    
+                        <span  
+                          class="  
+                            text-[13px]  
+                            font-medium  
+                            text-[#30363c]  
+                          "  
+                        >  
+                          {{ cuenta.nombre_cuenta }}  
+                        </span>  
+    
+                      </div>  
+    
+                    </td>  
+    
+    
+                    <!-- TIPO -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      <span  
+                        class="  
+                          text-[12px]  
+                          font-medium  
+                          text-[#59636d]  
+                        "  
+                      >  
+                        {{ cuenta.tipo_cuenta }}  
+                      </span>  
+    
+                    </td>  
+    
+    
+                    <!-- NATURALEZA -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      <span  
+                        class="  
+                          text-[12px]  
+                          text-[#59636d]  
+                        "  
+                      >  
+                        {{ cuenta.naturaleza }}  
+                      </span>  
+    
+                    </td>  
+    
+    
+                    <!-- MOVIMIENTO -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      @if (cuenta.permite_movimiento) {  
+    
+                        <span  
+                          class="  
+                            inline-flex  
+                            items-center  
+                            gap-2  
+                            text-[12px]  
+                            font-medium  
+                            text-[#4d8c5c]  
+                          "  
+                        >  
+    
+                          <span  
+                            class="  
+                              h-1.5  
+                              w-1.5  
+                              rounded-full  
+                              bg-[#4d8c5c]  
+                            "  
+                          ></span>  
+    
+                          Sí  
+    
+                        </span>  
+    
+                      } @else {  
+    
+                        <span  
+                          class="  
+                            inline-flex  
+                            items-center  
+                            gap-2  
+                            text-[12px]  
+                            font-medium  
+                            text-[#7b848d]  
+                          "  
+                        >  
+    
+                          <span  
+                            class="  
+                              h-1.5  
+                              w-1.5  
+                              rounded-full  
+                              bg-[#aeb5bb]  
+                            "  
+                          ></span>  
+    
+                          No  
+    
+                        </span>  
+    
+                      }  
+    
+                    </td>  
+    
+    
+                    <!-- ESTADO -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      @if (cuenta.estado) {  
+    
+                        <span  
+                          class="  
+                            inline-flex  
+                            items-center  
+                            rounded-full  
+                            bg-[#edf6ef]  
+                            px-2  
+                            py-1  
+                            text-[11px]  
+                            font-medium  
+                            text-[#477553]  
+                          "  
+                        >  
+                          Activa  
+                        </span>  
+    
+                      } @else {  
+    
+                        <span  
+                          class="  
+                            inline-flex  
+                            items-center  
+                            rounded-full  
+                            bg-[#f1f2f3]  
+                            px-2  
+                            py-1  
+                            text-[11px]  
+                            font-medium  
+                            text-[#737b83]  
+                          "  
+                        >  
+                          Inactiva  
+                        </span>  
+    
+                      }  
+    
+                    </td>  
+    
+    
+                    <!-- ACCIONES -->  
+    
+                    <td class="px-4 py-3">  
+    
+                      <div  
+                        class="  
+                          flex  
+                          items-center  
+                          justify-end  
+                          gap-1  
+                          opacity-0  
+                          transition-opacity  
+                          group-hover:opacity-100  
+                          group-focus-within:opacity-100  
+                        "  
+                      >  
+    
+                        @if (!cuenta.permite_movimiento) {  
+    
+                          <button  
+                            type="button"  
+                            (click)="addChildAccount(cuenta); $event.stopPropagation()"  
+                            title="Agregar subcuenta"  
+                            class="  
+                              flex  
+                              h-8  
+                              w-8  
+                              cursor-pointer  
+                              items-center  
+                              justify-center  
+                              rounded-md  
+                              text-[#7b848d]  
+                              transition  
+                              hover:bg-[#f1f3f5]  
+                              hover:text-[#30363c]  
+                            "  
+                          >  
+    
+                            <iconify-icon  
+                              icon="lucide:folder-plus"  
+                              class="text-[15px]"  
+                            ></iconify-icon>  
+    
+                          </button>  
+    
+                        }  
+    
+    
+                        @if (!isBaseAccount(cuenta)) {  
+    
+                          <button  
+                            type="button"  
+                            (click)="editAccount(cuenta); $event.stopPropagation()"  
+                            title="Editar cuenta"  
+                            class="  
+                              flex  
+                              h-8  
+                              w-8  
+                              cursor-pointer  
+                              items-center  
+                              justify-center  
+                              rounded-md  
+                              text-[#7b848d]  
+                              transition  
+                              hover:bg-[#f1f3f5]  
+                              hover:text-[#30363c]  
+                            "  
+                          >  
+    
+                            <iconify-icon  
+                              icon="lucide:pencil"  
+                              class="text-[15px]"  
+                            ></iconify-icon>  
+    
+                          </button>  
+                        } 
+    
+                        <!-- ELIMINAR -->  
+  
+                        @if (canDeleteAccount(cuenta)) {  
+  
+                          <button  
+                            type="button"  
+                            (click)="deleteAccount(cuenta); $event.stopPropagation()"  
+                            title="Eliminar cuenta"  
+                            class="  
+                              flex  
+                              h-8  
+                              w-8  
+                              cursor-pointer  
+                              items-center  
+                              justify-center  
+                              rounded-md  
+                              text-[#9a6b6b]  
+                              transition  
+                              hover:bg-[#f9eeee]  
+                              hover:text-[#a94442]  
+                            "  
+                          >  
+  
+                            <iconify-icon  
+                              icon="lucide:trash-2"  
+                              class="text-[15px]"  
+                            ></iconify-icon>  
+  
+                          </button>  
+  
+                        }  
+
+                        <!-- ELIMINAR RAMA -->
+
+                        @if (hasChildren(cuenta)) {
+
+                          <button
+                            type="button"
+                            (click)="deleteAccountBranchFor(cuenta); $event.stopPropagation()"
+                            title="Eliminar rama"
+                            class="
+                              flex
+                              h-8
+                              w-8
+                              cursor-pointer
+                              items-center
+                              justify-center
+                              rounded-md
+                              text-[#9a6b6b]
+                              transition
+                              hover:bg-[#f9eeee]
+                              hover:text-[#a94442]
+                            "
+                          >
+
+                            <iconify-icon
+                              icon="lucide:git-branch"
+                              class="text-[15px]"
+                            ></iconify-icon>
+
+                          </button>
+
+                        }
+    
+                      </div>  
+    
+                    </td>  
+    
+                  </tr>  
+    
+                }  
+    
+              } @empty {  
+    
+                <tr>  
+    
+                  <td  
+                    colspan="7"  
+                    class="px-4 py-16"  
+                  >  
+    
+                    <div  
+                      class="  
+                        flex  
+                        flex-col  
+                        items-center  
+                        justify-center  
+                        text-center  
+                      "  
+                    >  
+    
+                      <iconify-icon  
+                        icon="lucide:search-x"  
+                        class="  
+                          text-[28px]  
+                          text-[#aeb5bb]  
+                        "  
+                      ></iconify-icon>  
+    
+                      <p  
+                        class="  
+                          mt-3  
+                          text-[13px]  
+                          font-medium  
+                          text-[#59636d]  
+                        "  
+                      >  
+                        No se encontraron cuentas  
+                      </p>  
+    
+                      <p  
+                        class="  
+                          mt-1  
+                          text-[12px]  
+                          text-[#8b949d]  
+                        "  
+                      >  
+                        Prueba con otro código, nombre o filtro.  
+                      </p>  
+    
+                    </div>  
+    
+                  </td>  
+    
+                </tr>  
+    
+              }  
+            }
+  
+          </tbody>  
+  
+        </table>  
+  
+      </div>  
+  
+  
+      <!-- FOOTER -->  
+  
+      <div  
+        class="  
+          flex  
+          items-center  
+          justify-between  
+          border-t  
+          border-[#e8eaed]  
+          px-4  
+          py-3  
+        "  
+      >  
+  
+        <span  
+          class="  
+            text-[12px]  
+            text-[#7b848d]  
+          "  
+        >  
+          {{ filteredAccounts().length }} cuentas mostradas  
+        </span>  
+  
+        <iconify-icon  
+          icon="lucide:database"  
+          class="  
+            text-[15px]  
+            text-[#9aa2aa]  
+          "  
+        ></iconify-icon>  
+  
+      </div>  
+  
+    </div>  
+  
+  </div>  
+  
+  
+  <!-- ===========================================================  
+       ACCOUNT MODAL  
+  ============================================================ -->  
+  
+  @if (modalMode()) {  
+  
+    <div  
+      class="  
+        fixed  
+        inset-0  
+        z-50  
+        flex  
+        items-center  
+        justify-center  
+        bg-black/35  
+        px-4  
+        py-6  
+      "  
+      (click)="closeModal()"  
+    >  
+  
+      <div  
+        class="  
+          flex  
+          max-h-[calc(100vh-48px)]  
+          w-full  
+          max-w-[620px]  
+          flex-col  
+          overflow-hidden  
+          rounded-lg  
+          border  
+          border-[#dfe3e7]  
+          bg-white  
+          shadow-xl  
+        "  
+        (click)="$event.stopPropagation()"  
+      >  
+  
+        <!-- =====================================================  
+             MODAL HEADER  
+        ====================================================== -->  
+  
+        <div  
+          class="  
+            flex  
+            items-start  
+            justify-between  
+            border-b  
+            border-[#e8eaed]  
+            px-5  
+            py-4  
+          "  
+        >  
+  
+          <div>  
+  
+            @if (modalMode() === 'create') {  
+  
+              <h2  
+                class="  
+                  text-[17px]  
+                  font-semibold  
+                  text-[#20252b]  
+                "  
+              >  
+                Nueva cuenta  
+              </h2>  
+  
+              <p  
+                class="  
+                  mt-1  
+                  text-[12px]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Registra una nueva cuenta en el catálogo contable.  
+              </p>  
+  
+            } @else if (modalMode() === 'child') {  
+  
+              <h2  
+                class="  
+                  text-[17px]  
+                  font-semibold  
+                  text-[#20252b]  
+                "  
+              >  
+                Nueva subcuenta  
+              </h2>  
+  
+              <p  
+                class="  
+                  mt-1  
+                  text-[12px]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Registra una cuenta dependiente de otra cuenta estructural.  
+              </p>  
+  
+            } @else {  
+  
+              <h2  
+                class="  
+                  text-[17px]  
+                  font-semibold  
+                  text-[#20252b]  
+                "  
+              >  
+                Editar cuenta  
+              </h2>  
+  
+              <p  
+                class="  
+                  mt-1  
+                  text-[12px]  
+                  text-[#7b848d]  
+                "  
+              >  
+                Actualiza los datos registrados de la cuenta.  
+              </p>  
+  
+            }  
+  
+          </div>  
+  
+  
+          <button  
+            type="button"  
+            (click)="closeModal()"  
+            title="Cerrar"  
+            class="  
+              flex  
+              h-8  
+              w-8  
+              cursor-pointer  
+              items-center  
+              justify-center  
+              rounded-md  
+              text-[#8b949d]  
+              transition  
+              hover:bg-[#f1f3f5]  
+              hover:text-[#30363c]  
+            "  
+          >  
+  
+            <iconify-icon  
+              icon="lucide:x"  
+              class="text-[17px]"  
+            ></iconify-icon>  
+  
+          </button>  
+  
+        </div>  
+  
+  
+        <!-- =====================================================  
+             MODAL BODY  
+        ====================================================== -->  
+  
+        <div  
+          class="  
+            overflow-y-auto  
+            px-5  
+            py-5  
+          "  
+        >  
+  
+          <!-- INFO DB -->  
+  
+          <div  
+            class="  
+              mb-5  
+              rounded-md  
+              border  
+              border-[#e5e8eb]  
+              bg-[#f8f9fa]  
+              px-4  
+              py-3  
+            "  
+          >  
+  
+            <div  
+              class="  
+                flex  
+                items-start  
+                gap-3  
+              "  
+            >  
+  
+              <iconify-icon  
+                icon="lucide:database"  
+                class="  
+                  mt-0.5  
+                  flex-shrink-0  
+                  text-[15px]  
+                  text-[#68737d]  
+                "  
+              ></iconify-icon>  
+  
+              <div>  
+  
+                <p  
+                  class="  
+                    text-[12px]  
+                    font-semibold  
+                    text-[#4d5863]  
+                  "  
+                >  
+                  Datos de la cuenta  
+                </p>  
+  
+                <p  
+                  class="  
+                    mt-1  
+                    text-[11px]  
+                    leading-5  
+                    text-[#7b848d]  
+                  "  
+                >  
+                  Estos campos corresponden a los datos que el  
+                  registro de la cuenta necesita almacenar en la  
+                  base de datos.  
+                </p>  
+  
+              </div>  
+  
+            </div>  
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               CÓDIGO  
+          ==================================================== -->  
+  
+          <div class="mb-4">  
+  
+            <label  
+              class="  
+                mb-1.5  
+                block  
+                text-[12px]  
+                font-medium  
+                text-[#4d5863]  
+              "  
+            >  
+              Código de cuenta  
+              <span class="text-[#b64d4d]">*</span>  
+            </label>  
+  
+            <input  
+              type="text"  
+              [value]="accountForm().codigo_cuenta"  
+              (input)="  
+                updateForm(  
+                  'codigo_cuenta',  
+                  $any($event.target).value  
+                )  
+              "  
+              placeholder="Ej. 1.1.01"  
+              class="  
+                w-full  
+                rounded-md  
+                border  
+                border-[#dfe3e7]  
+                bg-white  
+                px-3  
+                py-2.5  
+                font-mono  
+                text-[13px]  
+                text-[#20252b]  
+                outline-none  
+                transition  
+                placeholder:text-[#a0a7ae]  
+                focus:border-[#9aa5af]  
+                focus:ring-2  
+                focus:ring-[#17324d]/5  
+              "  
+            >  
+  
+            <p  
+              class="  
+                mt-1.5  
+                text-[11px]  
+                text-[#8b949d]  
+              "  
+            >  
+              Código único utilizado para identificar la cuenta dentro del catálogo.  
+            </p>  
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               NOMBRE  
+          ==================================================== -->  
+  
+          <div class="mb-4">  
+  
+            <label  
+              class="  
+                mb-1.5  
+                block  
+                text-[12px]  
+                font-medium  
+                text-[#4d5863]  
+              "  
+            >  
+              Nombre de cuenta  
+              <span class="text-[#b64d4d]">*</span>  
+            </label>  
+  
+            <input  
+              type="text"  
+              [value]="accountForm().nombre_cuenta"  
+              (input)="  
+                updateForm(  
+                  'nombre_cuenta',  
+                  $any($event.target).value  
+                )  
+              "  
+              placeholder="Ej. Caja"  
+              class="  
+                w-full  
+                rounded-md  
+                border  
+                border-[#dfe3e7]  
+                bg-white  
+                px-3  
+                py-2.5  
+                text-[13px]  
+                text-[#20252b]  
+                outline-none  
+                transition  
+                placeholder:text-[#a0a7ae]  
+                focus:border-[#9aa5af]  
+                focus:ring-2  
+                focus:ring-[#17324d]/5  
+              "  
+            >  
+  
+            <p  
+              class="  
+                mt-1.5  
+                text-[11px]  
+                text-[#8b949d]  
+              "  
+            >  
+              Nombre descriptivo que aparecerá en el catálogo y reportes.  
+            </p>  
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               TIPO + NATURALEZA  
+          ==================================================== -->  
+  
+          <div  
+            class="  
+              mb-4  
+              grid  
+              grid-cols-1  
+              gap-4  
+              sm:grid-cols-2  
+            "  
+          >  
+  
+            <!-- TIPO -->  
+  
+            <div>  
+  
+              <label  
+                class="  
+                  mb-1.5  
+                  block  
+                  text-[12px]  
+                  font-medium  
+                  text-[#4d5863]  
+                "  
+              >  
+                Tipo de cuenta  
+              </label>  
+  
+              <select  
+                [value]="accountForm().tipo_cuenta"  
+                (change)="  
+                  updateForm(  
+                    'tipo_cuenta',  
+                    $any($event.target).value  
+                  )  
+                "  
+                [disabled]="modalMode() === 'child'"  
+                class="  
+                  w-full  
+                  rounded-md  
+                  border  
+                  border-[#dfe3e7]  
+                  bg-white  
+                  px-3  
+                  py-2.5  
+                  text-[13px]  
+                  text-[#4d5863]  
+                  outline-none  
+                  disabled:cursor-not-allowed  
+                  disabled:bg-[#f4f5f6]  
+                  disabled:text-[#8b949d]  
+                  focus:border-[#9aa5af]  
+                "  
+                [class.cursor-pointer]="modalMode() !== 'child'"  
+              >  
+  
+                <option value="ACTIVO">  
+                  Activo  
+                </option>  
+  
+                <option value="PASIVO">  
+                  Pasivo  
+                </option>  
+  
+                <option value="PATRIMONIO">  
+                  Patrimonio  
+                </option>  
+  
+                <option value="INGRESO">  
+                  Ingreso  
+                </option>  
+  
+                <option value="COSTO">  
+                  Costo  
+                </option>  
+  
+                <option value="GASTO">  
+                  Gasto  
+                </option>  
+  
+              </select>  
+  
+              @if (modalMode() === 'child') {  
+  
+                <p  
+                  class="  
+                    mt-1.5  
+                    text-[11px]  
+                    text-[#8b949d]  
+                  "  
+                >  
+                  Se hereda de la cuenta padre.  
+                </p>  
+  
+              }  
+  
+            </div>  
+  
+  
+            <!-- NATURALEZA -->  
+  
+            <div>  
+  
+              <label  
+                class="  
+                  mb-1.5  
+                  block  
+                  text-[12px]  
+                  font-medium  
+                  text-[#4d5863]  
+                "  
+              >  
+                Naturaleza  
+              </label>  
+  
+              <select  
+                [value]="accountForm().naturaleza"  
+                (change)="  
+                  updateForm(  
+                    'naturaleza',  
+                    $any($event.target).value  
+                  )  
+                "  
+                [disabled]="modalMode() === 'child'"  
+                class="  
+                  w-full  
+                  rounded-md  
+                  border  
+                  border-[#dfe3e7]  
+                  bg-white  
+                  px-3  
+                  py-2.5  
+                  text-[13px]  
+                  text-[#4d5863]  
+                  outline-none  
+                  disabled:cursor-not-allowed  
+                  disabled:bg-[#f4f5f6]  
+                  disabled:text-[#8b949d]  
+                  focus:border-[#9aa5af]  
+                "  
+                [class.cursor-pointer]="modalMode() !== 'child'"  
+              >  
+  
+                <option value="DEUDORA">  
+                  Deudora  
+                </option>  
+  
+                <option value="ACREEDORA">  
+                  Acreedora  
+                </option>  
+  
+              </select>  
+  
+              @if (modalMode() === 'child') {  
+  
+                <p  
+                  class="  
+                    mt-1.5  
+                    text-[11px]  
+                    text-[#8b949d]  
+                  "  
+                >  
+                  Se hereda de la cuenta padre.  
+                </p>  
+  
+              }  
+  
+            </div>  
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               CUENTA PADRE  
+          ==================================================== -->  
+  
+          <div class="mb-4">  
+  
+            <label  
+              class="  
+                mb-1.5  
+                block  
+                text-[12px]  
+                font-medium  
+                text-[#4d5863]  
+              "  
+            >  
+              Cuenta padre  
+            </label>  
+  
+            @if (modalMode() === 'child') {  
+  
+              <!--  
+                En modo subcuenta no se permite seleccionar otra  
+                cuenta. La cuenta padre es exactamente la cuenta  
+                estructural desde la que se abrió el formulario.  
+              -->  
+  
+              <select  
+                [value]="accountForm().cuenta_padre_id ?? ''"  
+                disabled  
+                class="  
+                  w-full  
+                  cursor-not-allowed  
+                  rounded-md  
+                  border  
+                  border-[#dfe3e7]  
+                  bg-[#f4f5f6]  
+                  px-3  
+                  py-2.5  
+                  text-[13px]  
+                  text-[#68737d]  
+                  outline-none  
+                "  
+              >  
+  
+                @if (selectedAccount(); as parent) {  
+  
+                  <option [value]="parent.cuenta_id">  
+                    {{ parent.codigo_cuenta }} — {{ parent.nombre_cuenta }}  
+                  </option>  
+  
+                }  
+  
+              </select>  
+  
+              <p  
+                class="  
+                  mt-1.5  
+                  text-[11px]  
+                  text-[#8b949d]  
+                "  
+              >  
+                Se establece automáticamente según la cuenta agrupadora seleccionada.  
+              </p>  
+  
+            } @else {
+
+              <select
+                [value]="accountForm().cuenta_padre_id?.toString() ?? ''"
+                (change)="
+                  updateParent(
+                    $any($event.target).value === ''
+                      ? null
+                      : +$any($event.target).value
+                  )
+                "
+                [disabled]="!canChangeParent()"
+                class="
+                  w-full
+                  rounded-md
+                  border
+                  border-[#dfe3e7]
+                  px-3
+                  py-2.5
+                  text-[13px]
+                  outline-none
+
+                  disabled:cursor-not-allowed
+                  disabled:bg-[#f4f5f6]
+                  disabled:text-[#8b949d]
+
+                  focus:border-[#aeb7c0]
+                "
+                [class.cursor-pointer]="canChangeParent()"
+              >
+
+                <!-- SIN CUENTA PADRE -->
+
+                <option
+                  value=""
+                  [selected]="accountForm().cuenta_padre_id === null"
+                >
+                  Sin cuenta padre
+                </option>
+
+
+                <!-- CUENTAS ESTRUCTURALES -->
+
+                @for (
+                  parent of parentOptions();
+                  track parent.cuenta_id
+                ) {
+
+                  @if (
+                    parent.cuenta_id !== selectedAccount()?.cuenta_id
+                  ) {
+
+                    <option
+                      [value]="parent.cuenta_id.toString()"
+                      [selected]="
+                        parent.cuenta_id === accountForm().cuenta_padre_id
+                      "
+                    >
+                      {{ parent.codigo_cuenta }} — {{ parent.nombre_cuenta }}
+                    </option>
+
+                  }
+
+                }
+
+              </select>
+
+
+              @if (!canChangeParent()) {
+
+                <p
+                  class="
+                    mt-1.5
+                    text-[11px]
+                    leading-4
+                    text-[#9a6b6b]
+                  "
+                >
+                  No puede cambiar la cuenta padre porque esta cuenta tiene cuentas hijas.
+                </p>
+
+              } @else {
+
+                <p
+                  class="
+                    mt-1.5
+                    text-[11px]
+                    text-[#8b949d]
+                  "
+                >
+                  Determina la posición jerárquica de la cuenta dentro del catálogo.
+                </p>
+
+              }
+
+            }
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               NIVEL  
+          ==================================================== -->  
+  
+          <div class="mb-4">  
+  
+            <label  
+              class="  
+                mb-1.5  
+                block  
+                text-[12px]  
+                font-medium  
+                text-[#4d5863]  
+              "  
+            >  
+              Nivel de cuenta  
+            </label>  
+  
+            <div  
+              class="  
+                flex  
+                items-center  
+                gap-3  
+              "  
+            >  
+  
+              <input  
+                type="number"  
+                [value]="accountForm().nivel_cuenta"  
+                readonly  
+                class="  
+                  w-full  
+                  cursor-not-allowed  
+                  rounded-md  
+                  border  
+                  border-[#dfe3e7]  
+                  bg-[#f4f5f6]  
+                  px-3  
+                  py-2.5  
+                  text-[13px]  
+                  text-[#68737d]  
+                  outline-none  
+                "  
+              >  
+  
+              <span  
+                class="  
+                  flex-shrink-0  
+                  text-[11px]  
+                  text-[#8b949d]  
+                "  
+              >  
+                Calculado  
+              </span>  
+  
+            </div>  
+  
+            <p  
+              class="  
+                mt-1.5  
+                text-[11px]  
+                text-[#8b949d]  
+              "  
+            >  
+              Nivel jerárquico calculado según la cuenta padre. No se modifica manualmente.  
+            </p>  
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               OPTIONS  
+          ==================================================== -->  
+  
+          <div  
+            class="  
+              grid  
+              grid-cols-1  
+              gap-3  
+              sm:grid-cols-2  
+            "  
+          >  
+  
+            <!-- MOVIMIENTO -->  
+  
+            <label
+              class="
+                flex
+                items-start
+                gap-3
+                rounded-md
+                border
+                border-[#e3e6e9]
+                p-3
+                transition
+
+                hover:bg-[#fafbfc]
+
+                disabled:cursor-not-allowed
+              "
+              [class.cursor-pointer]="canChangeMovement()"
+              [class.cursor-not-allowed]="!canChangeMovement()"
+              [class.bg-[#f8f9fa]]="!canChangeMovement()"
+            > 
+  
+              <input
+                type="checkbox"
+                [checked]="accountForm().permite_movimiento"
+                [disabled]="!canChangeMovement()"
+                (change)="
+                  updateForm(
+                    'permite_movimiento',
+                    $any($event.target).checked
+                  )
+                "
+                class="
+                  mt-0.5
+                  h-4
+                  w-4
+                  accent-[#17324d]
+
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+  
+              <span>  
+  
+                <span  
+                  class="  
+                    block  
+                    text-[12px]  
+                    font-medium  
+                    text-[#4d5863]  
+                  "  
+                >  
+                  Permite movimiento  
+                </span>  
+  
+                <span  
+                  class="  
+                    mt-0.5  
+                    block  
+                    text-[11px]  
+                    leading-4  
+                    text-[#8b949d]  
+                  "  
+                >  
+                  Permite registrar movimientos contables directamente en esta cuenta.  
+                </span>  
+
+                @if (!canChangeMovement()) {
+
+                  <span
+                    class="
+                      mt-1
+                      block
+                      text-[11px]
+                      leading-4
+                      text-[#9a6b6b]
+                    "
+                  >
+                    No puede permitir movimientos porque tiene cuentas hijas.
+                  </span>
+
+                }
+  
+              </span>  
+  
+            </label>  
+  
+  
+            <!-- ESTADO -->  
+  
+            <label  
+              class="  
+                flex  
+                cursor-pointer  
+                items-start  
+                gap-3  
+                rounded-md  
+                border  
+                border-[#e3e6e9]  
+                p-3  
+                transition  
+                hover:bg-[#fafbfc]  
+              "  
+            >  
+  
+              <input
+                type="checkbox"
+                [checked]="accountForm().estado"
+                [disabled]="!canChangeStatus()"
+                (change)="
+                  updateForm(
+                    'estado',
+                    $any($event.target).checked
+                  )
+                "
+                class="
+                  mt-0.5
+                  h-4
+                  w-4
+                  accent-[#17324d]
+
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+  
+              <span>  
+  
+                <span  
+                  class="  
+                    block  
+                    text-[12px]  
+                    font-medium  
+                    text-[#4d5863]  
+                  "  
+                >  
+                  Cuenta activa  
+                </span>  
+  
+                <span  
+                  class="  
+                    mt-0.5  
+                    block  
+                    text-[11px]  
+                    leading-4  
+                    text-[#8b949d]  
+                  "  
+                >  
+                  Define si la cuenta puede utilizarse actualmente.  
+                </span>  
+
+                @if (!canChangeStatus()) {
+
+                  <span
+                    class="
+                      mt-1
+                      block
+                      text-[11px]
+                      leading-4
+                      text-[#9a6b6b]
+                    "
+                  >
+                    No puede desactivarse porque tiene cuentas hijas activas.
+                  </span>
+
+                }
+  
+              </span>  
+  
+            </label>  
+  
+          </div>  
+  
+  
+          <!-- ===================================================  
+               DATABASE INFO  
+          ==================================================== -->  
+  
+          @if (modalMode() === 'edit') {  
+  
+            <div  
+              class="  
+                mt-5  
+                rounded-md  
+                border  
+                border-[#e5e8eb]  
+                bg-[#fafbfc]  
+                px-4  
+                py-3  
+              "  
+            >  
+  
+              <div  
+                class="  
+                  flex  
+                  items-start  
+                  gap-3  
+                "  
+              >  
+  
+                <iconify-icon  
+                  icon="lucide:info"  
+                  class="  
+                    mt-0.5  
+                    flex-shrink-0  
+                    text-[15px]  
+                    text-[#7b848d]  
+                  "  
+                ></iconify-icon>  
+  
+                <div>  
+  
+                  <p  
+                    class="  
+                      text-[11px]  
+                      font-semibold  
+                      text-[#59636d]  
+                    "  
+                  >  
+                    Identificador del registro  
+                  </p>  
+  
+                  <p  
+                    class="  
+                      mt-1  
+                      text-[11px]  
+                      leading-5  
+                      text-[#8b949d]  
+                    "  
+                  >  
+                    Esta cuenta corresponde al registro  
+                    <span class="font-mono text-[#59636d]">  
+                      #{{ selectedAccount()?.cuenta_id }}  
+                    </span>  
+                    en la base de datos. El identificador se utiliza  
+                    para actualizar el registro y no se modifica desde este formulario.  
+                  </p>  
+  
+                </div>  
+  
+              </div>  
+  
+            </div>  
+  
+          }  
+  
+        </div>  
+  
+  
+        <!-- =====================================================  
+             MODAL FOOTER  
+        ====================================================== -->  
+  
+        <div  
+          class="  
+            flex  
+            flex-col-reverse  
+            gap-2  
+            border-t  
+            border-[#e8eaed]  
+            bg-[#fafbfc]  
+            px-5  
+            py-4  
+            sm:flex-row  
+            sm:justify-end  
+          "  
+        >  
+  
+          <button  
+            type="button"  
+            (click)="closeModal()"  
+            class="  
+              cursor-pointer  
+              rounded-md  
+              border  
+              border-[#dfe3e7]  
+              bg-white  
+              px-4  
+              py-2.5  
+              text-[12px]  
+              font-medium  
+              text-[#59636d]  
+              transition  
+              hover:bg-[#f4f5f6]  
+            "  
+          >  
+            Cancelar  
+          </button>  
+  
+  
+          <button  
+            type="button"  
+            (click)="saveAccount()"  
+            [disabled]="!isFormValid()"  
+            class="  
+              rounded-md  
+              bg-[#17324d]  
+              px-4  
+              py-2.5  
+              text-[12px]  
+              font-medium  
+              text-white  
+              transition  
+              disabled:cursor-not-allowed  
+              disabled:opacity-45  
+              hover:bg-[#214766]  
+            "  
+            [class.cursor-pointer]="isFormValid()"  
+          >  
+  
+            @if (modalMode() === 'edit') {  
+  
+              Guardar cambios  
+  
+            } @else if (modalMode() === 'child') {  
+  
+              Crear subcuenta  
+  
+            } @else {  
+  
+              Crear cuenta  
+  
+            }  
+  
+          </button>  
+  
+        </div>  
+  
+      </div>  
+  
+    </div>  
+  
+  }  
+  
+</section>
