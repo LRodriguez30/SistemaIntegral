@@ -91,6 +91,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { baseUrl } from '../app';
+import { CreatePersona } from './personas.service';
 
 export interface UsersResponse {
     usuario_id: number;
@@ -102,11 +103,17 @@ export interface UsersResponse {
 }
 
 export interface CreateUser {
-    persona_id: number;
+    nombre_usuario: string;
+    persona_id?: number;
     correo_electronico: string;
     contraseña: string;
     rol_id: RolesType;
-    estado: boolean;
+    estado?: boolean;
+}
+
+export interface CreateFullUser {
+    persona: CreatePersona;
+    usuario: CreateUser;
 }
 
 export interface UpdateUser {
@@ -161,6 +168,15 @@ export class UsersService {
             withCredentials: true
         });
     }
+
+    // CREATE FULL USER
+    createFullUser(dto: CreateFullUser) {
+        return this.http.post<UsersResponse>(`${this.url}/full-user`, dto, {
+            withCredentials: true
+        });
+    }
+
+
 
     // PATCH
     grantRole(dto: UpdateUser, id: number) {

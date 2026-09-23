@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { UsersService } from '../../../../services/users.service';
 import { RolesType } from '../../../../services/users.service';
 import type {
+    CreateFullUser,
     CreateUser,
     UpdateUser,
     UsersResponse,
@@ -34,10 +35,18 @@ import {
 
 import { InitializeDefaultValues } from '../../helpers/FormInit';
 import { AuthService } from '../../../../services/auth.service';
+import { PHONE_COUNTRIES, PhoneCountry } from '../personas/personas';
+
+import {
+    PHONE_INPUT_PLACEHOLDER,
+    PHONE_COUNTRY_SELECT_PLACEHOLDER,
+    PHONE_COUNTRY_WIDTH,
+    PHONE_NUMBER_MAX_LENGTH
+} from '../personas/personas.ui';
 
 type UpdateModalAction = 'close' | 'reset';
 type UserFilterKey = keyof UserFilter;
-type CreateMode = 'menu' | 'single' | 'multi' | 'import';
+type CreateMode = 'menu' | 'single' | 'multi' | 'import' | 'full';
 
 @Component({
     selector: 'app-users',
@@ -68,6 +77,10 @@ export class Users {
     ) {
         this.loadData();
     }
+
+    RolesType = RolesType;
+
+    usernameAutofill = signal(true);
 
     // =========================================================
     // CSV
@@ -413,6 +426,7 @@ export class Users {
 
     isDirty = signal(false);
     isFormValid = signal(false);
+    isFullFormValid = signal(false);
 
     isDiscardWarningOpen = signal(false);
 
@@ -438,6 +452,13 @@ export class Users {
 
         fields: [
 
+            {
+                key: 'nombre_usuario',
+                label: 'Nombre de usuario',
+                type: 'text',
+                required: true
+            },
+            
             {
                 key: 'persona_id',
                 label: 'Persona',
@@ -499,7 +520,104 @@ export class Users {
 
     } as DynamicCreateModel;
 
+    fullCreateModel: DynamicCreateModel = {
+        title: 'Nuevo usuario completo',
+        endpoint: `/users/full-user`,
+        fields: [
+            // =============================================================
+            // PERSONA
+            // =============================================================
+
+            {
+            key: 'primer_nombre',
+            label: 'Primer nombre',
+            type: 'text',
+            required: true
+            },
+            {
+            key: 'segundo_nombre',
+            label: 'Segundo nombre',
+            type: 'text',
+            required: false
+            },
+            {
+            key: 'primer_apellido',
+            label: 'Primer apellido',
+            type: 'text',
+            required: true
+            },
+            {
+            key: 'segundo_apellido',
+            label: 'Segundo apellido',
+            type: 'text',
+            required: false
+            },
+            {
+            key: 'telefono',
+            label: 'Teléfono',
+            type: 'text',
+            required: false
+            },
+
+            // =============================================================
+            // USUARIO
+            // =============================================================
+
+            {
+            key: 'correo_electronico',
+            label: 'Correo electrónico',
+            type: 'text',
+            required: true
+            },
+            {
+            key: 'contraseña',
+            label: 'Contraseña',
+            type: 'password',
+            required: true
+            },
+            {
+            key: 'rol_id',
+            label: 'Rol',
+            type: 'select',
+            required: true,
+            options: [
+                {
+                label: 'Superadministrador',
+                value: RolesType.SUPERADMINISTRADOR
+                },
+                {
+                label: 'Administrador Gerencial',
+                value: RolesType.ADMINISTRADORGERENCIAL
+                },
+                {
+                label: 'Administrador Contable',
+                value: RolesType.ADMINISTRADORCONTABLE
+                },
+                {
+                label: 'Administrador de Producción',
+                value: RolesType.ADMINISTRADORDEPRODUCCION
+                },
+                {
+                label: 'Administrador Operativo',
+                value: RolesType.ADMINISTRADOROPERATIVO
+                },
+                {
+                label: 'Usuario Estándar',
+                value: RolesType.USUARIOESTANDAR
+                }
+            ]
+            },
+            {
+            key: 'estado',
+            label: 'Estado',
+            type: 'boolean',
+            required: true
+            }
+        ]
+    } as DynamicCreateModel;
+
     formCreateState: Record<string, any> = {};
+    formFullCreateState: Record<string, any> = {};
     formUpdateState: Record<string, any> = {};
     originalFormState: Record<string, any> = {};
 
@@ -1026,6 +1144,9 @@ export class Users {
 
             const payload: CreateUser = {
 
+                nombre_usuario:
+                    row['nombre_usuario'],
+
                 persona_id:
                     Number(row['persona_id']),
 
@@ -1102,6 +1223,21 @@ export class Users {
                 this.createModel
             );
 
+        if (mode === 'full') {
+
+            this.usernameAutofill.set(true);
+
+            this.formFullCreateState = {
+                rol_id: RolesType.USUARIOESTANDAR,
+                estado: true
+            };
+
+            this.createPhoneCountry =
+                this.getPhoneCountry(
+                    this.defaultPhoneCountryCode
+                );
+        }
+
         setTimeout(() => {
 
             if (mode === 'multi') {
@@ -1115,7 +1251,11 @@ export class Users {
 
             this.isCreateOpen.set(true);
 
-            this.updateFormValidity('create');
+            if (mode === 'full') {
+                this.updateFullFormValidity();
+            } else {
+                this.updateFormValidity('create');
+            }
 
             this.isOpening.set(true);
 
@@ -1131,6 +1271,9 @@ export class Users {
         this.isSubmitting.set(true);
 
         const payload: CreateUser = {
+
+            nombre_usuario:
+                this.formCreateState['nombre_usuario'],
 
             persona_id:
                 Number(
@@ -1191,6 +1334,65 @@ export class Users {
                     this.isSubmitting.set(false);
                 }
             });
+    }
+
+    submitFullCreate() {
+        this.isSubmitting.set(true);
+
+        const payload: CreateFullUser = {
+            persona: {
+                primer_nombre:
+                    this.formFullCreateState['primer_nombre'],
+
+                segundo_nombre:
+                    this.formFullCreateState['segundo_nombre'] || '',
+
+                primer_apellido:
+                    this.formFullCreateState['primer_apellido'],
+
+                segundo_apellido:
+                    this.formFullCreateState['segundo_apellido'] || '',
+
+                telefono:
+                    this.formFullCreateState['telefono'] || ''
+            },
+
+            usuario: {
+
+                nombre_usuario:
+                    this.formFullCreateState['nombre_usuario'],
+
+                correo_electronico:
+                    this.formFullCreateState['correo_electronico'],
+
+                contraseña:
+                    this.formFullCreateState['contraseña'],
+
+                rol_id:
+                    Number(
+                        this.formFullCreateState['rol_id']
+                    )
+            }
+        };
+
+        this.usersService.createFullUser(payload).subscribe({
+            next: () => {
+            this.isSubmitting.set(false);
+
+            this.isCreateOpen.set(false);
+            this.createState.set({
+                open: false,
+                mode: 'full'
+            });
+
+            this.loadData();
+            },
+
+            error: () => {
+            this.isSubmitting.set(false);
+            this.isApiError.set(true);
+            }
+        });
     }
 
     // =========================================================
@@ -1257,7 +1459,7 @@ export class Users {
 
             rol_id: row.rol_id,
 
-            estado: row.rol_id
+            estado: row.estado
 
         };
 
@@ -1428,6 +1630,89 @@ export class Users {
         this.updateFormValidity(action);
     }
 
+    setFullFieldValue(key: string, value: any) {
+        this.formFullCreateState = {
+            ...this.formFullCreateState,
+            [key]: value
+        };
+
+        if (
+            this.usernameAutofill() &&
+            (
+                key === 'primer_nombre' ||
+                key === 'segundo_nombre' ||
+                key === 'primer_apellido' ||
+                key === 'segundo_apellido'
+            )
+        ) {
+            this.generateUsername();
+        }
+
+        this.updateFullFormValidity();
+    }
+
+    generateUsername() {
+
+        const primerNombre =
+            this.formFullCreateState['primer_nombre'] ?? '';
+
+        const segundoNombre =
+            this.formFullCreateState['segundo_nombre'] ?? '';
+
+        const primerApellido =
+            this.formFullCreateState['primer_apellido'] ?? '';
+
+        const segundoApellido =
+            this.formFullCreateState['segundo_apellido'] ?? '';
+
+        const nombreUsuario = [
+            primerNombre,
+            segundoNombre,
+            primerApellido,
+            segundoApellido
+        ]
+            .map(value => String(value).trim())
+            .filter(value => value !== '')
+            .join(' ');
+
+        this.formFullCreateState = {
+            ...this.formFullCreateState,
+            nombre_usuario: nombreUsuario
+        };
+    }
+
+    toggleUsernameAutofill() {
+        const newValue = !this.usernameAutofill();
+
+        this.usernameAutofill.set(newValue);
+
+        if (newValue) {
+            this.generateUsername();
+        }
+
+        this.updateFullFormValidity();
+    }
+
+    updateFullFormValidity() {
+        const valid = this.fullCreateModel.fields.every(field => {
+            if (!field.required) {
+            return true;
+            }
+
+            const value = this.formFullCreateState[field.key];
+
+            if (field.type === 'boolean') {
+            return value !== null && value !== undefined;
+            }
+
+            return value !== null &&
+                value !== undefined &&
+                String(value).trim() !== '';
+        });
+
+        this.isFullFormValid.set(valid);
+    }
+
     onNumberChange(
         key: string,
         event: Event,
@@ -1470,6 +1755,10 @@ export class Users {
 
         if (action !== 'delete') {
             this.isFormValid.set(false);
+        }
+
+        if (action === 'create' && mode === 'full') {
+            this.isFullFormValid.set(false);
         }
 
         setTimeout(() => {
@@ -1748,4 +2037,479 @@ export class Users {
     closeMenu() {
         this.openMenuId = null;
     }
+
+
+
+    // =========================================================
+    // PHONE — FULL USER CREATE
+    // =========================================================
+
+    /**
+     * País predeterminado para el formulario de usuario completo.
+     */
+    readonly defaultPhoneCountryCode = '+505';
+
+    /**
+     * Países disponibles para el selector telefónico.
+     */
+    readonly phoneCountries = PHONE_COUNTRIES;
+
+    /**
+     * País seleccionado actualmente en el formulario
+     * de creación de usuario completo.
+     */
+    createPhoneCountry =
+        this.getPhoneCountry(
+            this.defaultPhoneCountryCode
+        );
+
+    /**
+     * Obtiene un país a partir de su código telefónico.
+     */
+    getPhoneCountry(
+        code: string | null | undefined
+    ): PhoneCountry {
+
+        if (!code) {
+
+            return PHONE_COUNTRIES.find(
+                country =>
+                    country.code ===
+                    this.defaultPhoneCountryCode
+            ) ?? PHONE_COUNTRIES[0];
+
+        }
+
+        return PHONE_COUNTRIES.find(
+            country =>
+                country.code === code
+        ) ?? (
+            PHONE_COUNTRIES.find(
+                country =>
+                    country.code ===
+                    this.defaultPhoneCountryCode
+            ) ?? PHONE_COUNTRIES[0]
+        );
+    }
+
+    /**
+     * Convierte un código ISO en emoji de bandera.
+     */
+    isoToFlagEmoji(
+        iso: string | null | undefined
+    ): string {
+
+        if (!iso || iso.length !== 2) {
+            return '🏳️';
+        }
+
+        return [...iso.toUpperCase()]
+            .map(char =>
+                String.fromCodePoint(
+                    127397 +
+                    char.charCodeAt(0)
+                )
+            )
+            .join('');
+    }
+
+    /**
+     * Cambia el país telefónico del formulario
+     * de creación de usuario completo.
+     */
+    onCreatePhoneCountryChange(
+        countryCode: string
+    ) {
+
+        this.createPhoneCountry =
+            this.getPhoneCountry(countryCode);
+
+        const current =
+            this.formFullCreateState['telefono'] ?? '';
+
+        const national =
+            this.extractNationalPhone(current);
+
+        this.formFullCreateState = {
+            ...this.formFullCreateState,
+            telefono:
+                this.formatPhoneNumber(
+                    countryCode,
+                    national
+                )
+        };
+
+        this.updateFullFormValidity();
+    }
+
+    /**
+     * Maneja la escritura del teléfono.
+     *
+     * El usuario solamente introduce el número nacional.
+     * El código internacional se agrega automáticamente.
+     */
+    onCreatePhoneInput(
+    event: Event
+) {
+
+    const input =
+        event.target as HTMLInputElement;
+
+    const country =
+        this.createPhoneCountry;
+
+    const digits =
+        this.extractNationalPhone(
+            input.value
+        );
+
+    const limited =
+        digits.slice(
+            0,
+            country.digits
+        );
+
+    const formatted =
+        this.formatPhoneNumber(
+            country.code,
+            limited
+        );
+
+    this.formFullCreateState = {
+        ...this.formFullCreateState,
+        telefono: formatted
+    };
+
+    this.updateFullFormValidity();
+}
+
+    /**
+     * Obtiene únicamente la parte nacional
+     * del teléfono para mostrarla en el input.
+     *
+     * Ejemplo:
+     *
+     * +505 8269 2155
+     *       ↓
+     * 8269 2155
+     */
+    getCreatePhoneNumber(): string {
+
+        const phone =
+            this.formFullCreateState['telefono'];
+
+        if (!phone) {
+            return '';
+        }
+
+        const dialCode =
+            this.createPhoneCountry.code;
+
+        if (phone.startsWith(dialCode)) {
+
+            return phone
+                .slice(dialCode.length)
+                .trim();
+
+        }
+
+        return phone;
+    }
+
+    /**
+     * Extrae solamente los dígitos nacionales.
+     */
+    extractNationalPhone(
+        value: string | null | undefined
+    ): string {
+
+        if (!value) {
+            return '';
+        }
+
+        const digits =
+            this.onlyDigits(value);
+
+        if (!digits) {
+            return '';
+        }
+
+        const country =
+            this.findPhoneCountryFromNumber(
+                value
+            );
+
+        if (!country) {
+            return digits;
+        }
+
+        const prefix =
+            this.onlyDigits(
+                country.code
+            );
+
+        if (digits.startsWith(prefix)) {
+            return digits.slice(
+                prefix.length
+            );
+        }
+
+        return digits;
+    }
+
+    /**
+     * Conserva únicamente números.
+     */
+    onlyDigits(
+        value: string | null | undefined
+    ): string {
+
+        return String(value ?? '')
+            .replace(/\D/g, '');
+    }
+
+    /**
+     * Busca el país correspondiente al teléfono.
+     */
+    private findPhoneCountryFromNumber(
+        value: string
+    ): PhoneCountry | undefined {
+
+        const digits =
+            this.onlyDigits(value);
+
+        return [...PHONE_COUNTRIES]
+            .sort(
+                (a, b) =>
+                    b.code.length -
+                    a.code.length
+            )
+            .find(country =>
+                digits.startsWith(
+                    this.onlyDigits(
+                        country.code
+                    )
+                )
+            );
+    }
+
+    /**
+     * Formatea el teléfono según el país.
+     */
+    formatPhoneNumber(
+        countryCode: string,
+        nationalNumber: string
+    ): string {
+
+        const country =
+            this.getPhoneCountry(
+                countryCode
+            );
+
+        let digits =
+            this.onlyDigits(
+                nationalNumber
+            );
+
+        digits =
+            digits.slice(
+                0,
+                country.digits
+            );
+
+        if (!digits) {
+            return '';
+        }
+
+        const groups =
+            this.getPhoneGroups(
+                country,
+                digits
+            );
+
+        return [
+            country.code,
+            ...groups
+        ].join(' ');
+    }
+
+    /**
+     * Define la agrupación visual de los dígitos.
+     */
+    private getPhoneGroups(
+        country: PhoneCountry,
+        digits: string
+    ): string[] {
+
+        if (country.code === '+505') {
+
+            return this.groupDigits(
+                digits,
+                [4, 4]
+            );
+
+        }
+
+        if (
+            country.code === '+502' ||
+            country.code === '+503' ||
+            country.code === '+504' ||
+            country.code === '+506' ||
+            country.code === '+509'
+        ) {
+
+            return this.groupDigits(
+                digits,
+                [4, 4]
+            );
+
+        }
+
+        if (
+            country.code === '+507' ||
+            country.code === '+591' ||
+            country.code === '+592' ||
+            country.code === '+595' ||
+            country.code === '+598'
+        ) {
+
+            return this.groupDigits(
+                digits,
+                [3, 4]
+            );
+
+        }
+
+        if (
+            country.code === '+52' ||
+            country.code === '+54' ||
+            country.code === '+55' ||
+            country.code === '+57'
+        ) {
+
+            return this.groupDigits(
+                digits,
+                [3, 3, 4]
+            );
+
+        }
+
+        if (country.code === '+1') {
+
+            return this.groupDigits(
+                digits,
+                [3, 3, 4]
+            );
+
+        }
+
+        if (country.digits === 8) {
+
+            return this.groupDigits(
+                digits,
+                [4, 4]
+            );
+
+        }
+
+        if (country.digits === 9) {
+
+            return this.groupDigits(
+                digits,
+                [3, 3, 3]
+            );
+
+        }
+
+        if (country.digits === 10) {
+
+            return this.groupDigits(
+                digits,
+                [3, 3, 4]
+            );
+
+        }
+
+        if (country.digits === 11) {
+
+            return this.groupDigits(
+                digits,
+                [3, 4, 4]
+            );
+
+        }
+
+        return this.groupDigits(
+            digits,
+            [3, 4, 4]
+        );
+    }
+
+    /**
+     * Divide los dígitos en grupos visuales.
+     */
+    private groupDigits(
+        digits: string,
+        groups: number[]
+    ): string[] {
+
+        const result: string[] = [];
+
+        let position = 0;
+
+        for (const size of groups) {
+
+            if (position >= digits.length) {
+                break;
+            }
+
+            result.push(
+                digits.slice(
+                    position,
+                    position + size
+                )
+            );
+
+            position += size;
+        }
+
+        if (position < digits.length) {
+
+            result.push(
+                digits.slice(position)
+            );
+
+        }
+
+        return result;
+    }
+
+    /**
+     * Valida que el teléfono tenga la cantidad
+     * correcta de dígitos para el país seleccionado.
+     */
+    isValidCreatePhoneNumber(
+        value: string | null | undefined
+    ): boolean {
+
+        if (!value) {
+            return false;
+        }
+
+        const country =
+            this.createPhoneCountry;
+
+        const national =
+            this.extractNationalPhone(
+                value
+            );
+
+        return national.length ===
+            country.digits;
+    }
+
+    PHONE_COUNTRY_WIDTH = PHONE_COUNTRY_WIDTH;
+    PHONE_INPUT_PLACEHOLDER = PHONE_INPUT_PLACEHOLDER;
+    PHONE_COUNTRY_SELECT_PLACEHOLDER = PHONE_COUNTRY_SELECT_PLACEHOLDER;
+    PHONE_NUMBER_MAX_LENGTH = PHONE_NUMBER_MAX_LENGTH;
 }

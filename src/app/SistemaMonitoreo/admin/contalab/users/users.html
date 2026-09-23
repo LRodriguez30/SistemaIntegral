@@ -145,6 +145,502 @@
 </div>
 }
 
+<!-- =============================================================
+     MODAL — CREACIÓN COMPLETA
+     Persona + Usuario
+============================================================= -->
+
+@if (createState().open && createState().mode === 'full') {
+  <div
+    class="fixed inset-0 z-[1000] flex items-center justify-center bg-zinc-950/40 backdrop-blur-sm"
+  >
+    <div
+      class="relative w-[1100px] max-w-[95vw] max-h-[92vh] overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl"
+    >
+
+      <!-- =========================================================
+           HEADER
+      ========================================================== -->
+
+      <div
+        class="flex items-center justify-between border-b border-zinc-200 px-6 py-4"
+      >
+        <div>
+          <h2 class="text-lg font-semibold text-zinc-900">
+            Nuevo usuario
+          </h2>
+
+          <p class="mt-1 text-sm text-zinc-500">
+            Registra una persona y crea su usuario en un solo paso.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="cursor-pointer flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900"
+          (click)="closeModal('create', 'full')"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+
+      <!-- =========================================================
+           BODY
+      ========================================================== -->
+
+      <div class="max-h-[calc(92vh-145px)] overflow-y-auto px-6 py-6">
+
+        <!-- =======================================================
+             PERSONA
+        ======================================================== -->
+
+        <div class="mb-8">
+
+          <div class="mb-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+              Información personal
+            </h3>
+
+            <p class="mt-1 text-sm text-zinc-500">
+              Datos de la persona asociada al usuario.
+            </p>
+          </div>
+
+
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+            <!-- Primer nombre -->
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Primer nombre
+                <span class="text-red-500">*</span>
+              </label>
+
+              <input
+                type="text"
+                [value]="formFullCreateState['primer_nombre'] ?? ''"
+                (input)="setFullFieldValue('primer_nombre', $any($event.target).value)"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="Primer nombre"
+              />
+            </div>
+
+
+            <!-- Segundo nombre -->
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Segundo nombre
+              </label>
+
+              <input
+                type="text"
+                [value]="formFullCreateState['segundo_nombre'] ?? ''"
+                (input)="setFullFieldValue('segundo_nombre', $any($event.target).value)"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="Segundo nombre"
+              />
+            </div>
+
+
+            <!-- Primer apellido -->
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Primer apellido
+                <span class="text-red-500">*</span>
+              </label>
+
+              <input
+                type="text"
+                [value]="formFullCreateState['primer_apellido'] ?? ''"
+                (input)="setFullFieldValue('primer_apellido', $any($event.target).value)"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="Primer apellido"
+              />
+            </div>
+
+
+            <!-- Segundo apellido -->
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Segundo apellido
+              </label>
+
+              <input
+                type="text"
+                [value]="formFullCreateState['segundo_apellido'] ?? ''"
+                (input)="setFullFieldValue('segundo_apellido', $any($event.target).value)"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="Segundo apellido"
+              />
+            </div>
+
+            <!-- Teléfono -->
+
+            <div class="md:col-span-2">
+
+                <label class="mb-2 block text-sm font-medium text-zinc-700">
+                    Teléfono
+                </label>
+
+                <div class="flex items-stretch w-full rounded-xl border border-slate-200 bg-white
+                    overflow-hidden shadow-sm
+                    transition-all duration-200
+                    focus-within:border-zinc-900
+                    focus-within:ring-2 focus-within:ring-zinc-900/10">
+
+                    <!-- PAÍS -->
+
+                    <div class="relative shrink-0 flex items-center bg-slate-50
+                        border-r border-slate-200">
+
+                        <mat-select
+                            class="shrink-0 text-sm text-slate-700 bg-white
+                                border-r border-slate-300 px-3 cursor-pointer
+                                outline-none text-center"
+                            [style.width]="PHONE_COUNTRY_WIDTH"
+                            panelWidth="300px"
+                            [value]="createPhoneCountry.code"
+                            [attr.aria-label]="PHONE_COUNTRY_SELECT_PLACEHOLDER"
+                            (selectionChange)="
+                                onCreatePhoneCountryChange(
+                                    $any($event).value
+                                )
+                            "
+                        >
+
+                            @for (
+                                country of phoneCountries;
+                                track country.flag
+                            ) {
+
+                                <mat-option [value]="country.code">
+
+                                    <div class="flex items-center gap-2.5 py-0.5">
+
+                                        <span class="text-lg leading-none">
+                                            {{
+                                                isoToFlagEmoji(
+                                                    country.flag
+                                                )
+                                            }}
+                                        </span>
+
+                                        <span class="font-medium text-slate-700">
+                                            {{ country.code }}
+                                        </span>
+
+                                        <span class="text-slate-400">
+                                            {{ country.country }}
+                                        </span>
+
+                                    </div>
+
+                                </mat-option>
+
+                            }
+
+                        </mat-select>
+
+                    </div>
+
+                    <!-- TELÉFONO -->
+
+                    <div class="flex-1 flex items-center min-w-0">
+
+                        <input
+                            class="w-full min-w-0 bg-white border-0 text-slate-900
+                                px-3.5 py-2.5
+                                text-sm
+                                placeholder:text-slate-400
+                                outline-none"
+                            type="tel"
+                            inputmode="numeric"
+                            [attr.maxlength]="PHONE_NUMBER_MAX_LENGTH"
+                            [placeholder]="PHONE_INPUT_PLACEHOLDER"
+                            [value]="formFullCreateState['telefono'] ?? ''"
+                            (input)="onCreatePhoneInput($event)"
+                        />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- =======================================================
+             USUARIO
+        ======================================================== -->
+
+        <div>
+
+          <div class="mb-5">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-900">
+              Información de usuario
+            </h3>
+
+            <p class="mt-1 text-sm text-zinc-500">
+              Credenciales y permisos de acceso al sistema.
+            </p>
+          </div>
+
+
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+            <!-- Nombre de usuario -->
+
+            <div>
+                <div class="mb-2 flex items-center justify-between">
+
+                    <label class="block text-sm font-medium text-zinc-700">
+                        Nombre de usuario
+                        <span class="text-red-500">*</span>
+                    </label>
+
+                    <button
+                        type="button"
+                        class="cursor-pointer text-xs font-medium text-zinc-500 transition hover:text-zinc-900"
+                        (click)="toggleUsernameAutofill()"
+                    >
+                        @if (usernameAutofill()) {
+                            Autocompletado: Activado
+                        } @else {
+                            Autocompletado: Desactivado
+                        }
+                    </button>
+
+                </div>
+
+                <input
+                    type="text"
+                    [value]="formFullCreateState['nombre_usuario'] ?? ''"
+                    (input)="
+                        setFullFieldValue(
+                            'nombre_usuario',
+                            $any($event.target).value
+                        )
+                    "
+                    class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                    placeholder="Nombre de usuario"
+                />
+
+                @if (usernameAutofill()) {
+                    <p class="mt-1.5 text-xs text-zinc-500">
+                        Se genera automáticamente a partir del nombre y apellido.
+                    </p>
+                }
+            </div>
+
+            <!-- Correo -->
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Correo electrónico
+                <span class="text-red-500">*</span>
+              </label>
+
+              <input
+                type="email"
+                [value]="formFullCreateState['correo_electronico'] ?? ''"
+                (input)="setFullFieldValue('correo_electronico', $any($event.target).value)"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
+
+
+            <!-- Contraseña -->
+
+            <div>
+              <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Contraseña
+                <span class="text-red-500">*</span>
+              </label>
+
+              <input
+                type="password"
+                [value]="formFullCreateState['contraseña'] ?? ''"
+                (input)="setFullFieldValue('contraseña', $any($event.target).value)"
+                class="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="Contraseña"
+              />
+            </div>
+
+
+            <!-- Rol -->
+
+            <div>
+                <mat-form-field appearance="fill" class="w-full">
+
+                    <mat-label>Rol</mat-label>
+
+                    <mat-select
+                    [value]="formFullCreateState['rol_id'] ?? RolesType.USUARIOESTANDAR"
+                    (selectionChange)="setFullFieldValue('rol_id', $event.value)"
+                    >
+
+                    <mat-option [value]="RolesType.SUPERADMINISTRADOR">
+                        Superadministrador
+                    </mat-option>
+
+                    <mat-option [value]="RolesType.ADMINISTRADORGERENCIAL">
+                        Administrador Gerencial
+                    </mat-option>
+
+                    <mat-option [value]="RolesType.ADMINISTRADORCONTABLE">
+                        Administrador Contable
+                    </mat-option>
+
+                    <mat-option [value]="RolesType.ADMINISTRADORDEPRODUCCION">
+                        Administrador de Producción
+                    </mat-option>
+
+                    <mat-option [value]="RolesType.ADMINISTRADOROPERATIVO">
+                        Administrador Operativo
+                    </mat-option>
+
+                    <mat-option [value]="RolesType.USUARIOESTANDAR">
+                        Usuario Estándar
+                    </mat-option>
+
+                    </mat-select>
+
+                    <mat-icon matSuffix>badge</mat-icon>
+
+                </mat-form-field>
+            </div>
+
+
+            <!-- Estado -->
+
+            <div>
+            <label class="mb-2 block text-sm font-medium text-zinc-700">
+                Estado
+                <span class="text-red-500">*</span>
+            </label>
+
+            <div class="grid grid-cols-2 gap-3">
+
+                <!-- Activo -->
+
+                <button
+                type="button"
+                class="cursor-pointer flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition"
+                [class.border-zinc-900]="formFullCreateState['estado'] === true"
+                [class.bg-zinc-50]="formFullCreateState['estado'] === true"
+                [class.border-zinc-200]="formFullCreateState['estado'] !== true"
+                [class.bg-white]="formFullCreateState['estado'] !== true"
+                [class.hover:border-zinc-400]="formFullCreateState['estado'] !== true"
+                (click)="setFullFieldValue('estado', true)"
+                >
+                <span
+                    class="flex h-4 w-4 items-center justify-center rounded-full border transition"
+                    [class.border-zinc-900]="formFullCreateState['estado'] === true"
+                    [class.border-zinc-300]="formFullCreateState['estado'] !== true"
+                >
+                    @if (formFullCreateState['estado'] === true) {
+                    <span class="h-2 w-2 rounded-full bg-zinc-900"></span>
+                    }
+                </span>
+
+                <div>
+                    <p class="text-sm font-medium text-zinc-900">
+                    Activo
+                    </p>
+
+                    <p class="text-xs text-zinc-500">
+                    Puede acceder al sistema
+                    </p>
+                </div>
+                </button>
+
+
+                <!-- Inactivo -->
+
+                <button
+                type="button"
+                class="cursor-pointer flex items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition"
+                [class.border-zinc-900]="formFullCreateState['estado'] === false"
+                [class.bg-zinc-50]="formFullCreateState['estado'] === false"
+                [class.border-zinc-200]="formFullCreateState['estado'] !== false"
+                [class.bg-white]="formFullCreateState['estado'] !== false"
+                [class.hover:border-zinc-400]="formFullCreateState['estado'] !== false"
+                (click)="setFullFieldValue('estado', false)"
+                >
+                <span
+                    class="flex h-4 w-4 items-center justify-center rounded-full border transition"
+                    [class.border-zinc-900]="formFullCreateState['estado'] === false"
+                    [class.border-zinc-300]="formFullCreateState['estado'] !== false"
+                >
+                    @if (formFullCreateState['estado'] === false) {
+                    <span class="h-2 w-2 rounded-full bg-zinc-900"></span>
+                    }
+                </span>
+
+                <div>
+                    <p class="text-sm font-medium text-zinc-900">
+                    Inactivo
+                    </p>
+
+                    <p class="text-xs text-zinc-500">
+                    No puede acceder al sistema
+                    </p>
+                </div>
+                </button>
+
+            </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- =========================================================
+           FOOTER
+      ========================================================== -->
+
+      <div
+        class="flex items-center justify-end gap-3 border-t border-zinc-200 bg-zinc-50/70 px-6 py-4"
+      >
+
+        <button
+          type="button"
+          class="cursor-pointer rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-900"
+          (click)="closeModal('create', 'full')"
+          [disabled]="isSubmitting()"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="cursor-pointer rounded-lg bg-zinc-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
+          [disabled]="!isFullFormValid() || isSubmitting()"
+          (click)="submitFullCreate()"
+        >
+          @if (isSubmitting()) {
+            <span>Creando...</span>
+          } @else {
+            <span>Crear usuario</span>
+          }
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+}
+
 @if (createState().open && createState().mode === 'multi') {
 <div class="fixed inset-0 z-120 flex items-center justify-center bg-slate-900/50 backdrop-blur-md p-4">
     <div class="relative z-10 bg-white text-slate-900 rounded-2xl w-400 max-w-[95vw]
@@ -1144,6 +1640,39 @@
 
                 <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100
                            bg-linear-to-r from-zinc-900/5 to-transparent transition">
+                </div>
+
+            </button>
+
+            <!-- FULL USER -->
+            <button class="cursor-pointer group relative flex items-center gap-4 p-4 rounded-xl 
+                    border border-slate-200 bg-slate-50 
+                    hover:bg-white hover:border-zinc-900 
+                    hover:shadow-lg hover:shadow-zinc-900/10 hover:-translate-y-0.5 
+                    active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-zinc-900/20 
+                    transition-all duration-200" (click)="openCreate('full')">
+
+                <div class="w-10 h-10 rounded-lg bg-zinc-900/5 text-zinc-900 
+                        group-hover:bg-zinc-900/10 flex items-center justify-center transition">
+                    <iconify-icon icon="lucide:user-round-plus" class="text-xl"></iconify-icon>
+                </div>
+
+                <div class="text-left">
+                    <p class="text-sm font-semibold text-slate-900">
+                        Usuario completo
+                    </p>
+
+                    <p class="text-xs text-slate-500">
+                        Crear una persona y su usuario en un solo paso
+                    </p>
+                </div>
+
+                <iconify-icon icon="lucide:chevron-right" 
+                    class="ml-auto text-slate-400 group-hover:text-zinc-900 transition">
+                </iconify-icon>
+
+                <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 
+                        bg-linear-to-r from-zinc-900/5 to-transparent transition">
                 </div>
 
             </button>

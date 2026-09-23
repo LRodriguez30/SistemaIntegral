@@ -60,7 +60,7 @@ export interface PhoneCountry {
  * `digits` representa la cantidad de dígitos nacionales
  * que se esperan después del código internacional.
  */
-const PHONE_COUNTRIES: PhoneCountry[] = [
+export const PHONE_COUNTRIES: PhoneCountry[] = [
     {
         code: '+1',
         country: 'Estados Unidos',

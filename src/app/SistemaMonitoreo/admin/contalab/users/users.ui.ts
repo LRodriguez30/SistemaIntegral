@@ -7,59 +7,70 @@ import { RolesType } from "../../../../services/users.service";
  * - enum RolesType
  * - nombre del rol
  */
-function normalizeRole(role: RolesType | string | number): RolesType | null {
+function normalizeRole(
+  role: RolesType | string | number
+): RolesType | null {
 
-  const value = String(role).trim();
+    const value = String(role).trim();
 
-  switch (value) {
+    switch (value) {
 
-    // IDs provenientes de la API
-    case '1':
-      return RolesType.SUPERADMINISTRADOR;
+        // IDs provenientes de la API
 
-    case '2':
-      return RolesType.ADMINISTRADORGERENCIAL;
+        case '1':
+            return RolesType.SUPERADMINISTRADOR;
 
-    case '3':
-      return RolesType.ADMINISTRADORCONTABLE;
+        case '2':
+            return RolesType.ADMINISTRADORGERENCIAL;
 
-    case '4':
-      return RolesType.ADMINISTRADOROPERATIVO;
+        case '3':
+            return RolesType.ADMINISTRADORCONTABLE;
 
-    case '5':
-      return RolesType.USUARIOESTANDAR;
+        case '4':
+            return RolesType.ADMINISTRADORDEPRODUCCION;
 
+        case '5':
+            return RolesType.ADMINISTRADOROPERATIVO;
 
-    // Nombres provenientes de la API
-    case 'Superadministrador':
-      return RolesType.SUPERADMINISTRADOR;
-
-    case 'Administrador Gerencial':
-      return RolesType.ADMINISTRADORGERENCIAL;
-
-    case 'Administrador Contable':
-      return RolesType.ADMINISTRADORCONTABLE;
-
-    case 'Administrador Operativo':
-      return RolesType.ADMINISTRADOROPERATIVO;
-
-    case 'Usuario Estándar':
-      return RolesType.USUARIOESTANDAR;
+        case '6':
+            return RolesType.USUARIOESTANDAR;
 
 
-    // Valores del enum
-    default:
+        // Nombres provenientes de la API
 
-      if (
-        Object.values(RolesType)
-          .map(String)
-          .includes(value)
-      ) {
-        return role as RolesType;
-      }
+        case 'Superadministrador':
+            return RolesType.SUPERADMINISTRADOR;
 
-      return null;
-  }
+        case 'Administrador Gerencial':
+            return RolesType.ADMINISTRADORGERENCIAL;
+
+        case 'Administrador Contable':
+            return RolesType.ADMINISTRADORCONTABLE;
+
+        case 'Administrador de Producción':
+            return RolesType.ADMINISTRADORDEPRODUCCION;
+
+        case 'Administrador Operativo':
+            return RolesType.ADMINISTRADOROPERATIVO;
+
+        case 'Usuario Estándar':
+            return RolesType.USUARIOESTANDAR;
+
+
+        // Valores del enum
+
+        default:
+
+            if (
+                Object.values(RolesType)
+                    .map(String)
+                    .includes(value)
+            ) {
+                return role as RolesType;
+            }
+
+            return null;
+    }
 }
 
 
