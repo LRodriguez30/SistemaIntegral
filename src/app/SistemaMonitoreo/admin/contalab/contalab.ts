@@ -3,13 +3,17 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
-  inject
+  inject,
+  OnInit,
+  signal
 } from '@angular/core';
 
 import {
   RouterLink
 } from '@angular/router';
+
 import { CatalogoCuentasService } from '../../../services/catalogo_cuentas.service';
+import { AsientosContablesService } from '../../../services/asientos_contables.service';
 
 
 interface QuickAction {
@@ -56,10 +60,14 @@ interface ActivityItem {
 })
 
 
-export class Contalab {
+export class Contalab implements OnInit {
 
   private readonly catalogoCuentasService =
     inject(CatalogoCuentasService);
+
+  private readonly asientosContablesService =
+    inject(AsientosContablesService);
+
 
   // =========================================================
   // INICIALIZACIÓN
@@ -71,33 +79,70 @@ export class Contalab {
 
   }
 
+
   // =========================================================
   // CARGAR ESTADÍSTICAS CONTABLES
   // =========================================================
 
   private loadAccountingStats(): void {
 
-  this.catalogoCuentasService
-    .getCatalogoCuentas()
-    .subscribe({
-      next: (cuentas) => {
+    this.catalogoCuentasService
+      .getCatalogoCuentas()
+      .subscribe({
 
-        this.accountingStats.accounts =
-          cuentas.length;
+        next: (cuentas) => {
 
-      },
+          this.accountingStats.update(stats => ({
 
-      error: (error) => {
+            ...stats,
 
-        console.error(
-          'Error obteniendo las cuentas contables:',
-          error
-        );
+            accounts: cuentas.length
 
-      }
-    });
+          }));
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error obteniendo las cuentas contables:',
+            error
+          );
+
+        }
+
+      });
+
+    this.asientosContablesService
+      .getAsientosContables()
+      .subscribe({
+
+        next: (asientos) => {
+
+          this.accountingStats.update(stats => ({
+
+            ...stats,
+
+            journalEntries: asientos.length
+
+          }));
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error obteniendo las cuentas contables:',
+            error
+          );
+
+        }
+
+      });
 
   }
+
+
   // =========================================================
   // INFORMACIÓN DEL MÓDULO
   // =========================================================
@@ -118,7 +163,7 @@ export class Contalab {
   // RESUMEN CONTABLE
   // =========================================================
 
-  accountingStats = {
+  readonly accountingStats = signal({
 
     accounts: 0,
 
@@ -128,7 +173,7 @@ export class Contalab {
 
     suppliers: 0
 
-  };
+  });
 
 
   // =========================================================

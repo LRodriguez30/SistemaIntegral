@@ -53,20 +53,115 @@
       </div>
 
 
-      <button
-        type="button"
-        (click)="createEntry()"
-        class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#17324d] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#214663]"
-      >
+      <div class="flex items-center gap-2">
 
-        <iconify-icon
-          icon="lucide:plus"
-          class="text-[17px]"
-        ></iconify-icon>
+        <!-- =========================================================
+            ACCIONES SECUNDARIAS
+            ========================================================= -->
 
-        Nuevo asiento
+        <div
+          class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-sm"
+        >
 
-      </button>
+          <!-- Actualizar -->
+          <button
+            type="button"
+            (click)="loadAccountingEntries()"
+            [disabled]="loadingAsientos()"
+            class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+
+            <iconify-icon
+              icon="lucide:refresh-cw"
+              class="text-[16px]"
+              [class.animate-spin]="loadingAsientos()"
+            ></iconify-icon>
+
+            Actualizar
+
+          </button>
+
+
+          @if (!hasAsientos()) {
+
+            <!-- Plantilla base -->
+            <button
+              type="button"
+              (click)="generateBaseEntries()"
+              [disabled]="loadingAsientos()"
+              class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+
+              <iconify-icon
+                icon="lucide:file-plus-2"
+                class="text-[16px]"
+              ></iconify-icon>
+
+              Plantilla base
+
+            </button>
+
+
+            <!-- Plantilla completa -->
+            <button
+              type="button"
+              (click)="generateFullBaseEntries()"
+              [disabled]="loadingAsientos()"
+              class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+
+              <iconify-icon
+                icon="lucide:layers-3"
+                class="text-[16px]"
+              ></iconify-icon>
+
+              Plantilla completa
+
+            </button>
+
+          }
+
+
+          <!-- Eliminar todo -->
+          <button
+            type="button"
+            (click)="deleteAllEntries()"
+            [disabled]="loadingAsientos() || !hasAsientos()"
+            class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-red-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+
+            <iconify-icon
+              icon="lucide:trash-2"
+              class="text-[16px]"
+            ></iconify-icon>
+
+            Limpiar Registros
+
+          </button>
+
+        </div>
+
+
+        <!-- =========================================================
+            ACCIÓN PRINCIPAL
+            ========================================================= -->
+
+        <button
+          type="button"
+          (click)="createEntry()"
+          class="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#17324d] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[#214663]"
+        >
+
+          <iconify-icon
+            icon="lucide:plus"
+            class="text-[17px]"
+          ></iconify-icon>
+
+          Nuevo asiento
+
+        </button>
+
+      </div>
 
     </header>
 
@@ -77,7 +172,7 @@
          ========================================================= -->
 
     <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      class="grid grid-cols-1 gap-4 sm:grid-cols-2"
     >
 
       <!-- Total -->
@@ -110,86 +205,6 @@
 
             <iconify-icon
               icon="lucide:book-open"
-              class="text-[19px]"
-            ></iconify-icon>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- Activos -->
-
-      <div
-        class="rounded-xl border border-[#e2e5e8] bg-white p-5"
-      >
-
-        <div class="flex items-center justify-between">
-
-          <div>
-
-            <p
-              class="text-xs font-medium uppercase tracking-wide text-[#858d96]"
-            >
-              Activos
-            </p>
-
-            <p
-              class="mt-2 text-2xl font-semibold text-[#17202a]"
-            >
-              {{ activos() }}
-            </p>
-
-          </div>
-
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef6ef] text-[#3d7146]"
-          >
-
-            <iconify-icon
-              icon="lucide:check-circle"
-              class="text-[19px]"
-            ></iconify-icon>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- Inactivos -->
-
-      <div
-        class="rounded-xl border border-[#e2e5e8] bg-white p-5"
-      >
-
-        <div class="flex items-center justify-between">
-
-          <div>
-
-            <p
-              class="text-xs font-medium uppercase tracking-wide text-[#858d96]"
-            >
-              Inactivos
-            </p>
-
-            <p
-              class="mt-2 text-2xl font-semibold text-[#17202a]"
-            >
-              {{ inactivos() }}
-            </p>
-
-          </div>
-
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f5eeee] text-[#9b4c4c]"
-          >
-
-            <iconify-icon
-              icon="lucide:circle-off"
               class="text-[19px]"
             ></iconify-icon>
 
@@ -303,29 +318,6 @@
 
           </select>
 
-
-          <!-- Estado -->
-
-          <select
-            [value]="selectedStatus()"
-            (change)="selectedStatus.set($any($event.target).value)"
-            class="h-10 cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm text-[#404850] outline-none focus:border-[#17324d]"
-          >
-
-            <option value="TODOS">
-              Todos los estados
-            </option>
-
-            <option value="ACTIVOS">
-              Activos
-            </option>
-
-            <option value="INACTIVOS">
-              Inactivos
-            </option>
-
-          </select>
-
         </div>
 
       </div>
@@ -337,7 +329,7 @@
       <div class="overflow-x-auto">
 
         <table
-          class="w-full min-w-[950px] border-collapse"
+          class="w-full min-w-[850px] border-collapse"
         >
 
           <thead>
@@ -383,12 +375,6 @@
               </th>
 
               <th
-                class="px-5 py-3 text-center text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Estado
-              </th>
-
-              <th
                 class="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
               >
                 Acción
@@ -410,6 +396,8 @@
                 class="border-b border-[#edf0f2] transition hover:bg-[#fafbfc]"
               >
 
+                <!-- ID -->
+
                 <td
                   class="px-5 py-4 text-sm font-medium text-[#17324d]"
                 >
@@ -417,12 +405,16 @@
                 </td>
 
 
+                <!-- Fecha -->
+
                 <td
                   class="px-5 py-4 text-sm text-[#555e67]"
                 >
                   {{ asiento.fecha }}
                 </td>
 
+
+                <!-- Concepto -->
 
                 <td
                   class="max-w-[320px] px-5 py-4"
@@ -444,6 +436,8 @@
                 </td>
 
 
+                <!-- Origen -->
+
                 <td class="px-5 py-4">
 
                   <span
@@ -455,12 +449,16 @@
                 </td>
 
 
+                <!-- Debe -->
+
                 <td
                   class="px-5 py-4 text-right text-sm tabular-nums text-[#30373e]"
                 >
                   {{ formatAmount(asiento.total_debe) }}
                 </td>
 
+
+                <!-- Haber -->
 
                 <td
                   class="px-5 py-4 text-right text-sm tabular-nums text-[#30373e]"
@@ -469,40 +467,7 @@
                 </td>
 
 
-                <td class="px-5 py-4 text-center">
-
-                  @if (asiento.estado) {
-
-                    <span
-                      class="inline-flex items-center gap-1.5 rounded-full bg-[#eef6ef] px-2.5 py-1 text-xs font-medium text-[#3d7146]"
-                    >
-
-                      <span
-                        class="h-1.5 w-1.5 rounded-full bg-[#5c9966]"
-                      ></span>
-
-                      Activo
-
-                    </span>
-
-                  } @else {
-
-                    <span
-                      class="inline-flex items-center gap-1.5 rounded-full bg-[#f5eeee] px-2.5 py-1 text-xs font-medium text-[#9b4c4c]"
-                    >
-
-                      <span
-                        class="h-1.5 w-1.5 rounded-full bg-[#a85c5c]"
-                      ></span>
-
-                      Inactivo
-
-                    </span>
-
-                  }
-
-                </td>
-
+                <!-- Acción -->
 
                 <td class="px-5 py-4">
 
@@ -553,7 +518,7 @@
               <tr>
 
                 <td
-                  colspan="8"
+                  colspan="7"
                   class="px-5 py-14 text-center"
                 >
 
@@ -646,7 +611,7 @@
             </h2>
 
             <p
-              class="mt-1 text-sm text-[#7b838c]"
+              class="mt-1 pb-6 text-sm text-[#7b838c]"
             >
               El asiento contiene un encabezado y una colección de detalles.
             </p>
@@ -839,7 +804,6 @@
                   </label>
 
                   <select
-                    [value]="form().tipo_origen ?? ''"
                     (change)="form.update(current => ({
                       ...current,
                       tipo_origen: $any($event.target).value || null
@@ -847,13 +811,19 @@
                     class="h-10 w-full cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
                   >
 
-                    <option value="">
+                    <option
+                      value=""
+                      [selected]="!form().tipo_origen"
+                    >
                       Sin especificar
                     </option>
 
                     @for (origin of tiposOrigen; track origin) {
 
-                      <option [value]="origin">
+                      <option
+                        [value]="origin"
+                        [selected]="form().tipo_origen === origin"
+                      >
                         {{ origin }}
                       </option>
 
@@ -885,41 +855,6 @@
                     placeholder="Describe la operación contable..."
                     class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none placeholder:text-[#a0a7ae] focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
                   />
-
-                </div>
-
-
-                <!-- Estado -->
-
-                <div class="md:col-span-2">
-
-                  <label
-                    class="mb-1.5 block text-xs font-medium text-[#59636d]"
-                  >
-                    Estado
-                  </label>
-
-                  <label
-                    class="flex cursor-pointer items-center gap-3"
-                  >
-
-                    <input
-                      type="checkbox"
-                      [checked]="form().estado"
-                      (change)="form.update(current => ({
-                        ...current,
-                        estado: $any($event.target).checked
-                      }))"
-                      class="h-4 w-4 cursor-pointer rounded border-[#cbd1d6] accent-[#17324d]"
-                    />
-
-                    <span
-                      class="text-sm text-[#4e5861]"
-                    >
-                      {{ form().estado ? 'Activo' : 'Inactivo' }}
-                    </span>
-
-                  </label>
 
                 </div>
 
@@ -1172,31 +1107,49 @@
 
                           <td class="px-4 py-3">
 
-                            <select
-                              [value]="detalle.cuenta_id ?? ''"
+                                                        <select
+                              [disabled]="isDetailLocked(detalle)"
                               (change)="updateDetailAccount(
                                 $index,
                                 $any($event.target).value
                               )"
-                              class="h-10 w-full cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
+                              class="h-10 w-full cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f5f6] disabled:text-[#8b949d]"
                             >
 
-                              <option value="">
-                                Seleccionar cuenta
-                              </option>
-
-                              @for (
-                                cuenta of cuentasMovimiento();
-                                track cuenta.cuenta_id
-                              ) {
+                              @if (isDetailLocked(detalle)) {
 
                                 <option
-                                  [value]="cuenta.cuenta_id"
+                                  [value]="detalle.cuenta_id"
+                                  selected
                                 >
-                                  {{ cuenta.codigo_cuenta }}
-                                  -
-                                  {{ cuenta.nombre_cuenta }}
+                                  {{ getNombreCuenta(detalle.cuenta_id) }}
+                                  (inactiva)
                                 </option>
+
+                              } @else {
+
+                                <option
+                                  value=""
+                                  [selected]="detalle.cuenta_id === null"
+                                >
+                                  Seleccionar cuenta
+                                </option>
+
+                                @for (
+                                  cuenta of cuentasMovimiento();
+                                  track cuenta.cuenta_id
+                                ) {
+
+                                  <option
+                                    [value]="cuenta.cuenta_id"
+                                    [selected]="detalle.cuenta_id === cuenta.cuenta_id"
+                                  >
+                                    {{ cuenta.codigo_cuenta }}
+                                    -
+                                    {{ cuenta.nombre_cuenta }}
+                                  </option>
+
+                                }
 
                               }
 
@@ -1214,11 +1167,12 @@
                               min="0"
                               step="0.01"
                               [value]="detalle.debe"
+                              [disabled]="isDetailLocked(detalle)"
                               (input)="updateDetailDebe(
                                 $index,
                                 $any($event.target).value
                               )"
-                              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-right text-sm tabular-nums outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
+                              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-right text-sm tabular-nums outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f5f6] disabled:text-[#8b949d]"
                             />
 
                           </td>
@@ -1233,11 +1187,12 @@
                               min="0"
                               step="0.01"
                               [value]="detalle.haber"
+                              [disabled]="isDetailLocked(detalle)"
                               (input)="updateDetailHaber(
                                 $index,
                                 $any($event.target).value
                               )"
-                              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-right text-sm tabular-nums outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
+                              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-right text-sm tabular-nums outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f5f6] disabled:text-[#8b949d]"
                             />
 
                           </td>
@@ -1245,27 +1200,29 @@
 
                           <!-- Eliminar -->
 
-                        <td
-                        class="px-4 py-3 text-center"
-                        >
-                        @if (detalleCount() > 2) {
+                          <td
+                            class="px-4 py-3 text-center"
+                          >
 
-                            <button
-                            type="button"
-                            (click)="removeDetail($index)"
-                            title="Eliminar detalle"
-                            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[#858d96] transition hover:bg-[#f6eeee] hover:text-[#a44d4d]"
-                            >
+                            @if (detalleCount() > 2 && !isDetailLocked(detalle)) {
 
-                            <iconify-icon
-                                icon="lucide:trash-2"
-                                class="text-[15px]"
-                            ></iconify-icon>
+                              <button
+                                type="button"
+                                (click)="removeDetail($index)"
+                                title="Eliminar detalle"
+                                class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[#858d96] transition hover:bg-[#f6eeee] hover:text-[#a44d4d]"
+                              >
 
-                            </button>
+                                <iconify-icon
+                                  icon="lucide:trash-2"
+                                  class="text-[15px]"
+                                ></iconify-icon>
 
-                        }
-                        </td>
+                              </button>
+
+                            }
+
+                          </td>
 
                         </tr>
 
@@ -1470,17 +1427,42 @@
 
 
         <!-- =====================================================
-             FOOTER
-             ===================================================== -->
+            FOOTER
+            ===================================================== -->
 
         <div
-          class="flex flex-col-reverse gap-2 border-t border-[#e5e8eb] bg-[#fafbfc] px-6 py-4 sm:flex-row sm:justify-end"
+          class="
+            flex
+            flex-col-reverse
+            gap-3
+            border-t
+            border-[#e5e8eb]
+            bg-[#fafbfc]
+            px-6
+            py-5
+            sm:flex-row
+            sm:justify-end
+            sm:items-center
+          "
         >
 
           <button
             type="button"
             (click)="closeFormModal()"
-            class="cursor-pointer rounded-lg border border-[#d8dde1] bg-white px-4 py-2.5 text-sm font-medium text-[#4f5962] transition hover:bg-[#f3f5f6]"
+            class="
+              cursor-pointer
+              rounded-lg
+              border
+              border-[#d8dde1]
+              bg-white
+              px-5
+              py-3
+              text-sm
+              font-medium
+              text-[#4f5962]
+              transition
+              hover:bg-[#f3f5f6]
+            "
           >
             Cancelar
           </button>
@@ -1490,7 +1472,20 @@
             type="button"
             (click)="saveEntry()"
             [disabled]="!canSave()"
-            class="rounded-lg bg-[#17324d] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#214663] disabled:cursor-not-allowed disabled:opacity-40"
+            class="
+              cursor-pointer
+              rounded-lg
+              bg-[#17324d]
+              px-5
+              py-3
+              text-sm
+              font-medium
+              text-white
+              transition
+              hover:bg-[#214663]
+              disabled:cursor-not-allowed
+              disabled:opacity-40
+            "
           >
 
             @if (modalMode() === 'create') {
@@ -1633,8 +1628,10 @@
             <div class="p-5">
 
               <div
-                class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
               >
+
+                <!-- ID -->
 
                 <div
                   class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
@@ -1653,6 +1650,8 @@
                 </div>
 
 
+                <!-- Fecha -->
+
                 <div
                   class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
                 >
@@ -1670,6 +1669,8 @@
                 </div>
 
 
+                <!-- Usuario -->
+
                 <div
                   class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
                 >
@@ -1686,27 +1687,10 @@
 
                 </div>
 
-
-                <div
-                  class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
-                >
-
-                  <p class="text-xs text-[#858d96]">
-                    Estado
-                  </p>
-
-                  <p
-                    class="mt-1 text-sm font-medium"
-                    [class.text-[#3d7146]]="selectedAsiento()!.estado"
-                    [class.text-[#a34f4f]]="!selectedAsiento()!.estado"
-                  >
-                    {{ getStatusLabel(selectedAsiento()!.estado) }}
-                  </p>
-
-                </div>
-
               </div>
 
+
+              <!-- Concepto -->
 
               <div
                 class="mt-4 rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
@@ -1724,6 +1708,8 @@
 
               </div>
 
+
+              <!-- Origen -->
 
               <div
                 class="mt-4"

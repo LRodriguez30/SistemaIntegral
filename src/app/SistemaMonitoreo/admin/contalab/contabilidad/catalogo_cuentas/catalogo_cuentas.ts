@@ -7,26 +7,24 @@ import {
   signal
 } from '@angular/core';
 
+import { forkJoin } from 'rxjs';
+
 import {
   CatalogoCuentasResponse,
   CatalogoCuentasService
 } from '../../../../../services/catalogo_cuentas.service';
+
+import {
+  DetallesAsientosContablesService
+} from '../../../../../services/detalles_asientos_contables.service';
 
 
 /*
  * =============================================================
  * CUENTAS BASE
  * =============================================================
- *
- * Estas cuentas forman parte de la estructura contable
- * predeterminada utilizada por la aplicación.
- *
- * Se pueden generar nuevamente cuando el catálogo
- * se encuentra vacío.
- *
- * No forman parte de la lógica de eliminación de cuentas
- * registradas por el usuario.
  */
+
 enum CuentaBaseCodigo {
   ACTIVOS = '1',
   PASIVOS = '2',
@@ -39,7 +37,7 @@ enum CuentaBaseCodigo {
 
 /*
  * =============================================================
- * MODELO
+ * FORMULARIO
  * =============================================================
  */
 
@@ -71,71 +69,89 @@ interface CuentaForm {
 export class CatalogoCuentasComponent implements OnInit {
 
   /*
-   * =============================================================
+   * ===========================================================
    * SERVICIOS
-   * =============================================================
+   * ===========================================================
    */
 
   readonly catalogoCuentasService =
     inject(CatalogoCuentasService);
 
+  readonly detallesAsientosContablesService =
+    inject(DetallesAsientosContablesService);
+
 
   /*
-   * =============================================================
-   * DATOS
-   * =============================================================
-   *
-   * El catálogo comienza vacío.
-   *
-   * Posteriormente estas cuentas se cagan solicitando información
-   * al backend
+   * ===========================================================
+   * ESTADO PRINCIPAL
+   * ===========================================================
    */
 
   readonly cuentas =
     signal<CatalogoCuentasResponse[]>([]);
 
-
-  /*
-   * =============================================================
-   * ESTADO DEL CATÁLOGO
-   * =============================================================
-   */
-
-  readonly hasAccounts = computed(
-    () => this.cuentas().length > 0
-  );
+  readonly hasAccounts =
+    computed(() =>
+      this.cuentas().length > 0
+    );
 
   readonly loadingAccounts =
     signal(false);
 
 
   /*
-   * =============================================================
-   * CUENTA SELECCIONADA PARA ACCIONES DEL TOOLBAR
-   * =============================================================
+   * ===========================================================
+   * CUENTAS UTILIZADAS EN DETALLES DE ASIENTOS
+   * ===========================================================
    */
 
-  readonly toolbarAccount =
-    signal<CatalogoCuentasResponse | null>(null);
+  readonly usedAccountIds =
+    signal<Set<number>>(
+      new Set()
+    );
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * MODALES
-   * =============================================================
+   * ===========================================================
    */
 
   readonly modalMode =
-    signal<'create' | 'edit' | 'child' | null>(null);
+    signal<
+      'create' |
+      'edit' |
+      'child' |
+      null
+    >(null);
 
   readonly selectedAccount =
-    signal<CatalogoCuentasResponse | null>(null);
+    signal<CatalogoCuentasResponse | null>(
+      null
+    );
+
+  readonly deleteBranchTarget =
+    signal<CatalogoCuentasResponse | null>(
+      null
+    );
 
 
   /*
-   * =============================================================
+   * ===========================================================
+   * SELECCIÓN DE TOOLBAR
+   * ===========================================================
+   */
+
+  readonly toolbarAccount =
+    signal<CatalogoCuentasResponse | null>(
+      null
+    );
+
+
+  /*
+   * ===========================================================
    * FORMULARIO
-   * =============================================================
+   * ===========================================================
    */
 
   readonly accountForm =
@@ -152,9 +168,9 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * FILTROS
-   * =============================================================
+   * ===========================================================
    */
 
   readonly searchTerm =
@@ -168,29 +184,21 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
-   * ÁRBOL DE CUENTAS
-   * =============================================================
+   * ===========================================================
+   * ÁRBOL
+   * ===========================================================
    */
 
   readonly expandedAccounts =
-    signal<Set<number>>(new Set());
+    signal<Set<number>>(
+      new Set()
+    );
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * CUENTAS BASE
-   * =============================================================
-   *
-   * Estas son las cuentas iniciales que puede generar
-   * el sistema cuando el catálogo está vacío.
-   *
-   * Ej: Las cuentas 1 - 6 son las cuentas raíz.
-   *
-   * Las cuentas intermedias representan clasificaciones
-   * estructurales.
-   *
-   * Las cuentas finales permiten movimiento.
+   * ===========================================================
    */
 
   private readonly baseAccountCodes =
@@ -200,113 +208,125 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * RESUMEN
-   * =============================================================
+   * ===========================================================
    */
 
-  readonly totalAccounts = computed(
-    () => this.cuentas().length
-  );
+  readonly totalAccounts =
+    computed(() =>
+      this.cuentas().length
+    );
 
-  readonly movementAccounts = computed(
-    () =>
+  readonly movementAccounts =
+    computed(() =>
       this.cuentas().filter(
-        cuenta => cuenta.permite_movimiento
+        cuenta =>
+          cuenta.permite_movimiento
       ).length
-  );
+    );
 
-  readonly activeAccounts = computed(
-    () =>
+  readonly activeAccounts =
+    computed(() =>
       this.cuentas().filter(
-        cuenta => cuenta.estado
+        cuenta =>
+          cuenta.estado
       ).length
-  );
+    );
 
-  readonly parentAccounts = computed(
-    () =>
+  readonly parentAccounts =
+    computed(() =>
       this.cuentas().filter(
-        cuenta => !cuenta.permite_movimiento
+        cuenta =>
+          !cuenta.permite_movimiento
       ).length
-  );
+    );
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * CUENTAS FILTRADAS
-   * =============================================================
+   * ===========================================================
    */
 
-  readonly filteredAccounts = computed(() => {
+  readonly filteredAccounts =
+    computed(() => {
 
-    const search =
-      this.searchTerm()
-        .trim()
-        .toLowerCase();
+      const search =
+        this.searchTerm()
+          .trim()
+          .toLowerCase();
 
-    const type =
-      this.selectedType();
+      const type =
+        this.selectedType();
 
-    const status =
-      this.selectedStatus();
+      const status =
+        this.selectedStatus();
 
-    return this.cuentas()
-      .filter(cuenta => {
+      return this.cuentas()
+        .filter(cuenta => {
 
-        const matchesSearch =
-          !search ||
-          cuenta.codigo_cuenta
-            .toLowerCase()
-            .includes(search) ||
-          cuenta.nombre_cuenta
-            .toLowerCase()
-            .includes(search);
+          const matchesSearch =
+            !search ||
+            cuenta.codigo_cuenta
+              .toLowerCase()
+              .includes(search) ||
+            cuenta.nombre_cuenta
+              .toLowerCase()
+              .includes(search);
 
-        const matchesType =
-          type === 'TODOS' ||
-          cuenta.tipo_cuenta === type;
+          const matchesType =
+            type === 'TODOS' ||
+            cuenta.tipo_cuenta === type;
 
-        const matchesStatus =
-          status === 'TODOS' ||
-          (status === 'ACTIVAS' && cuenta.estado) ||
-          (status === 'INACTIVAS' && !cuenta.estado);
+          const matchesStatus =
+            status === 'TODOS' ||
+            (
+              status === 'ACTIVAS' &&
+              cuenta.estado
+            ) ||
+            (
+              status === 'INACTIVAS' &&
+              !cuenta.estado
+            );
 
-        return (
-          matchesSearch &&
-          matchesType &&
-          matchesStatus
+          return (
+            matchesSearch &&
+            matchesType &&
+            matchesStatus
+          );
+        })
+        .sort((a, b) =>
+          a.codigo_cuenta.localeCompare(
+            b.codigo_cuenta,
+            undefined,
+            {
+              numeric: true
+            }
+          )
         );
-      })
-      .sort((a, b) =>
-        a.codigo_cuenta.localeCompare(
-          b.codigo_cuenta,
-          undefined,
-          {
-            numeric: true
-          }
-        )
-      );
-  });
+    });
 
 
   /*
-   * =============================================================
-   * CUENTAS PADRE DISPONIBLES
-   * =============================================================
+   * ===========================================================
+   * OPCIONES DE CUENTA PADRE
+   * ===========================================================
    */
 
-  readonly parentOptions = computed(() =>
-    this.cuentas().filter(
-      cuenta =>
-        !cuenta.permite_movimiento
-    )
-  );
+  readonly parentOptions =
+    computed(() =>
+      this.cuentas().filter(
+        cuenta =>
+          !cuenta.permite_movimiento
+      )
+    );
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * CICLO DE VIDA
-   * =============================================================
+   * ===========================================================
    */
 
   ngOnInit(): void {
@@ -315,24 +335,44 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * OBTENER CUENTAS
-   * =============================================================
+   * ===========================================================
    */
 
   getAccounts(): void {
 
     this.loadingAccounts.set(true);
 
-    this.catalogoCuentasService
-      .getCatalogoCuentas()
-      .subscribe({
+    forkJoin({
 
-        next: (data) => {
+      cuentas:
+        this.catalogoCuentasService
+          .getCatalogoCuentas(),
+
+      detalles:
+        this.detallesAsientosContablesService
+          .getDetallesAsientosContables()
+
+    }).subscribe({
+
+        next: ({
+          cuentas: data,
+          detalles
+        }) => {
 
           console.log(data);
 
           this.cuentas.set(data);
+
+          this.usedAccountIds.set(
+            new Set(
+              detalles.map(
+                detalle =>
+                  Number(detalle.cuenta_id)
+              )
+            )
+          );
 
           this.loadingAccounts.set(false);
         },
@@ -349,15 +389,9 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * GENERAR CUENTAS BASE
-   * =============================================================
-   *
-   * Esta función permite reconstruir el catálogo inicial.
-   *
-   * Se conecta al backend para crear una plantilla base.
-   * 
-   * Si se crea correctamente renderiza los cambios.
+   * ===========================================================
    */
 
   generateBaseAccounts(): void {
@@ -375,11 +409,6 @@ export class CatalogoCuentasComponent implements OnInit {
         next: (accounts) => {
 
           this.cuentas.set(accounts);
-
-          /*
-           * Si se agregó una subcuenta,
-           * dejamos visible a su padre.
-           */
 
           this.expandedAccounts.set(
             new Set(
@@ -413,11 +442,9 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * LIMPIAR CATÁLOGO
-   * =============================================================
-   *
-   * Elimina todas las cuentas actualmente cargadas.
+   * ===========================================================
    */
 
   clearAccounts(): void {
@@ -429,15 +456,21 @@ export class CatalogoCuentasComponent implements OnInit {
     );
 
     this.searchTerm.set('');
-    this.selectedType.set('TODOS');
-    this.selectedStatus.set('TODOS');
+
+    this.selectedType.set(
+      'TODOS'
+    );
+
+    this.selectedStatus.set(
+      'TODOS'
+    );
   }
 
 
   /*
-   * =============================================================
-   * CUENTA SELECCIONADA
-   * =============================================================
+   * ===========================================================
+   * SELECCIÓN DE CUENTA PARA TOOLBAR
+   * ===========================================================
    */
 
   selectAccountForToolbar(
@@ -451,7 +484,9 @@ export class CatalogoCuentasComponent implements OnInit {
       current?.cuenta_id ===
       cuenta.cuenta_id
     ) {
+
       this.toolbarAccount.set(null);
+
       return;
     }
 
@@ -460,78 +495,99 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
-   * VALIDACIONES DEL TOOLBAR
-   * =============================================================
+   * ===========================================================
+   * VALIDACIONES TOOLBAR
+   * ===========================================================
    */
 
-  readonly selectedAccountHasChildren = computed(() => {
+  readonly selectedAccountHasChildren =
+    computed(() => {
 
-    const cuenta =
-      this.toolbarAccount();
+      const cuenta =
+        this.toolbarAccount();
 
-    if (!cuenta) {
-      return false;
-    }
+      if (!cuenta) {
+        return false;
+      }
 
-    return this.hasChildren(cuenta);
-  });
-
-
-  readonly canDeleteSelectedAccount = computed(() => {
-
-    const cuenta =
-      this.toolbarAccount();
-
-    if (!cuenta) {
-      return false;
-    }
-
-    return !this.hasChildren(cuenta);
-  });
+      return this.hasChildren(cuenta);
+    });
 
 
-  readonly canAddChildSelectedAccount = computed(() => {
+  readonly selectedAccountInUse =
+    computed(() => {
 
-    const cuenta =
-      this.toolbarAccount();
+      const cuenta =
+        this.toolbarAccount();
 
-    if (!cuenta) {
-      return false;
-    }
+      if (!cuenta) {
+        return false;
+      }
 
-    return !cuenta.permite_movimiento;
-  });
+      return this.isInUse(cuenta);
+    });
 
 
-  readonly canEditSelectedAccount = computed(() => {
+  readonly canDeleteSelectedAccount =
+    computed(() => {
 
-    const cuenta =
-      this.toolbarAccount();
+      const cuenta =
+        this.toolbarAccount();
 
-    if (!cuenta) {
-      return false;
-    }
+      if (!cuenta) {
+        return false;
+      }
 
-    return !this.isBaseAccount(cuenta);
-  });
+      return (
+        !this.hasChildren(cuenta) &&
+        !this.isInUse(cuenta)
+      );
+    });
+
+
+  readonly canAddChildSelectedAccount =
+    computed(() => {
+
+      const cuenta =
+        this.toolbarAccount();
+
+      if (!cuenta) {
+        return false;
+      }
+
+      return !cuenta.permite_movimiento;
+    });
+
+
+  readonly canEditSelectedAccount =
+    computed(() => {
+
+      const cuenta =
+        this.toolbarAccount();
+
+      if (!cuenta) {
+        return false;
+      }
+
+      return !this.isBaseAccount(cuenta);
+    });
 
 
   /*
-   * =============================================================
-   * VALIDAR ELIMINACIÓN
-   * =============================================================
+   * ===========================================================
+   * VALIDAR ELIMINACIÓN DE CUENTA
+   * ===========================================================
    */
 
   canDeleteAccount(
     cuenta: CatalogoCuentasResponse
   ): boolean {
 
-    // if (this.isBaseAccount(cuenta)) {
-    //   return false;
-    // }
-
     if (this.hasChildren(cuenta)) {
+      return false;
+    }
+
+    if (this.isInUse(cuenta)) {
       return false;
     }
 
@@ -540,9 +596,260 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
+   * USO EN DETALLES DE ASIENTOS
+   * ===========================================================
+   */
+
+  isInUse(
+    cuenta: CatalogoCuentasResponse
+  ): boolean {
+
+    const used =
+      this.usedAccountIds();
+
+    if (
+      used.has(
+        Number(cuenta.cuenta_id)
+      )
+    ) {
+      return true;
+    }
+
+    return this.getDescendants(cuenta)
+      .some(
+        child =>
+          used.has(
+            Number(child.cuenta_id)
+          )
+      );
+  }
+
+
+  getDescendants(
+    cuenta: CatalogoCuentasResponse
+  ): CatalogoCuentasResponse[] {
+
+    const all =
+      this.cuentas();
+
+    const result:
+      CatalogoCuentasResponse[] = [];
+
+    const pending = [
+      Number(cuenta.cuenta_id)
+    ];
+
+    while (pending.length > 0) {
+
+      const parentId =
+        pending.pop()!;
+
+      for (const child of all) {
+
+        if (
+          child.cuenta_padre_id !== null &&
+          Number(child.cuenta_padre_id) ===
+          parentId
+        ) {
+
+          result.push(child);
+
+          pending.push(
+            Number(child.cuenta_id)
+          );
+        }
+      }
+    }
+
+    return result;
+  }
+
+
+  /*
+   * ===========================================================
+   * DESACTIVAR CUENTA Y DESCENDIENTES
+   * ===========================================================
+   */
+
+  deactivateAccount(
+    cuenta: CatalogoCuentasResponse
+  ): void {
+
+    const targets = [
+      cuenta,
+      ...this.getDescendants(cuenta)
+    ].filter(
+      item =>
+        item.estado
+    );
+
+    if (targets.length === 0) {
+      return;
+    }
+
+    this.loadingAccounts.set(true);
+
+    forkJoin(
+      targets.map(
+        item =>
+          this.catalogoCuentasService
+            .updateCuenta(
+              item.cuenta_id,
+              {
+                codigo_cuenta:
+                  item.codigo_cuenta,
+
+                nombre_cuenta:
+                  item.nombre_cuenta,
+
+                tipo_cuenta:
+                  item.tipo_cuenta,
+
+                naturaleza:
+                  item.naturaleza,
+
+                cuenta_padre_id:
+                  item.cuenta_padre_id,
+
+                nivel_cuenta:
+                  item.nivel_cuenta,
+
+                permite_movimiento:
+                  item.permite_movimiento,
+
+                estado:
+                  false
+              }
+            )
+      )
+    ).subscribe({
+
+      next: () => {
+
+        this.toolbarAccount.set(
+          null
+        );
+
+        this.getAccounts();
+      },
+
+      error: (error) => {
+
+        console.error(
+          'Error desactivando la cuenta:',
+          error
+        );
+
+        this.loadingAccounts.set(false);
+      }
+
+    });
+  }
+  
+    /*
+   * ===========================================================
+   * VALIDAR ACTIVACIÓN DE CUENTA
+   * ===========================================================
+   */
+
+  canActivateAccount(
+    cuenta: CatalogoCuentasResponse
+  ): boolean {
+
+    if (cuenta.estado) {
+      return false;
+    }
+
+    if (cuenta.cuenta_padre_id === null) {
+      return true;
+    }
+
+    const parent =
+      this.cuentas().find(
+        c =>
+          Number(c.cuenta_id) ===
+          Number(cuenta.cuenta_padre_id)
+      );
+
+    return !parent || parent.estado;
+  }
+
+
+  /*
+   * ===========================================================
+   * ACTIVAR CUENTA
+   * ===========================================================
+   */
+
+  activateAccount(
+    cuenta: CatalogoCuentasResponse
+  ): void {
+
+    if (!this.canActivateAccount(cuenta)) {
+      return;
+    }
+
+    this.loadingAccounts.set(true);
+
+    this.catalogoCuentasService
+      .updateCuenta(
+        cuenta.cuenta_id,
+        {
+          codigo_cuenta:
+            cuenta.codigo_cuenta,
+
+          nombre_cuenta:
+            cuenta.nombre_cuenta,
+
+          tipo_cuenta:
+            cuenta.tipo_cuenta,
+
+          naturaleza:
+            cuenta.naturaleza,
+
+          cuenta_padre_id:
+            cuenta.cuenta_padre_id,
+
+          nivel_cuenta:
+            cuenta.nivel_cuenta,
+
+          permite_movimiento:
+            cuenta.permite_movimiento,
+
+          estado:
+            true
+        }
+      )
+      .subscribe({
+
+        next: () => {
+
+          this.toolbarAccount.set(
+            null
+          );
+
+          this.getAccounts();
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error activando la cuenta:',
+            error
+          );
+
+          this.loadingAccounts.set(false);
+        }
+
+      });
+  }
+
+
+  /*
+   * ===========================================================
    * VALIDACIONES DEL FORMULARIO
-   * =============================================================
+   * ===========================================================
    */
 
   canChangeMovement(): boolean {
@@ -593,7 +900,6 @@ export class CatalogoCuentasComponent implements OnInit {
       form.codigo_cuenta
         .trim()
         .length > 0 &&
-
       form.nombre_cuenta
         .trim()
         .length > 0
@@ -602,9 +908,9 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
-   * ÁRBOL
-   * =============================================================
+   * ===========================================================
+   * ÁRBOL — HIJOS
+   * ===========================================================
    */
 
   hasChildren(
@@ -619,21 +925,15 @@ export class CatalogoCuentasComponent implements OnInit {
           Number(cuenta.cuenta_id)
       );
 
-    // console.log(
-    //   'CUENTA SELECCIONADA:',
-    //   cuenta.cuenta_id,
-    //   cuenta.codigo_cuenta,
-    //   cuenta.nombre_cuenta
-    // );
-
-    // console.log(
-    //   'HIJOS ENCONTRADOS:',
-    //   children
-    // );
-
     return children.length > 0;
   }
 
+
+  /*
+   * ===========================================================
+   * ÁRBOL — HIJOS ACTIVOS
+   * ===========================================================
+   */
 
   hasActiveChildren(
     cuenta: CatalogoCuentasResponse
@@ -649,6 +949,12 @@ export class CatalogoCuentasComponent implements OnInit {
   }
 
 
+  /*
+   * ===========================================================
+   * ÁRBOL — EXPANDIDO
+   * ===========================================================
+   */
+
   isExpanded(
     cuentaId: number
   ): boolean {
@@ -657,6 +963,12 @@ export class CatalogoCuentasComponent implements OnInit {
       .has(cuentaId);
   }
 
+
+  /*
+   * ===========================================================
+   * ÁRBOL — EXPANDIR / CONTRAER
+   * ===========================================================
+   */
 
   toggleAccount(
     cuentaId: number
@@ -667,7 +979,9 @@ export class CatalogoCuentasComponent implements OnInit {
         this.expandedAccounts()
       );
 
-    if (expanded.has(cuentaId)) {
+    if (
+      expanded.has(cuentaId)
+    ) {
 
       expanded.delete(cuentaId);
 
@@ -681,6 +995,12 @@ export class CatalogoCuentasComponent implements OnInit {
     );
   }
 
+
+  /*
+   * ===========================================================
+   * ÁRBOL — VISIBILIDAD
+   * ===========================================================
+   */
 
   isVisible(
     cuenta: CatalogoCuentasResponse
@@ -713,9 +1033,9 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
-   * CUENTAS BASE
-   * =============================================================
+   * ===========================================================
+   * CUENTA BASE
+   * ===========================================================
    */
 
   isBaseAccount(
@@ -729,9 +1049,9 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
-   * FORMULARIO
-   * =============================================================
+   * ===========================================================
+   * FORMULARIO — ACTUALIZAR CAMPO
+   * ===========================================================
    */
 
   updateForm<K extends keyof CuentaForm>(
@@ -748,6 +1068,12 @@ export class CatalogoCuentasComponent implements OnInit {
   }
 
 
+  /*
+   * ===========================================================
+   * FORMULARIO — ACTUALIZAR PADRE
+   * ===========================================================
+   */
+
   updateParent(
     parentId: number | null
   ): void {
@@ -756,13 +1082,14 @@ export class CatalogoCuentasComponent implements OnInit {
       parentId === null
         ? null
         : this.cuentas().find(
-          cuenta =>
-            cuenta.cuenta_id ===
-            parentId
-        );
+            cuenta =>
+              cuenta.cuenta_id ===
+              parentId
+          );
 
     this.accountForm.update(
       form => ({
+
         ...form,
 
         cuenta_padre_id:
@@ -780,47 +1107,63 @@ export class CatalogoCuentasComponent implements OnInit {
         naturaleza:
           parent?.naturaleza ??
           form.naturaleza
+
       })
     );
   }
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * CREAR CUENTA
-   * =============================================================
+   * ===========================================================
    */
 
   createAccount(): void {
 
-    this.selectedAccount.set(null);
+    this.selectedAccount.set(
+      null
+    );
 
     this.accountForm.set({
+
       codigo_cuenta: '',
+
       nombre_cuenta: '',
+
       tipo_cuenta: 'ACTIVO',
+
       naturaleza: 'DEUDORA',
+
       cuenta_padre_id: null,
+
       nivel_cuenta: 1,
+
       permite_movimiento: true,
+
       estado: true
+
     });
 
-    this.modalMode.set('create');
+    this.modalMode.set(
+      'create'
+    );
   }
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * EDITAR CUENTA
-   * =============================================================
+   * ===========================================================
    */
 
   editAccount(
     cuenta: CatalogoCuentasResponse
   ): void {
 
-    this.selectedAccount.set(cuenta);
+    this.selectedAccount.set(
+      cuenta
+    );
 
     this.accountForm.set({
 
@@ -850,25 +1193,30 @@ export class CatalogoCuentasComponent implements OnInit {
 
     });
 
-    this.modalMode.set('edit');
+    this.modalMode.set(
+      'edit'
+    );
   }
 
 
   /*
-   * =============================================================
-   * CREAR SUBCUENTA
-   * =============================================================
+   * ===========================================================
+   * AGREGAR SUBCUENTA
+   * ===========================================================
    */
 
   addChildAccount(
     cuenta: CatalogoCuentasResponse
   ): void {
 
-    this.selectedAccount.set(cuenta);
+    this.selectedAccount.set(
+      cuenta
+    );
 
     this.accountForm.set({
 
       codigo_cuenta: '',
+
       nombre_cuenta: '',
 
       tipo_cuenta:
@@ -883,76 +1231,91 @@ export class CatalogoCuentasComponent implements OnInit {
       nivel_cuenta:
         cuenta.nivel_cuenta + 1,
 
-      permite_movimiento: true,
-      estado: true
+      permite_movimiento:
+        true,
+
+      estado:
+        true
 
     });
 
-    this.modalMode.set('child');
+    this.modalMode.set(
+      'child'
+    );
   }
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * CERRAR MODAL
-   * =============================================================
+   * ===========================================================
    */
 
   closeModal(): void {
 
-    this.modalMode.set(null);
+    this.modalMode.set(
+      null
+    );
 
-    this.selectedAccount.set(null);
+    this.selectedAccount.set(
+      null
+    );
   }
 
 
   /*
-   * =============================================================
-   * GUARDAR
-   * =============================================================
+   * ===========================================================
+   * GUARDAR CUENTA
+   * ===========================================================
    */
 
   saveAccount(): void {
-
-    const form =
-      this.accountForm();
-
-    const mode =
-      this.modalMode();
 
     if (!this.isFormValid()) {
       return;
     }
 
+    const form =
+      this.accountForm();
 
-    /*
-     * ---------------------------------------------------------
-     * VALIDAR CÓDIGO DUPLICADO
-     * ---------------------------------------------------------
-     */
+    const codigo =
+      form.codigo_cuenta.trim();
 
-    const currentAccount =
-      this.selectedAccount();
+    const nombre =
+      form.nombre_cuenta.trim();
 
-    const duplicated =
+    const duplicate =
       this.cuentas().some(
-        cuenta =>
+        cuenta => {
 
-          cuenta.codigo_cuenta
-            .toLowerCase() ===
+          const sameCode =
+            cuenta.codigo_cuenta
+              .toLowerCase() ===
+            codigo.toLowerCase();
 
-          form.codigo_cuenta
-            .trim()
-            .toLowerCase() &&
+          if (!sameCode) {
+            return false;
+          }
 
-          cuenta.cuenta_id !==
-          currentAccount?.cuenta_id
+          const selected =
+            this.selectedAccount();
+
+          if (
+            selected &&
+            cuenta.cuenta_id ===
+            selected.cuenta_id
+          ) {
+            return false;
+          }
+
+          return true;
+        }
       );
 
-    if (duplicated) {
+    if (duplicate) {
 
       console.warn(
-        'El código de cuenta ya existe.'
+        'Ya existe una cuenta con ese código.'
       );
 
       return;
@@ -963,45 +1326,41 @@ export class CatalogoCuentasComponent implements OnInit {
      * ---------------------------------------------------------
      * CREAR
      * ---------------------------------------------------------
-     *
-     * Tanto una cuenta normal como una subcuenta
-     * son cuentas nuevas.
      */
 
     if (
-      mode === 'create' ||
-      mode === 'child'
+      this.modalMode() === 'create' ||
+      this.modalMode() === 'child'
     ) {
 
       this.catalogoCuentasService
         .createCuenta({
+
           ...form,
 
           codigo_cuenta:
-            form.codigo_cuenta.trim(),
+            codigo,
 
           nombre_cuenta:
-            form.nombre_cuenta.trim()
+            nombre
+
         })
         .subscribe({
 
-          next: (account) => {
+          next: (cuenta) => {
 
             this.cuentas.update(
-              accounts => [
-                ...accounts,
-                account
+              cuentas => [
+                ...cuentas,
+                cuenta
               ]
             );
 
-            /*
-             * Si se agregó una subcuenta,
-             * dejamos visible a su padre.
-             */
-
             if (
-              mode === 'child' &&
-              form.cuenta_padre_id !== null
+              this.modalMode() ===
+              'child' &&
+              cuenta.cuenta_padre_id !==
+              null
             ) {
 
               const expanded =
@@ -1010,7 +1369,7 @@ export class CatalogoCuentasComponent implements OnInit {
                 );
 
               expanded.add(
-                form.cuenta_padre_id
+                cuenta.cuenta_padre_id
               );
 
               this.expandedAccounts.set(
@@ -1024,7 +1383,7 @@ export class CatalogoCuentasComponent implements OnInit {
           error: (error) => {
 
             console.error(
-              'Error al crear la cuenta:',
+              'Error creando la cuenta:',
               error
             );
 
@@ -1042,26 +1401,30 @@ export class CatalogoCuentasComponent implements OnInit {
      * ---------------------------------------------------------
      */
 
-    if (mode === 'edit') {
+    if (
+      this.modalMode() === 'edit'
+    ) {
 
-      const account =
+      const selected =
         this.selectedAccount();
 
-      if (!account) {
+      if (!selected) {
         return;
       }
 
       this.catalogoCuentasService
         .updateCuenta(
-          account.cuenta_id,
+          selected.cuenta_id,
           {
+
             ...form,
 
             codigo_cuenta:
-              form.codigo_cuenta.trim(),
+              codigo,
 
             nombre_cuenta:
-              form.nombre_cuenta.trim()
+              nombre
+
           }
         )
         .subscribe({
@@ -1069,14 +1432,22 @@ export class CatalogoCuentasComponent implements OnInit {
           next: (updatedAccount) => {
 
             this.cuentas.update(
-              accounts =>
-                accounts.map(
-                  item =>
-                    item.cuenta_id ===
-                      updatedAccount.cuenta_id
+              cuentas =>
+                cuentas.map(
+                  cuenta =>
+                    cuenta.cuenta_id ===
+                    updatedAccount.cuenta_id
                       ? updatedAccount
-                      : item
+                      : cuenta
                 )
+            );
+
+            this.toolbarAccount.update(
+              current =>
+                current?.cuenta_id ===
+                updatedAccount.cuenta_id
+                  ? updatedAccount
+                  : current
             );
 
             this.closeModal();
@@ -1085,39 +1456,39 @@ export class CatalogoCuentasComponent implements OnInit {
           error: (error) => {
 
             console.error(
-              'Error al actualizar la cuenta:',
+              'Error actualizando la cuenta:',
               error
             );
 
           }
 
         });
-
-      return;
     }
   }
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * ELIMINAR CUENTA
-   * =============================================================
+   * ===========================================================
    */
 
   deleteAccount(
     cuenta: CatalogoCuentasResponse
   ): void {
 
-    // if (this.isBaseAccount(cuenta)) {
-    //   return;
-    // }
-
     if (this.hasChildren(cuenta)) {
       return;
     }
 
+    if (this.isInUse(cuenta)) {
+      return;
+    }
+
     this.catalogoCuentasService
-      .deleteCuenta(cuenta.cuenta_id)
+      .deleteCuenta(
+        cuenta.cuenta_id
+      )
       .subscribe({
 
         next: (cuentaEliminada) => {
@@ -1127,7 +1498,9 @@ export class CatalogoCuentasComponent implements OnInit {
             cuentaEliminada
           );
 
-          this.toolbarAccount.set(null);
+          this.toolbarAccount.set(
+            null
+          );
 
           this.getAccounts();
         },
@@ -1146,31 +1519,62 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
+   * CONFIRMAR ELIMINACIÓN DE RAMA
+   * ===========================================================
+   */
+
+  confirmDeleteAccountBranch(
+    cuenta: CatalogoCuentasResponse
+  ): void {
+
+    if (!this.hasChildren(cuenta)) {
+      return;
+    }
+
+    if (this.isInUse(cuenta)) {
+      return;
+    }
+
+    this.deleteBranchTarget.set(
+      cuenta
+    );
+  }
+
+
+  /*
+   * ===========================================================
+   * CANCELAR ELIMINACIÓN DE RAMA
+   * ===========================================================
+   */
+
+  cancelDeleteAccountBranch(): void {
+
+    this.deleteBranchTarget.set(
+      null
+    );
+  }
+
+
+  /*
+   * ===========================================================
    * ELIMINAR RAMA
-   * =============================================================
+   * ===========================================================
    */
 
   deleteAccountBranch(): void {
 
     const cuenta =
-      this.toolbarAccount();
+      this.deleteBranchTarget();
 
     if (!cuenta) {
       return;
     }
 
-    const confirmed =
-      confirm(
-        `¿Está seguro de eliminar toda la rama de "${cuenta.nombre_cuenta}"?`
-      );
-
-    if (!confirmed) {
-      return;
-    }
-
     this.catalogoCuentasService
-      .deleteCuentaRama(cuenta.cuenta_id)
+      .deleteCuentaRama(
+        cuenta.cuenta_id
+      )
       .subscribe({
 
         next: (response) => {
@@ -1180,7 +1584,13 @@ export class CatalogoCuentasComponent implements OnInit {
             response
           );
 
-          this.toolbarAccount.set(null);
+          this.deleteBranchTarget.set(
+            null
+          );
+
+          this.toolbarAccount.set(
+            null
+          );
 
           this.getAccounts();
         },
@@ -1192,6 +1602,9 @@ export class CatalogoCuentasComponent implements OnInit {
             error
           );
 
+          this.deleteBranchTarget.set(
+            null
+          );
         }
 
       });
@@ -1199,61 +1612,17 @@ export class CatalogoCuentasComponent implements OnInit {
 
 
   /*
-   * =============================================================
+   * ===========================================================
    * ELIMINAR RAMA DESDE LA FILA
-   * =============================================================
+   * ===========================================================
    */
 
   deleteAccountBranchFor(
     cuenta: CatalogoCuentasResponse
   ): void {
 
-    this.toolbarAccount.set(cuenta);
-
-    this.deleteAccountBranch();
-  }
-
-
-  /*
-   * =============================================================
-   * ESTADO
-   * =============================================================
-   */
-
-  toggleStatus(
-    cuenta: CatalogoCuentasResponse
-  ): void {
-
-    this.cuentas.update(
-      accounts =>
-        accounts.map(
-          item =>
-            item.cuenta_id ===
-              cuenta.cuenta_id
-
-              ? {
-                ...item,
-                estado:
-                  !item.estado
-              }
-
-              : item
-        )
+    this.confirmDeleteAccountBranch(
+      cuenta
     );
-  }
-
-
-  /*
-   * =============================================================
-   * TRACKING
-   * =============================================================
-   */
-
-  trackById(
-    _index: number,
-    cuenta: CatalogoCuentasResponse
-  ): number {
-
-    return cuenta.cuenta_id;
   }
 }
