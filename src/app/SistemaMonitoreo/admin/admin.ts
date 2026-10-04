@@ -885,14 +885,14 @@ export class Admin implements OnInit {
     }
 
 
-    if (url.includes('/admin/contalab/cuentas')) {
+    if (url.includes('/admin/contalab/contabilidad/catalogo-cuentas')) {
 
       return 'Catálogo de cuentas';
 
     }
 
 
-    if (url.includes('/admin/contalab/asientos')) {
+    if (url.includes('/admin/contalab/contabilidad/asientos')) {
 
       return 'Asientos contables';
 
@@ -941,21 +941,21 @@ export class Admin implements OnInit {
     }
 
 
-    if (url.includes('/admin/contalab/empleados')) {
+    if (url.includes('/admin/contalab/personal/empleados')) {
 
       return 'Empleados';
 
     }
 
 
-    if (url.includes('/admin/contalab/nomina')) {
+    if (url.includes('/admin/contalab/personal/nomina')) {
 
       return 'Nómina';
 
     }
 
 
-    if (url.includes('/admin/contalab/reportes')) {
+    if (url.includes('/admin/contalab/analisis/reportes')) {
 
       return 'Reportes';
 
@@ -964,7 +964,7 @@ export class Admin implements OnInit {
 
     if (
       url.includes(
-        '/admin/contalab/estados-financieros'
+        '/admin/contalab/analisis/estados-financieros'
       )
     ) {
 
@@ -1322,13 +1322,13 @@ export class Admin implements OnInit {
         {
           label: 'Empleados',
           icon: 'lucide:user-round',
-          route: '/admin/contalab/empleados'
+          route: '/admin/contalab/personal/empleados'
         },
 
         {
           label: 'Nómina',
           icon: 'lucide:wallet-cards',
-          route: '/admin/contalab/nomina'
+          route: '/admin/contalab/personal/nomina'
         }
 
       ]

@@ -55,6 +55,19 @@ interface CuentaForm {
 
 /*
  * =============================================================
+ * TIPOS DE ACCIÓN
+ * =============================================================
+ */
+
+type AccountAction =
+  | 'deactivate'
+  | 'activate'
+  | 'delete'
+  | 'delete-branch';
+
+
+/*
+ * =============================================================
  * COMPONENTE
  * =============================================================
  */
@@ -64,7 +77,78 @@ interface CuentaForm {
   standalone: true,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   styleUrl: './catalogo_cuentas.css',
-  templateUrl: './catalogo_cuentas.html'
+  templateUrl: './catalogo_cuentas.html',
+  styles: [`
+
+    .table-row-enter {
+      animation: table-row-enter 250ms ease-out both;
+    }
+
+    @keyframes table-row-enter {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .summary-card-enter {
+      animation: summary-card-enter 320ms ease-out both;
+    }
+
+    @keyframes summary-card-enter {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: #e9ebee;
+    }
+
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, .65),
+        transparent
+      );
+      animation: skeleton-shimmer 1.35s infinite;
+    }
+
+    @keyframes skeleton-shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .table-row-enter,
+      .summary-card-enter,
+      .skeleton::after {
+        animation: none !important;
+      }
+
+    }
+
+  `]
 })
 export class CatalogoCuentasComponent implements OnInit {
 
@@ -97,6 +181,18 @@ export class CatalogoCuentasComponent implements OnInit {
 
   readonly loadingAccounts =
     signal(false);
+
+  readonly savingAccount =
+    signal(false);
+
+  readonly actionLoading =
+    signal(false);
+
+  readonly actionAccountId =
+    signal<number | null>(null);
+
+  readonly actionType =
+    signal<AccountAction | null>(null);
 
 
   /*
@@ -342,6 +438,10 @@ export class CatalogoCuentasComponent implements OnInit {
 
   getAccounts(): void {
 
+    if (this.loadingAccounts()) {
+      return;
+    }
+
     this.loadingAccounts.set(true);
 
     forkJoin({
@@ -356,35 +456,40 @@ export class CatalogoCuentasComponent implements OnInit {
 
     }).subscribe({
 
-        next: ({
-          cuentas: data,
-          detalles
-        }) => {
+      next: ({
+        cuentas: data,
+        detalles
+      }) => {
 
-          console.log(data);
+        this.cuentas.set(data);
 
-          this.cuentas.set(data);
-
-          this.usedAccountIds.set(
-            new Set(
-              detalles.map(
-                detalle =>
-                  Number(detalle.cuenta_id)
-              )
+        this.usedAccountIds.set(
+          new Set(
+            detalles.map(
+              detalle =>
+                Number(detalle.cuenta_id)
             )
-          );
+          )
+        );
 
-          this.loadingAccounts.set(false);
-        },
+        this.loadingAccounts.set(false);
 
-        error: (error) => {
+        this.clearActionLoading();
+      },
 
-          console.error(error);
+      error: (error) => {
 
-          this.loadingAccounts.set(false);
-        }
+        console.error(
+          'Error obteniendo el catálogo de cuentas:',
+          error
+        );
 
-      });
+        this.loadingAccounts.set(false);
+
+        this.clearActionLoading();
+      }
+
+    });
   }
 
 
@@ -396,7 +501,10 @@ export class CatalogoCuentasComponent implements OnInit {
 
   generateBaseAccounts(): void {
 
-    if (this.cuentas().length > 0) {
+    if (
+      this.cuentas().length > 0 ||
+      this.loadingAccounts()
+    ) {
       return;
     }
 
@@ -464,6 +572,14 @@ export class CatalogoCuentasComponent implements OnInit {
     this.selectedStatus.set(
       'TODOS'
     );
+
+    this.toolbarAccount.set(null);
+
+    this.selectedAccount.set(null);
+
+    this.deleteBranchTarget.set(null);
+
+    this.clearActionLoading();
   }
 
 
@@ -476,6 +592,10 @@ export class CatalogoCuentasComponent implements OnInit {
   selectAccountForToolbar(
     cuenta: CatalogoCuentasResponse
   ): void {
+
+    if (this.actionLoading()) {
+      return;
+    }
 
     const current =
       this.toolbarAccount();
@@ -676,6 +796,17 @@ export class CatalogoCuentasComponent implements OnInit {
     cuenta: CatalogoCuentasResponse
   ): void {
 
+    if (
+      this.actionLoading() ||
+      this.loadingAccounts()
+    ) {
+      return;
+    }
+
+    if (!this.canDeactivateAccount(cuenta)) {
+      return;
+    }
+
     const targets = [
       cuenta,
       ...this.getDescendants(cuenta)
@@ -688,7 +819,10 @@ export class CatalogoCuentasComponent implements OnInit {
       return;
     }
 
-    this.loadingAccounts.set(true);
+    this.startActionLoading(
+      cuenta.cuenta_id,
+      'deactivate'
+    );
 
     forkJoin(
       targets.map(
@@ -727,9 +861,7 @@ export class CatalogoCuentasComponent implements OnInit {
 
       next: () => {
 
-        this.toolbarAccount.set(
-          null
-        );
+        this.toolbarAccount.set(null);
 
         this.getAccounts();
       },
@@ -741,13 +873,14 @@ export class CatalogoCuentasComponent implements OnInit {
           error
         );
 
-        this.loadingAccounts.set(false);
+        this.clearActionLoading();
       }
 
     });
   }
-  
-    /*
+
+
+  /*
    * ===========================================================
    * VALIDAR ACTIVACIÓN DE CUENTA
    * ===========================================================
@@ -786,11 +919,21 @@ export class CatalogoCuentasComponent implements OnInit {
     cuenta: CatalogoCuentasResponse
   ): void {
 
+    if (
+      this.actionLoading() ||
+      this.loadingAccounts()
+    ) {
+      return;
+    }
+
     if (!this.canActivateAccount(cuenta)) {
       return;
     }
 
-    this.loadingAccounts.set(true);
+    this.startActionLoading(
+      cuenta.cuenta_id,
+      'activate'
+    );
 
     this.catalogoCuentasService
       .updateCuenta(
@@ -825,9 +968,7 @@ export class CatalogoCuentasComponent implements OnInit {
 
         next: () => {
 
-          this.toolbarAccount.set(
-            null
-          );
+          this.toolbarAccount.set(null);
 
           this.getAccounts();
         },
@@ -839,7 +980,7 @@ export class CatalogoCuentasComponent implements OnInit {
             error
           );
 
-          this.loadingAccounts.set(false);
+          this.clearActionLoading();
         }
 
       });
@@ -888,6 +1029,18 @@ export class CatalogoCuentasComponent implements OnInit {
     }
 
     return !this.hasChildren(cuenta);
+  }
+
+
+  canDeactivateAccount(
+    cuenta: CatalogoCuentasResponse
+  ): boolean {
+
+    if (!cuenta.estado) {
+      return false;
+    }
+
+    return !this.hasActiveChildren(cuenta);
   }
 
 
@@ -973,6 +1126,10 @@ export class CatalogoCuentasComponent implements OnInit {
   toggleAccount(
     cuentaId: number
   ): void {
+
+    if (this.actionLoading()) {
+      return;
+    }
 
     const expanded =
       new Set(
@@ -1121,6 +1278,14 @@ export class CatalogoCuentasComponent implements OnInit {
 
   createAccount(): void {
 
+    if (
+      this.loadingAccounts() ||
+      this.actionLoading() ||
+      this.savingAccount()
+    ) {
+      return;
+    }
+
     this.selectedAccount.set(
       null
     );
@@ -1160,6 +1325,14 @@ export class CatalogoCuentasComponent implements OnInit {
   editAccount(
     cuenta: CatalogoCuentasResponse
   ): void {
+
+    if (
+      this.loadingAccounts() ||
+      this.actionLoading() ||
+      this.savingAccount()
+    ) {
+      return;
+    }
 
     this.selectedAccount.set(
       cuenta
@@ -1209,6 +1382,14 @@ export class CatalogoCuentasComponent implements OnInit {
     cuenta: CatalogoCuentasResponse
   ): void {
 
+    if (
+      this.loadingAccounts() ||
+      this.actionLoading() ||
+      this.savingAccount()
+    ) {
+      return;
+    }
+
     this.selectedAccount.set(
       cuenta
     );
@@ -1253,6 +1434,10 @@ export class CatalogoCuentasComponent implements OnInit {
 
   closeModal(): void {
 
+    if (this.savingAccount()) {
+      return;
+    }
+
     this.modalMode.set(
       null
     );
@@ -1271,7 +1456,10 @@ export class CatalogoCuentasComponent implements OnInit {
 
   saveAccount(): void {
 
-    if (!this.isFormValid()) {
+    if (
+      !this.isFormValid() ||
+      this.savingAccount()
+    ) {
       return;
     }
 
@@ -1321,12 +1509,7 @@ export class CatalogoCuentasComponent implements OnInit {
       return;
     }
 
-
-    /*
-     * ---------------------------------------------------------
-     * CREAR
-     * ---------------------------------------------------------
-     */
+    this.savingAccount.set(true);
 
     if (
       this.modalMode() === 'create' ||
@@ -1377,6 +1560,8 @@ export class CatalogoCuentasComponent implements OnInit {
               );
             }
 
+            this.savingAccount.set(false);
+
             this.closeModal();
           },
 
@@ -1387,19 +1572,13 @@ export class CatalogoCuentasComponent implements OnInit {
               error
             );
 
+            this.savingAccount.set(false);
           }
 
         });
 
       return;
     }
-
-
-    /*
-     * ---------------------------------------------------------
-     * EDITAR
-     * ---------------------------------------------------------
-     */
 
     if (
       this.modalMode() === 'edit'
@@ -1409,6 +1588,7 @@ export class CatalogoCuentasComponent implements OnInit {
         this.selectedAccount();
 
       if (!selected) {
+        this.savingAccount.set(false);
         return;
       }
 
@@ -1450,6 +1630,8 @@ export class CatalogoCuentasComponent implements OnInit {
                   : current
             );
 
+            this.savingAccount.set(false);
+
             this.closeModal();
           },
 
@@ -1460,6 +1642,7 @@ export class CatalogoCuentasComponent implements OnInit {
               error
             );
 
+            this.savingAccount.set(false);
           }
 
         });
@@ -1477,13 +1660,21 @@ export class CatalogoCuentasComponent implements OnInit {
     cuenta: CatalogoCuentasResponse
   ): void {
 
-    if (this.hasChildren(cuenta)) {
+    if (
+      this.actionLoading() ||
+      this.loadingAccounts()
+    ) {
       return;
     }
 
-    if (this.isInUse(cuenta)) {
+    if (!this.canDeleteAccount(cuenta)) {
       return;
     }
+
+    this.startActionLoading(
+      cuenta.cuenta_id,
+      'delete'
+    );
 
     this.catalogoCuentasService
       .deleteCuenta(
@@ -1512,6 +1703,7 @@ export class CatalogoCuentasComponent implements OnInit {
             error
           );
 
+          this.clearActionLoading();
         }
 
       });
@@ -1527,6 +1719,13 @@ export class CatalogoCuentasComponent implements OnInit {
   confirmDeleteAccountBranch(
     cuenta: CatalogoCuentasResponse
   ): void {
+
+    if (
+      this.actionLoading() ||
+      this.loadingAccounts()
+    ) {
+      return;
+    }
 
     if (!this.hasChildren(cuenta)) {
       return;
@@ -1550,6 +1749,14 @@ export class CatalogoCuentasComponent implements OnInit {
 
   cancelDeleteAccountBranch(): void {
 
+    if (
+      this.isActionLoadingFor(
+        'delete-branch'
+      )
+    ) {
+      return;
+    }
+
     this.deleteBranchTarget.set(
       null
     );
@@ -1564,12 +1771,24 @@ export class CatalogoCuentasComponent implements OnInit {
 
   deleteAccountBranch(): void {
 
+    if (
+      this.actionLoading() ||
+      this.loadingAccounts()
+    ) {
+      return;
+    }
+
     const cuenta =
       this.deleteBranchTarget();
 
     if (!cuenta) {
       return;
     }
+
+    this.startActionLoading(
+      cuenta.cuenta_id,
+      'delete-branch'
+    );
 
     this.catalogoCuentasService
       .deleteCuentaRama(
@@ -1605,6 +1824,8 @@ export class CatalogoCuentasComponent implements OnInit {
           this.deleteBranchTarget.set(
             null
           );
+
+          this.clearActionLoading();
         }
 
       });
@@ -1621,8 +1842,100 @@ export class CatalogoCuentasComponent implements OnInit {
     cuenta: CatalogoCuentasResponse
   ): void {
 
+    if (
+      this.actionLoading() ||
+      this.loadingAccounts()
+    ) {
+      return;
+    }
+
     this.confirmDeleteAccountBranch(
       cuenta
+    );
+  }
+
+
+  /*
+   * ===========================================================
+   * ESTADO DE LOADING DE UNA ACCIÓN
+   * ===========================================================
+   */
+
+  isActionLoading(
+    accountId: number,
+    action: AccountAction
+  ): boolean {
+
+    return (
+      this.actionLoading() &&
+      this.actionAccountId() ===
+        accountId &&
+      this.actionType() ===
+        action
+    );
+  }
+
+
+  /*
+   * ===========================================================
+   * ESTADO DE UNA ACCIÓN SIN IMPORTAR LA CUENTA
+   * ===========================================================
+   */
+
+  isActionLoadingFor(
+    action: AccountAction
+  ): boolean {
+
+    return (
+      this.actionLoading() &&
+      this.actionType() === action
+    );
+  }
+
+
+  /*
+   * ===========================================================
+   * INICIAR LOADING DE ACCIÓN
+   * ===========================================================
+   */
+
+  private startActionLoading(
+    accountId: number,
+    action: AccountAction
+  ): void {
+
+    this.actionAccountId.set(
+      accountId
+    );
+
+    this.actionType.set(
+      action
+    );
+
+    this.actionLoading.set(
+      true
+    );
+  }
+
+
+  /*
+   * ===========================================================
+   * LIMPIAR LOADING DE ACCIÓN
+   * ===========================================================
+   */
+
+  private clearActionLoading(): void {
+
+    this.actionLoading.set(
+      false
+    );
+
+    this.actionAccountId.set(
+      null
+    );
+
+    this.actionType.set(
+      null
     );
   }
 }

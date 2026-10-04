@@ -1,0 +1,2210 @@
+<section
+  class="accounting-page-enter min-h-full bg-[#f5f6f8] px-3 py-4 text-[#20252b] sm:px-4 sm:py-5 md:px-6 md:py-6"
+>
+
+  <div class="mx-auto max-w-[1600px] space-y-5">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <header
+      class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
+    >
+
+      <div class="min-w-0">
+
+        <div class="mb-2 flex items-center gap-2 text-xs font-medium text-[#7b828b]">
+
+          <span>Recursos humanos</span>
+
+          <iconify-icon
+            icon="lucide:chevron-right"
+            width="13"
+            height="13"
+          ></iconify-icon>
+
+          <span class="text-[#4f565e]">
+            Nómina
+          </span>
+
+        </div>
+
+        <div class="flex items-start gap-3">
+
+          <div
+            class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#e1e4e8] bg-white text-[#30363d] shadow-sm"
+          >
+
+            <iconify-icon
+              icon="lucide:table-2"
+              width="19"
+              height="19"
+            ></iconify-icon>
+
+          </div>
+
+          <div class="min-w-0">
+
+            <h1
+              class="text-xl font-semibold tracking-[-0.02em] text-[#20252b] sm:text-2xl"
+            >
+              Nómina
+            </h1>
+
+            <p
+              class="mt-1 max-w-2xl text-sm leading-5 text-[#747b84]"
+            >
+              Registra la planilla por período y revisa los cálculos antes de guardar.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="flex flex-wrap items-center gap-2">
+
+        <button
+          type="button"
+          (click)="refreshData()"
+          [disabled]="loadingNomina()"
+          class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 ease-out hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:text-[#20252b] hover:shadow active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+        >
+
+          <iconify-icon
+            icon="lucide:refresh-cw"
+            width="15"
+            height="15"
+            class="transition-transform duration-300 group-hover:rotate-45"
+            [class.animate-spin]="loading()"
+          ></iconify-icon>
+
+          <span>
+            {{ loading() ? 'Actualizando...' : 'Actualizar' }}
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          (click)="openCreateNomina()"
+          [disabled]="loadingNomina()"
+          class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#20252b] px-3.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+
+          <iconify-icon
+            icon="lucide:plus"
+            width="16"
+            height="16"
+            class="transition-transform duration-200 group-hover:rotate-90"
+          ></iconify-icon>
+
+          <span>Nuevo período</span>
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         ERROR
+         ========================================================= -->
+
+    @if (errorMessage()) {
+
+      <div
+        class="status-pulse flex items-start gap-3 rounded-xl border border-[#f0d7d7] bg-white px-4 py-3 shadow-sm"
+      >
+
+        <div
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff1f1] text-[#b13a3a]"
+        >
+
+          <iconify-icon
+            icon="lucide:triangle-alert"
+            width="16"
+            height="16"
+          ></iconify-icon>
+
+        </div>
+
+        <div class="min-w-0">
+
+          <p class="text-sm font-semibold text-[#343a40]">
+            No fue posible completar la operación
+          </p>
+
+          <p class="mt-0.5 text-xs text-[#777e86]">
+            {{ errorMessage() }}
+          </p>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- =========================================================
+         RESUMEN
+         ========================================================= -->
+
+    @if (loading()) {
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
+        @for (item of [1, 2, 3, 4]; track item) {
+
+          <div
+            class="summary-card-enter rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm"
+          >
+
+            <div class="flex items-center justify-between">
+
+              <div class="space-y-2">
+
+                <div class="skeleton h-3 w-24 rounded"></div>
+
+                <div class="skeleton h-7 w-28 rounded"></div>
+
+              </div>
+
+              <div
+                class="skeleton h-10 w-10 rounded-xl"
+              ></div>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
+        <div
+          class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <div>
+
+              <p
+                class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]"
+              >
+                Empleados en planilla
+              </p>
+
+              <p
+                class="mt-1 text-2xl font-semibold tracking-[-0.03em] text-[#20252b]"
+              >
+                {{ rows().length }}
+              </p>
+
+            </div>
+
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e2e5e8] bg-[#f8f9fa] text-[#555c64] transition-all duration-200 group-hover:scale-105 group-hover:bg-white"
+            >
+
+              <iconify-icon
+                icon="lucide:users"
+                width="18"
+                height="18"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <div>
+
+              <p
+                class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]"
+              >
+                Total ingresos
+              </p>
+
+              <p
+                class="mt-1 font-mono text-2xl font-semibold tracking-[-0.03em] text-[#20252b]"
+              >
+                C$ {{ formatAmount(totales().total_ingresos) }}
+              </p>
+
+            </div>
+
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dce9df] bg-[#f4faf5] text-[#3c7650] transition-all duration-200 group-hover:scale-105"
+            >
+
+              <iconify-icon
+                icon="lucide:trending-up"
+                width="18"
+                height="18"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <div>
+
+              <p
+                class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]"
+              >
+                Total deducciones
+              </p>
+
+              <p
+                class="mt-1 font-mono text-2xl font-semibold tracking-[-0.03em] text-[#20252b]"
+              >
+                C$ {{ formatAmount(totales().total_deducciones) }}
+              </p>
+
+            </div>
+
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#f0d7d7] bg-[#fffafa] text-[#b13a3a] transition-all duration-200 group-hover:scale-105"
+            >
+
+              <iconify-icon
+                icon="lucide:trending-down"
+                width="18"
+                height="18"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <div>
+
+              <p
+                class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]"
+              >
+                Neto a pagar
+              </p>
+
+              <p
+                class="mt-1 font-mono text-2xl font-semibold tracking-[-0.03em] text-[#20252b]"
+              >
+                C$ {{ formatAmount(totales().salario_neto) }}
+              </p>
+
+            </div>
+
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e2e5e8] bg-[#20252b] text-white transition-all duration-200 group-hover:scale-105"
+            >
+
+              <iconify-icon
+                icon="lucide:wallet"
+                width="18"
+                height="18"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- =========================================================
+         LIBRO DE TRABAJO
+         ========================================================= -->
+
+    <section
+      class="overflow-hidden rounded-xl border border-[#e1e4e8] bg-white shadow-sm"
+    >
+
+      @switch (activeTab()) {
+
+        <!-- =====================================================
+             PESTAÑA — PLANILLA
+             ===================================================== -->
+
+        @case ('planilla') {
+
+          <div
+            class="flex flex-col gap-3 border-b border-[#e8eaed] px-4 py-3 md:px-5 xl:flex-row xl:items-center xl:justify-between"
+          >
+
+            <div class="flex flex-wrap items-center gap-3">
+
+              <label class="flex items-center gap-2">
+
+                <span class="text-xs font-medium text-[#555d66]">
+                  Período
+                </span>
+
+                <div class="relative">
+
+                  <select
+                    [value]="selectedNominaId() ?? ''"
+                    (change)="selectNomina($any($event.target))"
+                    [disabled]="loadingNomina()"
+                    class="h-9 min-w-[270px] cursor-pointer appearance-none rounded-lg border border-[#dfe2e6] bg-[#fafbfc] px-3 pr-8 text-sm text-[#4c535b] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:bg-white focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+
+                    <option
+                      value=""
+                      [selected]="selectedNominaId() === null"
+                    >
+                      Seleccionar período
+                    </option>
+
+                    @for (
+                      nomina of nominasOrdenadas();
+                      track nomina.nomina_id
+                    ) {
+
+                      <option
+                        [value]="nomina.nomina_id"
+                        [selected]="nomina.nomina_id === selectedNominaId()"
+                      >
+                        #{{ nomina.nomina_id }} · {{ formatPeriodo(nomina) }}
+                      </option>
+
+                    }
+
+                  </select>
+
+                  <iconify-icon
+                    icon="lucide:chevron-down"
+                    width="14"
+                    height="14"
+                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#858c94]"
+                  ></iconify-icon>
+
+                </div>
+
+              </label>
+
+
+              @if (nominaSeleccionada(); as nomina) {
+
+                <span
+                  class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                  [class]="estadoBadgeClass(nomina.estado)"
+                >
+                  {{ formatEstado(nomina.estado) }}
+                </span>
+
+                <span class="inline-flex items-center gap-1.5 text-xs text-[#858c94]">
+
+                  <iconify-icon
+                    icon="lucide:calendar-check"
+                    width="13"
+                    height="13"
+                  ></iconify-icon>
+
+                  Pago: {{ formatDate(nomina.fecha_pago) }}
+
+                </span>
+
+              }
+
+            </div>
+
+
+            <div class="flex flex-wrap items-center gap-2">
+
+              <div class="relative">
+
+                <select
+                  (change)="addEmpleado($any($event.target))"
+                  [disabled]="
+                    loadingNomina() ||
+                    !planillaEditable() ||
+                    empleadosDisponibles().length === 0
+                  "
+                  class="h-9 min-w-[210px] cursor-pointer appearance-none rounded-lg border border-[#dfe2e6] bg-white px-3 pr-8 text-sm text-[#4c535b] shadow-sm outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+
+                  <option value="" selected>
+                    Agregar empleado...
+                  </option>
+
+                  @for (
+                    empleado of empleadosDisponibles();
+                    track empleado.empleado_id
+                  ) {
+
+                    <option [value]="empleado.empleado_id">
+                      {{ getEmpleadoNombre(empleado.empleado_id) }}
+                    </option>
+
+                  }
+
+                </select>
+
+                <iconify-icon
+                  icon="lucide:user-plus"
+                  width="14"
+                  height="14"
+                  class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#858c94]"
+                ></iconify-icon>
+
+              </div>
+
+
+              <button
+                type="button"
+                (click)="addAllActiveEmpleados()"
+                [disabled]="
+                  loadingNomina() ||
+                  !planillaEditable() ||
+                  empleadosDisponibles().length === 0
+                "
+                class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:text-[#20252b] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+              >
+
+                <iconify-icon
+                  icon="lucide:users"
+                  width="15"
+                  height="15"
+                  class="transition-transform duration-200 group-hover:scale-110"
+                ></iconify-icon>
+
+                <span>Agregar activos</span>
+
+              </button>
+
+
+              @if (hasChanges()) {
+
+                <button
+                  type="button"
+                  (click)="discardChanges()"
+                  [disabled]="saving()"
+                  class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+
+                  <iconify-icon
+                    icon="lucide:undo-2"
+                    width="15"
+                    height="15"
+                  ></iconify-icon>
+
+                  <span>Descartar</span>
+
+                </button>
+
+              }
+
+
+              <button
+                type="button"
+                (click)="savePlanilla()"
+                [disabled]="!canSave()"
+                class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#20252b] px-3.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+              >
+
+                @if (saving()) {
+
+                  <iconify-icon
+                    icon="lucide:loader-circle"
+                    width="15"
+                    height="15"
+                    class="animate-spin"
+                  ></iconify-icon>
+
+                  <span>Guardando...</span>
+
+                } @else {
+
+                  <iconify-icon
+                    icon="lucide:save"
+                    width="15"
+                    height="15"
+                    class="transition-transform duration-150 group-hover:scale-110"
+                  ></iconify-icon>
+
+                  <span>Guardar planilla</span>
+
+                }
+
+              </button>
+
+            </div>
+
+          </div>
+
+
+          @if (nominaSeleccionada() && !planillaEditable() && !loading()) {
+
+            <div
+              class="flex items-center gap-2 border-b border-[#f0e3c8] bg-[#fffaf0] px-4 py-2.5 text-xs text-[#8a6a2b] md:px-5"
+            >
+
+              <iconify-icon
+                icon="lucide:lock"
+                width="13"
+                height="13"
+              ></iconify-icon>
+
+              Este período está {{ formatEstado(nominaSeleccionada()?.estado).toLowerCase() }}. La planilla se muestra en modo lectura.
+
+            </div>
+
+          }
+
+
+          <!-- =================================================
+               GRILLA
+               ================================================= -->
+
+          <div
+            class="accounting-scroll max-h-[calc(100vh-360px)] min-h-[340px] overflow-auto"
+          >
+
+            <table class="w-full min-w-[1900px] border-separate border-spacing-0">
+
+              <thead>
+
+                <tr class="h-[26px]">
+
+                  <th
+                    class="sticky left-0 top-0 z-30 w-10 min-w-[40px] border-b border-r border-[#d9dde1] bg-[#eceef0]"
+                  ></th>
+
+                  @for (letra of letras; track letra) {
+
+                    <th
+                      class="sticky top-0 z-20 border-b border-r border-[#d9dde1] bg-[#eceef0] text-center text-[10px] font-semibold text-[#8a9199]"
+                      [class.left-10]="letra === 'A'"
+                      [class.z-30]="letra === 'A'"
+                    >
+                      {{ letra }}
+                    </th>
+
+                  }
+
+                  <th
+                    class="sticky top-0 z-20 w-10 min-w-[40px] border-b border-[#d9dde1] bg-[#eceef0]"
+                  ></th>
+
+                </tr>
+
+                <tr>
+
+                  <th
+                    class="sticky left-0 top-[26px] z-30 border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-2 py-2.5 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
+                  >
+                    #
+                  </th>
+
+                  <th
+                    class="sticky left-10 top-[26px] z-30 min-w-[260px] border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Empleado
+                  </th>
+
+                  <th
+                    class="sticky top-[26px] z-20 min-w-[140px] border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#20252b]"
+                  >
+                    Salario base
+                  </th>
+
+                  <th
+                    class="sticky top-[26px] z-20 min-w-[130px] border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#20252b]"
+                  >
+                    Horas extras
+                  </th>
+
+                  @for (campo of camposCalculados; track campo.key) {
+
+                    <th
+                      class="sticky top-[26px] z-20 min-w-[140px] border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-3 py-2.5 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                    >
+
+                      <span class="inline-flex items-center justify-end gap-1.5">
+
+                        <iconify-icon
+                          icon="lucide:lock"
+                          width="10"
+                          height="10"
+                        ></iconify-icon>
+
+                        {{ campo.label }}
+
+                      </span>
+
+                    </th>
+
+                  }
+
+                  <th
+                    class="sticky top-[26px] z-20 border-b border-[#e3e6e9] bg-[#f6f7f8]"
+                  ></th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                @if (loading()) {
+
+                  @for (row of [1, 2, 3, 4, 5, 6]; track row) {
+
+                    <tr>
+
+                      <td
+                        class="sticky left-0 z-10 border-b border-r border-[#eceef0] bg-[#f6f7f8] px-2 py-3"
+                      >
+                        <div class="skeleton mx-auto h-3 w-4 rounded"></div>
+                      </td>
+
+                      <td
+                        class="sticky left-10 z-10 border-b border-r border-[#eceef0] bg-white px-3 py-3"
+                      >
+
+                        <div class="flex items-center gap-3">
+
+                          <div class="skeleton h-9 w-9 shrink-0 rounded-full"></div>
+
+                          <div class="space-y-2">
+
+                            <div class="skeleton h-4 w-36 rounded"></div>
+
+                            <div class="skeleton h-3 w-20 rounded"></div>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+                      @for (column of columnasSkeleton.slice(1); track column) {
+
+                        <td class="border-b border-r border-[#eceef0] px-3 py-3">
+                          <div class="skeleton ml-auto h-4 w-20 rounded"></div>
+                        </td>
+
+                      }
+
+                      <td class="border-b border-[#eceef0]"></td>
+
+                    </tr>
+
+                  }
+
+                } @else if (!nominaSeleccionada()) {
+
+                  <tr>
+
+                    <td colspan="17" class="px-5 py-16">
+
+                      <div
+                        class="mx-auto flex max-w-sm flex-col items-center text-center"
+                      >
+
+                        <div
+                          class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+                        >
+
+                          <iconify-icon
+                            icon="lucide:calendar-range"
+                            width="21"
+                            height="21"
+                          ></iconify-icon>
+
+                        </div>
+
+                        <h3 class="text-sm font-semibold text-[#30363d]">
+                          No hay un período seleccionado
+                        </h3>
+
+                        <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                          Crea o selecciona un período de nómina para armar la planilla.
+                        </p>
+
+                        <button
+                          type="button"
+                          (click)="openCreateNomina()"
+                          class="mt-4 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-[#20252b] px-3 text-xs font-medium text-white transition-all duration-150 hover:bg-[#171b20] active:scale-[.98]"
+                        >
+
+                          <iconify-icon
+                            icon="lucide:plus"
+                            width="14"
+                            height="14"
+                          ></iconify-icon>
+
+                          Nuevo período
+
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                } @else {
+
+                  @for (
+                    item of filasCalculadas();
+                    track item.fila.empleado_id;
+                    let i = $index
+                  ) {
+
+                    <tr
+                      class="table-row-enter group"
+                      [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                    >
+
+                      <td
+                        class="sticky left-0 z-10 border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-2 text-center"
+                      >
+
+                        <span class="inline-flex items-center gap-1.5">
+
+                          @if (item.dirty) {
+
+                            <span
+                              class="h-1.5 w-1.5 rounded-full bg-[#d99a2b]"
+                              title="Sin guardar — vista previa"
+                            ></span>
+
+                          }
+
+                          <span class="font-mono text-[11px] font-medium text-[#9298a0]">
+                            {{ i + 1 }}
+                          </span>
+
+                        </span>
+
+                      </td>
+
+
+                      <td
+                        class="sticky left-10 z-10 border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-3 py-2"
+                      >
+
+                        <div class="flex items-center gap-3">
+
+                          <div
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-[11px] font-semibold text-white"
+                          >
+                            {{ getEmpleadoIniciales(item.fila.empleado_id) }}
+                          </div>
+
+                          <div class="min-w-0">
+
+                            <p class="truncate text-sm font-medium text-[#30363d]">
+                              {{ getEmpleadoNombre(item.fila.empleado_id) }}
+                            </p>
+
+                            <p class="mt-0.5 truncate text-xs text-[#9298a0]">
+                              {{ getEmpleadoCargo(item.fila.empleado_id) }}
+                              · #{{ item.fila.empleado_id }}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+
+                      <td class="border-b border-r border-[#e3e6e9] bg-white p-0">
+
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          [value]="item.fila.salario_base"
+                          (input)="updateBase(item.fila.empleado_id, $any($event.target).value)"
+                          [disabled]="saving() || !planillaEditable()"
+                          class="h-12 w-full bg-transparent px-3 text-right font-mono text-sm text-[#20252b] outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-inset focus:ring-[#20252b] disabled:cursor-not-allowed disabled:bg-[#f6f7f8] disabled:text-[#858c94]"
+                        />
+
+                      </td>
+
+
+                      <td class="border-b border-r border-[#e3e6e9] bg-white p-0">
+
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          [value]="item.fila.horas_extras"
+                          (input)="updateHorasExtras(item.fila.empleado_id, $any($event.target).value)"
+                          [disabled]="saving() || !planillaEditable()"
+                          class="h-12 w-full bg-transparent px-3 text-right font-mono text-sm text-[#20252b] outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-inset focus:ring-[#20252b] disabled:cursor-not-allowed disabled:bg-[#f6f7f8] disabled:text-[#858c94]"
+                        />
+
+                      </td>
+
+
+                      @for (campo of camposCalculados; track campo.key) {
+
+                        <td
+                          class="cursor-not-allowed select-none border-b border-r border-[#e3e6e9] bg-[#f6f7f8] px-3 text-right font-mono text-sm text-[#59636d]"
+                          [class.font-semibold]="campo.strong"
+                          [class.text-[#20252b]]="campo.strong"
+                          title="Campo calculado automáticamente"
+                        >
+                          {{ formatAmount(item.calculo[campo.key]) }}
+                        </td>
+
+                      }
+
+
+                      <td class="border-b border-[#e3e6e9] bg-white px-1 text-center">
+
+                        @if (
+                          item.fila.detalle === null &&
+                          planillaEditable()
+                        ) {
+
+                          <button
+                            type="button"
+                            (click)="removeRow(item.fila.empleado_id)"
+                            [disabled]="saving()"
+                            title="Quitar de la planilla"
+                            class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[#a1a7ae] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:trash-2"
+                              width="14"
+                              height="14"
+                              class="transition-transform duration-150 group-hover:scale-110"
+                            ></iconify-icon>
+
+                          </button>
+
+                        }
+
+                      </td>
+
+                    </tr>
+
+                  } @empty {
+
+                    <tr>
+
+                      <td colspan="17" class="px-5 py-16">
+
+                        <div
+                          class="mx-auto flex max-w-sm flex-col items-center text-center"
+                        >
+
+                          <div
+                            class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:rows-3"
+                              width="21"
+                              height="21"
+                            ></iconify-icon>
+
+                          </div>
+
+                          <h3 class="text-sm font-semibold text-[#30363d]">
+                            La planilla está vacía
+                          </h3>
+
+                          <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                            Agrega empleados para ver la vista previa de sus cálculos.
+                          </p>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  }
+
+                }
+
+              </tbody>
+
+
+              @if (!loading() && filasCalculadas().length > 0) {
+
+                <tfoot>
+
+                  <tr>
+
+                    <td
+                      class="sticky bottom-0 left-0 z-20 border-r border-t border-[#d9dde1] bg-[#eceef0]"
+                    ></td>
+
+                    <td
+                      class="sticky bottom-0 left-10 z-20 border-r border-t border-[#d9dde1] bg-[#eceef0] px-3 py-3 text-xs font-semibold uppercase tracking-[0.06em] text-[#555d66]"
+                    >
+                      Totales
+                    </td>
+
+                    <td class="sticky bottom-0 z-10 border-r border-t border-[#d9dde1] bg-[#eceef0]"></td>
+
+                    <td class="sticky bottom-0 z-10 border-r border-t border-[#d9dde1] bg-[#eceef0]"></td>
+
+                    @for (campo of camposCalculados; track campo.key) {
+
+                      <td
+                        class="sticky bottom-0 z-10 border-r border-t border-[#d9dde1] bg-[#eceef0] px-3 py-3 text-right font-mono text-sm font-semibold text-[#30363d]"
+                      >
+                        {{ formatAmount(totales()[campo.key]) }}
+                      </td>
+
+                    }
+
+                    <td class="sticky bottom-0 z-10 border-t border-[#d9dde1] bg-[#eceef0]"></td>
+
+                  </tr>
+
+                </tfoot>
+
+              }
+
+            </table>
+
+          </div>
+
+        }
+
+
+        <!-- =====================================================
+             PESTAÑA — PERÍODOS
+             ===================================================== -->
+
+        @case ('periodos') {
+
+          <div
+            class="flex flex-col gap-3 border-b border-[#e8eaed] px-4 py-4 md:px-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+
+            <div>
+
+              <h2 class="text-sm font-semibold text-[#30363d]">
+                Períodos de nómina
+              </h2>
+
+              <p class="mt-0.5 text-xs text-[#858c94]">
+                Administra los períodos y abre su planilla.
+              </p>
+
+            </div>
+
+            <button
+              type="button"
+              (click)="openCreateNomina()"
+              [disabled]="loadingNomina()"
+              class="group inline-flex h-9 cursor-pointer items-center gap-2 self-start rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60 sm:self-auto"
+            >
+
+              <iconify-icon
+                icon="lucide:plus"
+                width="15"
+                height="15"
+                class="transition-transform duration-200 group-hover:rotate-90"
+              ></iconify-icon>
+
+              <span>Nuevo período</span>
+
+            </button>
+
+          </div>
+
+
+          <div class="accounting-scroll max-h-[calc(100vh-360px)] min-h-[340px] overflow-auto">
+
+            <table class="w-full min-w-[900px] border-collapse">
+
+              <thead>
+
+                <tr class="border-b border-[#e8eaed] bg-[#fafbfc]">
+
+                  @for (
+                    titulo of [
+                      'ID',
+                      'Período',
+                      'Fecha de pago',
+                      'Empleados',
+                      'Neto',
+                      'Estado',
+                      'Acción'
+                    ];
+                    track titulo
+                  ) {
+
+                    <th
+                      class="sticky top-0 bg-[#fafbfc] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                    >
+                      {{ titulo }}
+                    </th>
+
+                  }
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                @if (loading()) {
+
+                  @for (row of [1, 2, 3, 4, 5]; track row) {
+
+                    <tr class="border-b border-[#f0f1f3]">
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-10 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-48 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-10 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-6 w-16 rounded-full"></div></td>
+
+                      <td class="px-5 py-4">
+                        <div class="flex gap-1">
+                          <div class="skeleton h-8 w-8 rounded-lg"></div>
+                          <div class="skeleton h-8 w-8 rounded-lg"></div>
+                          <div class="skeleton h-8 w-8 rounded-lg"></div>
+                        </div>
+                      </td>
+
+                    </tr>
+
+                  }
+
+                } @else {
+
+                  @for (
+                    nomina of nominasOrdenadas();
+                    track nomina.nomina_id;
+                    let i = $index
+                  ) {
+
+                    <tr
+                      class="table-row-enter border-b border-[#f0f1f3] transition-colors duration-150 hover:bg-[#fafbfc]"
+                      [class.bg-[#f8f9fa]]="nomina.nomina_id === selectedNominaId()"
+                      [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                    >
+
+                      <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-medium text-[#69717a]">
+                          #{{ nomina.nomina_id }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+                        <span class="text-sm font-medium text-[#30363d]">
+                          {{ formatPeriodo(nomina) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+                        <span class="text-sm text-[#555d66]">
+                          {{ formatDate(nomina.fecha_pago) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+                        <span class="text-sm text-[#555d66]">
+                          {{ resumenPorNomina().get(nomina.nomina_id)?.empleados ?? 0 }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+                        <span class="font-mono text-sm font-medium text-[#3f4650]">
+                          C$ {{ formatAmount(resumenPorNomina().get(nomina.nomina_id)?.neto ?? 0) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+
+                        <span
+                          class="inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium"
+                          [class]="estadoBadgeClass(nomina.estado)"
+                        >
+                          {{ formatEstado(nomina.estado) }}
+                        </span>
+
+                      </td>
+
+                      <td class="px-5 py-4">
+
+                        <div class="flex items-center gap-1">
+
+                          <button
+                            type="button"
+                            (click)="abrirPlanilla(nomina)"
+                            [disabled]="loadingNomina()"
+                            title="Abrir planilla"
+                            class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-[#737b84] transition-all duration-150 hover:border-[#e0e3e6] hover:bg-white hover:text-[#30363d] hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:table-2"
+                              width="15"
+                              height="15"
+                              class="transition-transform duration-150 group-hover:scale-110"
+                            ></iconify-icon>
+
+                          </button>
+
+                          <button
+                            type="button"
+                            (click)="openEditNomina(nomina)"
+                            [disabled]="loadingNomina()"
+                            title="Editar período"
+                            class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-[#737b84] transition-all duration-150 hover:border-[#e0e3e6] hover:bg-white hover:text-[#30363d] hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:pencil"
+                              width="15"
+                              height="15"
+                              class="transition-transform duration-150 group-hover:scale-110"
+                            ></iconify-icon>
+
+                          </button>
+
+                          <button
+                            type="button"
+                            (click)="openDeleteNomina(nomina)"
+                            [disabled]="loadingNomina()"
+                            title="Eliminar período"
+                            class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[#a1a7ae] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:trash-2"
+                              width="15"
+                              height="15"
+                              class="transition-transform duration-150 group-hover:scale-110"
+                            ></iconify-icon>
+
+                          </button>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  } @empty {
+
+                    <tr>
+
+                      <td colspan="7" class="px-5 py-16">
+
+                        <div
+                          class="mx-auto flex max-w-sm flex-col items-center text-center"
+                        >
+
+                          <div
+                            class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:search-x"
+                              width="21"
+                              height="21"
+                            ></iconify-icon>
+
+                          </div>
+
+                          <h3 class="text-sm font-semibold text-[#30363d]">
+                            No hay períodos registrados
+                          </h3>
+
+                          <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                            Crea el primer período de nómina para comenzar.
+                          </p>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  }
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        }
+
+
+        <!-- =====================================================
+             PESTAÑA — EMPLEADOS
+             ===================================================== -->
+
+        @case ('empleados') {
+
+          <div
+            class="flex flex-col gap-3 border-b border-[#e8eaed] px-4 py-4 md:px-5 sm:flex-row sm:items-center sm:justify-between"
+          >
+
+            <div>
+
+              <h2 class="text-sm font-semibold text-[#30363d]">
+                Empleados
+              </h2>
+
+              <p class="mt-0.5 text-xs text-[#858c94]">
+                Consulta datos del empleado sin perder los cambios de la planilla.
+              </p>
+
+            </div>
+
+            <div class="relative sm:w-[280px]">
+
+              <iconify-icon
+                icon="lucide:search"
+                width="15"
+                height="15"
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8a9199]"
+              ></iconify-icon>
+
+              <input
+                type="text"
+                [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value)"
+                placeholder="Buscar empleado o cargo..."
+                class="h-9 w-full rounded-lg border border-[#dfe2e6] bg-[#fafbfc] pl-9 pr-3 text-sm text-[#30363d] outline-none transition-all duration-200 placeholder:text-[#a0a6ad] focus:border-[#9ca3ab] focus:bg-white focus:ring-2 focus:ring-[#20252b]/5"
+              />
+
+            </div>
+
+          </div>
+
+
+          <div class="accounting-scroll max-h-[calc(100vh-360px)] min-h-[340px] overflow-auto">
+
+            <table class="w-full min-w-[900px] border-collapse">
+
+              <thead>
+
+                <tr class="border-b border-[#e8eaed] bg-[#fafbfc]">
+
+                  @for (
+                    titulo of [
+                      'Empleado',
+                      'Cargo',
+                      'Fecha de ingreso',
+                      'Salario base',
+                      'Estado',
+                      'Planilla'
+                    ];
+                    track titulo
+                  ) {
+
+                    <th
+                      class="sticky top-0 bg-[#fafbfc] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                    >
+                      {{ titulo }}
+                    </th>
+
+                  }
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                @if (loading()) {
+
+                  @for (row of [1, 2, 3, 4, 5]; track row) {
+
+                    <tr class="border-b border-[#f0f1f3]">
+
+                      <td class="px-5 py-4">
+                        <div class="flex items-center gap-3">
+                          <div class="skeleton h-9 w-9 shrink-0 rounded-full"></div>
+                          <div class="skeleton h-4 w-40 rounded"></div>
+                        </div>
+                      </td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-24 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-6 w-16 rounded-full"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-8 w-32 rounded-lg"></div></td>
+
+                    </tr>
+
+                  }
+
+                } @else {
+
+                  @for (
+                    empleado of empleadosFiltrados();
+                    track empleado.empleado_id;
+                    let i = $index
+                  ) {
+
+                    <tr
+                      class="table-row-enter border-b border-[#f0f1f3] transition-colors duration-150 hover:bg-[#fafbfc]"
+                      [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                    >
+
+                      <td class="px-5 py-3">
+
+                        <div class="flex items-center gap-3">
+
+                          <div
+                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-[11px] font-semibold text-white"
+                          >
+                            {{ getEmpleadoIniciales(empleado.empleado_id) }}
+                          </div>
+
+                          <div class="min-w-0">
+
+                            <p class="truncate text-sm font-medium text-[#30363d]">
+                              {{ getEmpleadoNombre(empleado.empleado_id) }}
+                            </p>
+
+                            <p class="mt-0.5 font-mono text-[10px] text-[#9298a0]">
+                              Empleado #{{ empleado.empleado_id }}
+                            </p>
+
+                          </div>
+
+                        </div>
+
+                      </td>
+
+                      <td class="px-5 py-3">
+                        <span class="text-sm text-[#555d66]">
+                          {{ empleado.cargo }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-3">
+                        <span class="text-sm text-[#555d66]">
+                          {{ formatDate(empleado.fecha_ingreso) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-3">
+                        <span class="font-mono text-sm font-medium text-[#3f4650]">
+                          C$ {{ formatAmount(empleado.salario_base) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-3">
+
+                        @if (empleado.estado) {
+
+                          <span
+                            class="inline-flex items-center rounded-full bg-[#edf6ef] px-2 py-1 text-[11px] font-medium text-[#477553]"
+                          >
+                            Activo
+                          </span>
+
+                        } @else {
+
+                          <span
+                            class="inline-flex items-center rounded-full bg-[#f1f2f3] px-2 py-1 text-[11px] font-medium text-[#737b83]"
+                          >
+                            Inactivo
+                          </span>
+
+                        }
+
+                      </td>
+
+                      <td class="px-5 py-3">
+
+                        @if (isInPlanilla(empleado.empleado_id)) {
+
+                          <span class="inline-flex items-center gap-1.5 text-xs font-medium text-[#477553]">
+
+                            <iconify-icon
+                              icon="lucide:circle-check"
+                              width="14"
+                              height="14"
+                            ></iconify-icon>
+
+                            En planilla
+
+                          </span>
+
+                        } @else {
+
+                          <button
+                            type="button"
+                            (click)="addEmpleadoToPlanilla(empleado)"
+                            [disabled]="
+                              loadingNomina() ||
+                              !planillaEditable() ||
+                              !empleado.estado
+                            "
+                            class="group inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-[#dfe2e6] bg-white px-3 text-xs font-medium text-[#4c535b] shadow-sm transition-all duration-150 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:plus"
+                              width="14"
+                              height="14"
+                              class="transition-transform duration-150 group-hover:rotate-90"
+                            ></iconify-icon>
+
+                            Agregar a planilla
+
+                          </button>
+
+                        }
+
+                      </td>
+
+                    </tr>
+
+                  } @empty {
+
+                    <tr>
+
+                      <td colspan="6" class="px-5 py-16">
+
+                        <div
+                          class="mx-auto flex max-w-sm flex-col items-center text-center"
+                        >
+
+                          <div
+                            class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:users-round"
+                              width="21"
+                              height="21"
+                            ></iconify-icon>
+
+                          </div>
+
+                          <h3 class="text-sm font-semibold text-[#30363d]">
+                            No se encontraron empleados
+                          </h3>
+
+                          <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                            Prueba con otro nombre o cargo.
+                          </p>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  }
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        }
+
+
+        <!-- =====================================================
+             PESTAÑA — ASIENTOS
+             ===================================================== -->
+
+        @case ('asientos') {
+
+          <div
+            class="border-b border-[#e8eaed] px-4 py-4 md:px-5"
+          >
+
+            <h2 class="text-sm font-semibold text-[#30363d]">
+              Asientos de nómina
+            </h2>
+
+            <p class="mt-0.5 text-xs text-[#858c94]">
+              Consulta los asientos contables con origen NOMINA.
+            </p>
+
+          </div>
+
+
+          <div class="accounting-scroll max-h-[calc(100vh-360px)] min-h-[340px] overflow-auto">
+
+            <table class="w-full min-w-[800px] border-collapse">
+
+              <thead>
+
+                <tr class="border-b border-[#e8eaed] bg-[#fafbfc]">
+
+                  <th class="sticky top-0 w-[80px] bg-[#fafbfc] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]">
+                    ID
+                  </th>
+
+                  <th class="sticky top-0 w-[120px] bg-[#fafbfc] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]">
+                    Fecha
+                  </th>
+
+                  <th class="sticky top-0 bg-[#fafbfc] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]">
+                    Concepto
+                  </th>
+
+                  <th class="sticky top-0 w-[150px] bg-[#fafbfc] px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]">
+                    Debe
+                  </th>
+
+                  <th class="sticky top-0 w-[150px] bg-[#fafbfc] px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]">
+                    Haber
+                  </th>
+
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                @if (loading()) {
+
+                  @for (row of [1, 2, 3, 4, 5]; track row) {
+
+                    <tr class="border-b border-[#f0f1f3]">
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-10 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-20 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton h-4 w-56 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton ml-auto h-4 w-24 rounded"></div></td>
+
+                      <td class="px-5 py-4"><div class="skeleton ml-auto h-4 w-24 rounded"></div></td>
+
+                    </tr>
+
+                  }
+
+                } @else {
+
+                  @for (
+                    asiento of asientosNomina();
+                    track asiento.asiento_id;
+                    let i = $index
+                  ) {
+
+                    <tr
+                      class="table-row-enter border-b border-[#f0f1f3] transition-colors duration-150 hover:bg-[#fafbfc]"
+                      [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                    >
+
+                      <td class="px-5 py-4">
+                        <span class="font-mono text-xs font-medium text-[#69717a]">
+                          #{{ asiento.asiento_id }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+                        <span class="text-sm text-[#555d66]">
+                          {{ formatDate(asiento.fecha) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4">
+                        <span class="text-sm font-medium text-[#30363d]">
+                          {{ asiento.concepto }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4 text-right">
+                        <span class="font-mono text-sm font-medium text-[#3f4650]">
+                          {{ formatAmount(asiento.total_debe) }}
+                        </span>
+                      </td>
+
+                      <td class="px-5 py-4 text-right">
+                        <span class="font-mono text-sm font-medium text-[#3f4650]">
+                          {{ formatAmount(asiento.total_haber) }}
+                        </span>
+                      </td>
+
+                    </tr>
+
+                  } @empty {
+
+                    <tr>
+
+                      <td colspan="5" class="px-5 py-16">
+
+                        <div
+                          class="mx-auto flex max-w-sm flex-col items-center text-center"
+                        >
+
+                          <div
+                            class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+                          >
+
+                            <iconify-icon
+                              icon="lucide:search-x"
+                              width="21"
+                              height="21"
+                            ></iconify-icon>
+
+                          </div>
+
+                          <h3 class="text-sm font-semibold text-[#30363d]">
+                            No hay asientos de nómina
+                          </h3>
+
+                          <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                            Aún no existen asientos con origen NOMINA.
+                          </p>
+
+                        </div>
+
+                      </td>
+
+                    </tr>
+
+                  }
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        }
+
+      }
+
+
+      <!-- =====================================================
+           PESTAÑAS Y BARRA DE ESTADO
+           ===================================================== -->
+
+      <div
+        class="flex items-stretch justify-between border-t border-[#d9dde1] bg-[#eceef0]"
+      >
+
+        <div class="flex items-end gap-1 overflow-x-auto px-2 pt-1.5">
+
+          @for (pestana of pestanas; track pestana.id) {
+
+            <button
+              type="button"
+              (click)="setTab(pestana.id)"
+              class="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-t-lg border border-b-0 px-4 text-xs font-medium transition-colors duration-150"
+              [class]="
+                activeTab() === pestana.id
+                  ? 'border-[#d9dde1] bg-white text-[#20252b] shadow-[0_1px_0_0_#fff]'
+                  : 'border-transparent bg-transparent text-[#69717a] hover:bg-[#f6f7f8] hover:text-[#30363d]'
+              "
+            >
+
+              <iconify-icon
+                [icon]="pestana.icon"
+                width="14"
+                height="14"
+              ></iconify-icon>
+
+              {{ pestana.label }}
+
+            </button>
+
+          }
+
+        </div>
+
+
+        <div class="hidden items-center gap-4 px-4 text-[11px] text-[#7b828b] sm:flex">
+
+          <span>
+            {{ rows().length }}
+            {{ rows().length === 1 ? 'fila' : 'filas' }}
+          </span>
+
+          @if (hasChanges()) {
+
+            <span class="inline-flex items-center gap-1.5 font-medium text-[#8a6a2b]">
+
+              <span class="h-1.5 w-1.5 rounded-full bg-[#d99a2b]"></span>
+
+              {{ filasModificadas().length }} sin guardar
+
+            </span>
+
+          } @else {
+
+            <span class="inline-flex items-center gap-1.5">
+
+              <span class="h-1.5 w-1.5 rounded-full bg-[#4d8c5c]"></span>
+
+              Todo guardado
+
+            </span>
+
+          }
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+
+<!-- ===========================================================
+     MODAL CREAR / EDITAR PERÍODO
+     =========================================================== -->
+
+@if (nominaModalMode()) {
+
+  <div
+    class="modal-backdrop-enter fixed inset-0 z-50 flex items-center justify-center bg-[#11161c]/45 p-3 backdrop-blur-[2px] sm:p-5"
+  >
+
+    <div
+      class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[560px] flex-col overflow-hidden rounded-2xl border border-[#dfe2e6] bg-white shadow-2xl sm:max-h-[calc(100vh-40px)]"
+    >
+
+      <div
+        class="flex shrink-0 items-start justify-between gap-4 border-b border-[#e7e9ec] px-5 py-4 md:px-6"
+      >
+
+        <div class="min-w-0">
+
+          <div class="flex items-center gap-2">
+
+            <div
+              class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f4f5] text-[#4f565e]"
+            >
+
+              <iconify-icon
+                [icon]="
+                  nominaModalMode() === 'create'
+                    ? 'lucide:calendar-plus'
+                    : 'lucide:calendar-cog'
+                "
+                width="16"
+                height="16"
+              ></iconify-icon>
+
+            </div>
+
+            <h2 class="text-base font-semibold text-[#20252b]">
+              {{
+                nominaModalMode() === 'create'
+                  ? 'Nuevo período de nómina'
+                  : 'Editar período de nómina'
+              }}
+            </h2>
+
+          </div>
+
+          <p class="mt-1 pl-10 text-xs text-[#858c94]">
+            {{
+              nominaModalMode() === 'create'
+                ? 'Define el rango y la fecha de pago del período.'
+                : 'Modifica las fechas y el estado del período.'
+            }}
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          (click)="closeNominaModal()"
+          [disabled]="saving()"
+          title="Cerrar"
+          class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#858c94] transition-all duration-150 hover:bg-[#f3f4f5] hover:text-[#30363d] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+
+          <iconify-icon
+            icon="lucide:x"
+            width="17"
+            height="17"
+            class="transition-transform duration-150 group-hover:rotate-90"
+          ></iconify-icon>
+
+        </button>
+
+      </div>
+
+
+      <div class="accounting-scroll flex-1 overflow-y-auto">
+
+        <div class="space-y-4 p-5 md:p-6">
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+            <label class="block">
+
+              <span class="mb-1.5 block text-xs font-medium text-[#555d66]">
+                Inicio del período
+              </span>
+
+              <input
+                type="date"
+                [value]="nominaForm().periodo_inicio"
+                (input)="updateNominaForm('periodo_inicio', $any($event.target).value)"
+                [disabled]="saving()"
+                class="h-9 w-full cursor-pointer rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
+              />
+
+            </label>
+
+
+            <label class="block">
+
+              <span class="mb-1.5 block text-xs font-medium text-[#555d66]">
+                Fin del período
+              </span>
+
+              <input
+                type="date"
+                [value]="nominaForm().periodo_fin"
+                (input)="updateNominaForm('periodo_fin', $any($event.target).value)"
+                [disabled]="saving()"
+                class="h-9 w-full cursor-pointer rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
+              />
+
+            </label>
+
+          </div>
+
+
+          <label class="block">
+
+            <span class="mb-1.5 block text-xs font-medium text-[#555d66]">
+              Fecha de pago
+            </span>
+
+            <input
+              type="date"
+              [value]="nominaForm().fecha_pago"
+              (input)="updateNominaForm('fecha_pago', $any($event.target).value)"
+              [disabled]="saving()"
+              class="h-9 w-full cursor-pointer rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
+            />
+
+          </label>
+
+
+          <label class="block">
+
+            <span class="mb-1.5 block text-xs font-medium text-[#555d66]">
+                Estado
+            </span>
+
+            <mat-form-field
+                appearance="outline"
+                class="contalab-mat-field w-full"
+            >
+
+                <mat-select
+                class="px-5"
+                [value]="nominaForm().estado"
+                (selectionChange)="onEstadoChange($event)"
+                [disabled]="saving()"
+                >
+
+                @for (estado of estadosDisponibles(); track estado) {
+
+                    <mat-option [value]="estado">
+                    {{ formatEstado(estado) }}
+                    </mat-option>
+
+                }
+
+                </mat-select>
+
+            </mat-form-field>
+
+            <span class="mt-1.5 block text-[11px] leading-4 text-[#8b949d]">
+                La planilla puede modificarse mientras el período se encuentre en estado
+                {{ formatEstado(estadosEditables[0]).toLowerCase() }}.
+            </span>
+
+            </label>
+
+
+          @if (
+            nominaForm().periodo_inicio &&
+            nominaForm().periodo_fin &&
+            nominaForm().periodo_inicio > nominaForm().periodo_fin
+          ) {
+
+            <div
+              class="flex items-start gap-2 rounded-xl border border-[#ead8d8] bg-[#fffafa] p-3 text-xs text-[#8f3b3b]"
+            >
+
+              <iconify-icon
+                icon="lucide:triangle-alert"
+                width="14"
+                height="14"
+                class="mt-0.5 shrink-0"
+              ></iconify-icon>
+
+              La fecha de inicio no puede ser posterior a la fecha de fin.
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="flex shrink-0 flex-col-reverse gap-2 border-t border-[#e7e9ec] bg-[#fafbfc] px-5 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6"
+      >
+
+        <button
+          type="button"
+          (click)="closeNominaModal()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] hover:text-[#30363d] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          (click)="saveNomina()"
+          [disabled]="!isNominaFormValid() || saving()"
+          class="group inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#20252b] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+        >
+
+          @if (saving()) {
+
+            <iconify-icon
+              icon="lucide:loader-circle"
+              width="15"
+              height="15"
+              class="animate-spin"
+            ></iconify-icon>
+
+            Guardando...
+
+          } @else {
+
+            <iconify-icon
+              icon="lucide:save"
+              width="15"
+              height="15"
+              class="transition-transform duration-150 group-hover:scale-110"
+            ></iconify-icon>
+
+            {{
+              nominaModalMode() === 'create'
+                ? 'Crear período'
+                : 'Guardar cambios'
+            }}
+
+          }
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- ===========================================================
+     MODAL ELIMINAR PERÍODO
+     =========================================================== -->
+
+@if (deleteNominaTarget(); as nomina) {
+
+  <div
+    class="modal-backdrop-enter fixed inset-0 z-[60] flex items-center justify-center bg-[#11161c]/50 p-4 backdrop-blur-[2px]"
+  >
+
+    <div
+      class="modal-panel-enter w-full max-w-[430px] overflow-hidden rounded-2xl border border-[#e2d8d8] bg-white shadow-2xl"
+    >
+
+      <div class="p-5 sm:p-6">
+
+        <div class="flex items-start gap-4">
+
+          <div
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b13a3a]"
+          >
+
+            <iconify-icon
+              icon="lucide:trash-2"
+              width="19"
+              height="19"
+            ></iconify-icon>
+
+          </div>
+
+          <div>
+
+            <h2 class="text-base font-semibold text-[#30363d]">
+              Eliminar período de nómina
+            </h2>
+
+            <p class="mt-1 text-xs leading-5 text-[#777e86]">
+              Esta acción eliminará el período seleccionado y no puede deshacerse.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="mt-5 rounded-xl border border-[#eadede] bg-[#fffafa] p-4">
+
+          <div class="flex items-center justify-between">
+
+            <span class="text-xs text-[#777e86]">
+              Período
+            </span>
+
+            <span class="text-sm font-semibold text-[#9d3b3b]">
+              #{{ nomina.nomina_id }} · {{ formatPeriodo(nomina) }}
+            </span>
+
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+
+            <span class="text-xs text-[#777e86]">
+              Empleados en la planilla
+            </span>
+
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">
+              {{ resumenPorNomina().get(nomina.nomina_id)?.empleados ?? 0 }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="flex flex-col-reverse gap-2 border-t border-[#eee7e7] bg-[#fffdfd] px-5 py-4 sm:flex-row sm:justify-end"
+      >
+
+        <button
+          type="button"
+          (click)="closeDeleteNomina()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+
+        <button
+          type="button"
+          (click)="confirmDeleteNomina()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#b13a3a] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#9f3030] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+
+          @if (saving()) {
+
+            <iconify-icon
+              icon="lucide:loader-circle"
+              width="15"
+              height="15"
+              class="animate-spin"
+            ></iconify-icon>
+
+            Eliminando...
+
+          } @else {
+
+            <iconify-icon
+              icon="lucide:trash-2"
+              width="15"
+              height="15"
+            ></iconify-icon>
+
+            Eliminar período
+
+          }
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

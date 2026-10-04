@@ -1,0 +1,2426 @@
+<section
+  class="
+    min-h-full
+    bg-[#f5f6f8]
+    px-4
+    py-5
+    text-[#20252b]
+    md:px-6
+    md:py-6
+  "
+>
+
+  <div
+    class="
+      mx-auto
+      max-w-[1400px]
+      space-y-6
+    "
+  >
+
+    <!-- =========================================================
+         HEADER
+    ========================================================== -->
+
+    <header>
+
+      <div
+        class="
+          mb-2
+          flex
+          items-center
+          gap-2
+          text-[12px]
+          font-medium
+          text-[#7b848d]
+        "
+      >
+
+        <iconify-icon
+          icon="lucide:users"
+          class="text-[14px]"
+        ></iconify-icon>
+
+        <span>Recursos humanos</span>
+
+        <iconify-icon
+          icon="lucide:chevron-right"
+          class="text-[13px]"
+        ></iconify-icon>
+
+        <span class="text-[#4d5863]">
+          Empleados
+        </span>
+
+      </div>
+
+
+      <div
+        class="
+          flex
+          flex-col
+          gap-4
+          sm:flex-row
+          sm:items-end
+          sm:justify-between
+        "
+      >
+
+        <div>
+
+          <h1
+            class="
+              text-[24px]
+              font-semibold
+              tracking-[-0.02em]
+              text-[#20252b]
+            "
+          >
+            Empleados
+          </h1>
+
+          <p
+            class="
+              mt-1
+              text-[13px]
+              text-[#7b848d]
+            "
+          >
+            Consulta y administra los empleados registrados en Contalab.
+          </p>
+
+        </div>
+
+
+        <div class="flex items-center gap-3">
+
+          <!-- ACTUALIZAR -->
+
+          <button
+            type="button"
+            (click)="refreshData()"
+            [disabled]="
+              loadingEmpleados() ||
+              loadingPersonas() ||
+              loadingUsuarios() ||
+              actionLoading()
+            "
+            title="Actualizar información"
+            class="
+              inline-flex
+              cursor-pointer
+              items-center
+              gap-2
+              rounded-md
+              border
+              border-[#dfe3e7]
+              bg-white
+              px-3
+              py-2.5
+              text-[12px]
+              font-medium
+              text-[#343a40]
+              transition-all
+              duration-200
+              hover:bg-[#f5f6f7]
+              active:scale-[0.98]
+              disabled:cursor-not-allowed
+              disabled:opacity-60
+              disabled:active:scale-100
+            "
+          >
+
+            <iconify-icon
+              [icon]="
+                loadingEmpleados() ||
+                loadingPersonas() ||
+                loadingUsuarios()
+                  ? 'lucide:loader-circle'
+                  : 'lucide:refresh-cw'
+              "
+              class="text-[14px]"
+              [class.animate-spin]="
+                loadingEmpleados() ||
+                loadingPersonas() ||
+                loadingUsuarios()
+              "
+            ></iconify-icon>
+
+            @if (
+              loadingEmpleados() ||
+              loadingPersonas() ||
+              loadingUsuarios()
+            ) {
+              Actualizando...
+            } @else {
+              Actualizar
+            }
+
+          </button>
+
+
+          <!-- NUEVO EMPLEADO -->
+
+          <button
+            type="button"
+            (click)="createEmpleado()"
+            [disabled]="
+              loadingEmpleados() ||
+              loadingPersonas() ||
+              actionLoading()
+            "
+            title="Registrar empleado"
+            class="
+              inline-flex
+              cursor-pointer
+              items-center
+              gap-2
+              rounded-lg
+              bg-[#111214]
+              px-4
+              py-2.5
+              text-[12px]
+              font-medium
+              text-white
+              transition-all
+              duration-200
+              hover:bg-[#292b30]
+              active:scale-[0.98]
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+              disabled:active:scale-100
+            "
+          >
+
+            <iconify-icon
+              icon="lucide:user-plus"
+              class="text-[15px]"
+            ></iconify-icon>
+
+            Nuevo empleado
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- =========================================================
+         SUMMARY
+    ========================================================== -->
+
+    @if (loadingEmpleados()) {
+
+      <div
+        class="
+          grid
+          grid-cols-1
+          gap-3
+          sm:grid-cols-2
+          xl:grid-cols-4
+        "
+      >
+
+        @for (item of [1, 2, 3, 4]; track item) {
+
+          <div
+            class="
+              summary-card-enter
+              rounded-lg
+              border
+              border-[#e2e5e8]
+              bg-white
+              p-4
+            "
+          >
+
+            <div class="flex items-start justify-between">
+
+              <div class="space-y-2">
+
+                <div class="skeleton h-3 w-28 rounded"></div>
+
+                <div class="skeleton h-7 w-14 rounded"></div>
+
+              </div>
+
+              <div class="skeleton h-9 w-9 rounded-md"></div>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <div
+        class="
+          grid
+          grid-cols-1
+          gap-3
+          sm:grid-cols-2
+          xl:grid-cols-4
+        "
+      >
+
+        <!-- TOTAL -->
+
+        <div
+          class="
+            summary-card-enter
+            rounded-lg
+            border
+            border-[#e2e5e8]
+            bg-white
+            p-4
+          "
+        >
+
+          <div class="flex items-start justify-between">
+
+            <div>
+
+              <p class="text-[12px] font-medium text-[#7b848d]">
+                Total de empleados
+              </p>
+
+              <p
+                class="
+                  mt-1
+                  text-[24px]
+                  font-semibold
+                  text-[#20252b]
+                "
+              >
+                {{ totalEmpleados() }}
+              </p>
+
+            </div>
+
+            <div
+              class="
+                flex
+                h-9
+                w-9
+                items-center
+                justify-center
+                rounded-md
+                bg-[#f1f3f5]
+                text-[#52606d]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:users"
+                class="text-[17px]"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ACTIVOS -->
+
+        <div
+          class="
+            summary-card-enter
+            rounded-lg
+            border
+            border-[#e2e5e8]
+            bg-white
+            p-4
+          "
+        >
+
+          <div class="flex items-start justify-between">
+
+            <div>
+
+              <p class="text-[12px] font-medium text-[#7b848d]">
+                Empleados activos
+              </p>
+
+              <p
+                class="
+                  mt-1
+                  text-[24px]
+                  font-semibold
+                  text-[#20252b]
+                "
+              >
+                {{ empleadosActivos() }}
+              </p>
+
+            </div>
+
+            <div
+              class="
+                flex
+                h-9
+                w-9
+                items-center
+                justify-center
+                rounded-md
+                bg-[#edf6ef]
+                text-[#477553]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:user-check"
+                class="text-[17px]"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- INACTIVOS -->
+
+        <div
+          class="
+            summary-card-enter
+            rounded-lg
+            border
+            border-[#e2e5e8]
+            bg-white
+            p-4
+          "
+        >
+
+          <div class="flex items-start justify-between">
+
+            <div>
+
+              <p class="text-[12px] font-medium text-[#7b848d]">
+                Empleados inactivos
+              </p>
+
+              <p
+                class="
+                  mt-1
+                  text-[24px]
+                  font-semibold
+                  text-[#20252b]
+                "
+              >
+                {{ empleadosInactivos() }}
+              </p>
+
+            </div>
+
+            <div
+              class="
+                flex
+                h-9
+                w-9
+                items-center
+                justify-center
+                rounded-md
+                bg-[#f1f2f3]
+                text-[#737b83]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:user-x"
+                class="text-[17px]"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- CARGOS -->
+
+        <div
+          class="
+            summary-card-enter
+            rounded-lg
+            border
+            border-[#e2e5e8]
+            bg-white
+            p-4
+          "
+        >
+
+          <div class="flex items-start justify-between">
+
+            <div>
+
+              <p class="text-[12px] font-medium text-[#7b848d]">
+                Cargos registrados
+              </p>
+
+              <p
+                class="
+                  mt-1
+                  text-[24px]
+                  font-semibold
+                  text-[#20252b]
+                "
+              >
+                {{ cargosRegistrados() }}
+              </p>
+
+            </div>
+
+            <div
+              class="
+                flex
+                h-9
+                w-9
+                items-center
+                justify-center
+                rounded-md
+                bg-[#f1f3f5]
+                text-[#52606d]
+              "
+            >
+
+              <iconify-icon
+                icon="lucide:briefcase-business"
+                class="text-[17px]"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- =========================================================
+         MAIN PANEL
+    ========================================================== -->
+
+    <div
+      class="
+        overflow-hidden
+        rounded-lg
+        border
+        border-[#e2e5e8]
+        bg-white
+      "
+    >
+
+      <!-- FILTERS -->
+
+      <div
+        class="
+          flex
+          flex-col
+          gap-3
+          border-b
+          border-[#e8eaed]
+          p-4
+          md:flex-row
+          md:items-center
+        "
+      >
+
+        <!-- SEARCH -->
+
+        <div class="relative flex-1">
+
+          <iconify-icon
+            icon="lucide:search"
+            class="
+              pointer-events-none
+              absolute
+              left-3
+              top-1/2
+              -translate-y-1/2
+              text-[15px]
+              text-[#8b949d]
+            "
+          ></iconify-icon>
+
+          <input
+            type="text"
+            [value]="searchTerm()"
+            (input)="
+              searchTerm.set(
+                $any($event.target).value
+              )
+            "
+            placeholder="Buscar empleado, persona, cargo o ID..."
+            [disabled]="
+              loadingEmpleados() ||
+              actionLoading()
+            "
+            class="
+              w-full
+              rounded-md
+              border
+              border-[#dfe3e7]
+              bg-white
+              py-2.5
+              pl-9
+              pr-3
+              text-[13px]
+              text-[#20252b]
+              outline-none
+              transition
+              placeholder:text-[#9aa2aa]
+              focus:border-[#aeb7c0]
+              focus:ring-2
+              focus:ring-[#17324d]/5
+              disabled:cursor-not-allowed
+              disabled:bg-[#f8f9fa]
+            "
+          >
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <select
+          [value]="selectedStatus()"
+          (change)="
+            selectedStatus.set(
+              $any($event.target).value
+            )
+          "
+          [disabled]="
+            loadingEmpleados() ||
+            actionLoading()
+          "
+          class="
+            cursor-pointer
+            rounded-md
+            border
+            border-[#dfe3e7]
+            bg-white
+            px-3
+            py-2.5
+            text-[13px]
+            text-[#4d5863]
+            outline-none
+            focus:border-[#aeb7c0]
+            disabled:cursor-not-allowed
+            disabled:bg-[#f8f9fa]
+          "
+        >
+
+          <option value="TODOS">
+            Todos los estados
+          </option>
+
+          <option value="ACTIVOS">
+            Activos
+          </option>
+
+          <option value="INACTIVOS">
+            Inactivos
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <!-- =======================================================
+           TABLE
+      ======================================================== -->
+
+      <div class="overflow-x-auto">
+
+        <table
+          class="
+            min-w-[1050px]
+            w-full
+            border-collapse
+          "
+        >
+
+          <thead>
+
+            <tr
+              class="
+                border-b
+                border-[#e8eaed]
+                bg-[#fafbfc]
+                text-left
+              "
+            >
+
+              <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Empleado
+              </th>
+
+              <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Persona
+              </th>
+
+              <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Cargo
+              </th>
+
+              <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Fecha de ingreso
+              </th>
+
+              <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Usuario
+              </th>
+
+              <th class="px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Estado
+              </th>
+
+              <th class="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.04em] text-[#7b848d]">
+                Acción
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            @if (loadingEmpleados()) {
+
+              @for (row of [1, 2, 3, 4, 5, 6, 7, 8]; track row) {
+
+                <tr class="border-b border-[#edf0f2]">
+
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                      <div class="skeleton h-9 w-9 flex-shrink-0 rounded-full"></div>
+                      <div class="space-y-2">
+                        <div class="skeleton h-4 w-28 rounded"></div>
+                        <div class="skeleton h-3 w-16 rounded"></div>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="space-y-2">
+                      <div class="skeleton h-4 w-40 rounded"></div>
+                      <div class="skeleton h-3 w-24 rounded"></div>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="skeleton h-4 w-24 rounded"></div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="skeleton h-4 w-24 rounded"></div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="space-y-2">
+                      <div class="skeleton h-4 w-20 rounded"></div>
+                      <div class="skeleton h-3 w-32 rounded"></div>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="skeleton h-6 w-16 rounded-full"></div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="flex justify-end gap-1">
+                      <div class="skeleton h-8 w-8 rounded-md"></div>
+                      <div class="skeleton h-8 w-8 rounded-md"></div>
+                      <div class="skeleton h-8 w-8 rounded-md"></div>
+                    </div>
+                  </td>
+
+                </tr>
+
+              }
+
+            } @else {
+
+              @for (
+                empleado of filteredEmpleados();
+                track empleado.empleado_id;
+                let rowIndex = $index
+              ) {
+
+                <tr
+                  [style.animation-delay]="
+                    (rowIndex < 12 ? rowIndex : 12) * 25 + 'ms'
+                  "
+                  class="
+                    table-row-enter
+                    group
+                    border-b
+                    border-[#edf0f2]
+                    transition-colors
+                    hover:bg-[#fafbfc]
+                  "
+                >
+
+                  <!-- EMPLEADO -->
+
+                  <td class="px-4 py-3">
+
+                    <div class="flex items-center gap-3">
+
+                      <div
+                        class="
+                          flex
+                          h-9
+                          w-9
+                          flex-shrink-0
+                          items-center
+                          justify-center
+                          rounded-full
+                          bg-black
+                          text-[11px]
+                          font-semibold
+                          text-white
+                        "
+                      >
+                        {{ getInitials(empleado) }}
+                      </div>
+
+                      <div class="min-w-0">
+
+                        <span
+                          class="
+                            text-[13px]
+                            font-medium
+                            text-[#30363c]
+                          "
+                        >
+                          Empleado #{{ empleado.empleado_id }}
+                        </span>
+
+                        <span
+                          class="
+                            mt-0.5
+                            block
+                            font-mono
+                            text-[10px]
+                            text-[#8b949d]
+                          "
+                        >
+                          Persona #{{ empleado.persona_id }}
+                        </span>
+
+                      </div>
+
+                    </div>
+
+                  </td>
+
+
+                  <!-- PERSONA -->
+
+                  <td class="px-4 py-3">
+
+                    @if (empleado.persona) {
+
+                      <div>
+
+                        <p
+                          class="
+                            text-[13px]
+                            font-medium
+                            text-[#30363c]
+                          "
+                        >
+                          {{ getPersonaName(empleado) }}
+                        </p>
+
+                        @if (empleado.persona.telefono) {
+
+                          <p
+                            class="
+                              mt-0.5
+                              text-[11px]
+                              text-[#8b949d]
+                            "
+                          >
+                            {{ empleado.persona.telefono }}
+                          </p>
+
+                        }
+
+                      </div>
+
+                    } @else {
+
+                      <div>
+
+                        <p
+                          class="
+                            text-[13px]
+                            font-medium
+                            text-[#30363c]
+                          "
+                        >
+                          {{ getPersonaNameById(empleado.persona_id) || 'Persona no encontrada' }}
+                        </p>
+
+                        <p
+                          class="
+                            mt-0.5
+                            text-[11px]
+                            text-[#8b949d]
+                          "
+                        >
+                          Persona #{{ empleado.persona_id }}
+                        </p>
+
+                      </div>
+
+                    }
+
+                  </td>
+
+
+                  <!-- CARGO -->
+
+                  <td class="px-4 py-3">
+
+                    <div class="inline-flex items-center gap-2">
+
+                      <iconify-icon
+                        icon="lucide:briefcase-business"
+                        class="text-[14px] text-[#8b949d]"
+                      ></iconify-icon>
+
+                      <span
+                        class="
+                          text-[12px]
+                          font-medium
+                          text-[#59636d]
+                        "
+                      >
+                        {{ empleado.cargo }}
+                      </span>
+
+                    </div>
+
+                  </td>
+
+
+                  <!-- FECHA -->
+
+                  <td class="px-4 py-3">
+
+                    <span class="text-[12px] text-[#59636d]">
+                      {{ formatDate(empleado.fecha_ingreso) }}
+                    </span>
+
+                  </td>
+
+
+                  <!-- USUARIO -->
+
+                  <td class="px-4 py-3">
+
+                    @if (hasUsuario(empleado)) {
+
+                      <div>
+
+                        <div class="flex items-center gap-2">
+
+                          <span
+                            class="
+                              h-1.5
+                              w-1.5
+                              rounded-full
+                              bg-[#4d8c5c]
+                            "
+                          ></span>
+
+                          <span
+                            class="
+                              text-[12px]
+                              font-medium
+                              text-[#477553]
+                            "
+                          >
+                            Asociado
+                          </span>
+
+                        </div>
+
+                        <p
+                          class="
+                            mt-0.5
+                            max-w-[190px]
+                            truncate
+                            text-[11px]
+                            text-[#8b949d]
+                          "
+                        >
+                          {{ getUsuarioEmail(empleado) }}
+                        </p>
+
+                      </div>
+
+                    } @else {
+
+                      <div class="flex items-center gap-2">
+
+                        <span
+                          class="
+                            h-1.5
+                            w-1.5
+                            rounded-full
+                            bg-[#b9bec3]
+                          "
+                        ></span>
+
+                        <span
+                          class="
+                            text-[12px]
+                            text-[#7b848d]
+                          "
+                        >
+                          Sin usuario
+                        </span>
+
+                      </div>
+
+                    }
+
+                  </td>
+
+
+                  <!-- ESTADO -->
+
+                  <td class="px-4 py-3">
+
+                    @if (empleado.estado) {
+
+                      <span
+                        class="
+                          inline-flex
+                          items-center
+                          rounded-full
+                          bg-[#edf6ef]
+                          px-2
+                          py-1
+                          text-[11px]
+                          font-medium
+                          text-[#477553]
+                        "
+                      >
+                        Activo
+                      </span>
+
+                    } @else {
+
+                      <span
+                        class="
+                          inline-flex
+                          items-center
+                          rounded-full
+                          bg-[#f1f2f3]
+                          px-2
+                          py-1
+                          text-[11px]
+                          font-medium
+                          text-[#737b83]
+                        "
+                      >
+                        Inactivo
+                      </span>
+
+                    }
+
+                  </td>
+
+
+                  <!-- ACCIONES -->
+
+                  <td class="px-4 py-3">
+
+                    <div
+                      class="
+                        flex
+                        items-center
+                        justify-end
+                        gap-1
+                        opacity-0
+                        transition-opacity
+                        group-hover:opacity-100
+                        group-focus-within:opacity-100
+                      "
+                    >
+
+                      <!-- EDITAR -->
+
+                      <button
+                        type="button"
+                        (click)="editEmpleado(empleado)"
+                        [disabled]="actionLoading()"
+                        title="Editar empleado"
+                        class="
+                          flex
+                          h-8
+                          w-8
+                          cursor-pointer
+                          items-center
+                          justify-center
+                          rounded-md
+                          text-[#7b848d]
+                          transition-all
+                          duration-150
+                          hover:bg-[#f1f3f5]
+                          hover:text-[#30363c]
+                          active:scale-95
+                          disabled:cursor-not-allowed
+                          disabled:opacity-40
+                        "
+                      >
+
+                        <iconify-icon
+                          icon="lucide:pencil"
+                          class="text-[15px]"
+                        ></iconify-icon>
+
+                      </button>
+
+
+                      @if (empleado.estado) {
+
+                        <button
+                          type="button"
+                          (click)="deactivateEmpleado(empleado)"
+                          [disabled]="actionLoading()"
+                          title="Desactivar empleado"
+                          class="
+                            flex
+                            h-8
+                            w-8
+                            cursor-pointer
+                            items-center
+                            justify-center
+                            rounded-md
+                            text-[#9a6b6b]
+                            transition-all
+                            duration-150
+                            hover:bg-[#f9eeee]
+                            hover:text-[#a94442]
+                            active:scale-95
+                            disabled:cursor-not-allowed
+                            disabled:opacity-40
+                          "
+                        >
+
+                          <iconify-icon
+                            [icon]="
+                              isActionLoading(
+                                empleado.empleado_id,
+                                'deactivate'
+                              )
+                                ? 'lucide:loader-circle'
+                                : 'lucide:user-x'
+                            "
+                            class="text-[15px]"
+                            [class.animate-spin]="
+                              isActionLoading(
+                                empleado.empleado_id,
+                                'deactivate'
+                              )
+                            "
+                          ></iconify-icon>
+
+                        </button>
+
+                      } @else {
+
+                        <button
+                          type="button"
+                          (click)="activateEmpleado(empleado)"
+                          [disabled]="actionLoading()"
+                          title="Activar empleado"
+                          class="
+                            flex
+                            h-8
+                            w-8
+                            cursor-pointer
+                            items-center
+                            justify-center
+                            rounded-md
+                            text-[#477553]
+                            transition-all
+                            duration-150
+                            hover:bg-[#edf6ef]
+                            active:scale-95
+                            disabled:cursor-not-allowed
+                            disabled:opacity-40
+                          "
+                        >
+
+                          <iconify-icon
+                            [icon]="
+                              isActionLoading(
+                                empleado.empleado_id,
+                                'activate'
+                              )
+                                ? 'lucide:loader-circle'
+                                : 'lucide:user-check'
+                            "
+                            class="text-[15px]"
+                            [class.animate-spin]="
+                              isActionLoading(
+                                empleado.empleado_id,
+                                'activate'
+                              )
+                            "
+                          ></iconify-icon>
+
+                        </button>
+
+                      }
+
+
+                      <!-- DELETE -->
+
+                      <button
+                        type="button"
+                        (click)="deleteEmpleado(empleado)"
+                        [disabled]="actionLoading()"
+                        title="Eliminar empleado"
+                        class="
+                          flex
+                          h-8
+                          w-8
+                          cursor-pointer
+                          items-center
+                          justify-center
+                          rounded-md
+                          text-[#9a6b6b]
+                          transition-all
+                          duration-150
+                          hover:bg-[#f9eeee]
+                          hover:text-[#a94442]
+                          active:scale-95
+                          disabled:cursor-not-allowed
+                          disabled:opacity-40
+                        "
+                      >
+
+                        <iconify-icon
+                          [icon]="
+                            isActionLoading(
+                              empleado.empleado_id,
+                              'delete'
+                            )
+                              ? 'lucide:loader-circle'
+                              : 'lucide:trash-2'
+                          "
+                          class="text-[15px]"
+                          [class.animate-spin]="
+                            isActionLoading(
+                              empleado.empleado_id,
+                              'delete'
+                            )
+                          "
+                        ></iconify-icon>
+
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <tr>
+
+                  <td
+                    colspan="7"
+                    class="px-4 py-16"
+                  >
+
+                    <div
+                      class="
+                        flex
+                        flex-col
+                        items-center
+                        justify-center
+                        text-center
+                      "
+                    >
+
+                      <iconify-icon
+                        icon="lucide:users-round"
+                        class="text-[30px] text-[#aeb5bb]"
+                      ></iconify-icon>
+
+                      <p
+                        class="
+                          mt-3
+                          text-[13px]
+                          font-medium
+                          text-[#59636d]
+                        "
+                      >
+                        No se encontraron empleados
+                      </p>
+
+                      <p
+                        class="
+                          mt-1
+                          text-[12px]
+                          text-[#8b949d]
+                        "
+                      >
+                        Prueba con otro nombre, cargo o filtro.
+                      </p>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              }
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <!-- FOOTER -->
+
+      <div
+        class="
+          flex
+          items-center
+          justify-between
+          border-t
+          border-[#e8eaed]
+          px-4
+          py-3
+        "
+      >
+
+        <span
+          class="
+            text-[12px]
+            text-[#7b848d]
+          "
+        >
+          {{ filteredEmpleados().length }}
+          empleados mostrados
+        </span>
+
+        <iconify-icon
+          icon="lucide:users"
+          class="text-[15px] text-[#9aa2aa]"
+        ></iconify-icon>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ===========================================================
+       EMPLOYEE MODAL
+  ============================================================ -->
+
+  @if (modalMode()) {
+
+    <div
+      class="
+        fixed
+        inset-0
+        z-50
+        flex
+        items-center
+        justify-center
+        bg-black/35
+        px-4
+        py-6
+      "
+      (click)="closeModal()"
+    >
+
+      <div
+        class="
+          flex
+          max-h-[calc(100vh-48px)]
+          w-full
+          max-w-[620px]
+          flex-col
+          overflow-hidden
+          rounded-lg
+          border
+          border-[#dfe3e7]
+          bg-white
+          shadow-xl
+        "
+        (click)="$event.stopPropagation()"
+      >
+
+        <!-- HEADER -->
+
+        <div
+          class="
+            flex
+            items-start
+            justify-between
+            border-b
+            border-[#e8eaed]
+            px-5
+            py-4
+          "
+        >
+
+          <div>
+
+            @if (modalMode() === 'create') {
+
+              <h2
+                class="
+                  text-[17px]
+                  font-semibold
+                  text-[#20252b]
+                "
+              >
+                Registrar empleado
+              </h2>
+
+              <p
+                class="
+                  mt-1
+                  text-[12px]
+                  text-[#7b848d]
+                "
+              >
+                Vincula una persona existente con su registro como empleado.
+              </p>
+
+            } @else {
+
+              <h2
+                class="
+                  text-[17px]
+                  font-semibold
+                  text-[#20252b]
+                "
+              >
+                Editar empleado
+              </h2>
+
+              <p
+                class="
+                  mt-1
+                  text-[12px]
+                  text-[#7b848d]
+                "
+              >
+                Actualiza la información administrativa del empleado.
+              </p>
+
+            }
+
+          </div>
+
+
+          <button
+            type="button"
+            (click)="closeModal()"
+            [disabled]="savingEmpleado()"
+            title="Cerrar"
+            class="
+              flex
+              h-8
+              w-8
+              cursor-pointer
+              items-center
+              justify-center
+              rounded-md
+              text-[#8b949d]
+              transition
+              hover:bg-[#f1f3f5]
+              hover:text-[#30363c]
+              disabled:cursor-not-allowed
+              disabled:opacity-40
+            "
+          >
+
+            <iconify-icon
+              icon="lucide:x"
+              class="text-[17px]"
+            ></iconify-icon>
+
+          </button>
+
+        </div>
+
+
+        <!-- BODY -->
+
+        <div class="overflow-y-auto px-5 py-5">
+
+          <!-- ===================================================
+               PERSONA
+          ==================================================== -->
+
+          <div class="mb-5">
+
+            <label
+              class="
+                mb-1.5
+                block
+                text-[12px]
+                font-medium
+                text-[#4d5863]
+              "
+            >
+              Persona
+              <span class="text-[#b64d4d]">*</span>
+            </label>
+
+
+            <mat-form-field
+              appearance="outline"
+              class="w-full"
+            >
+
+              <mat-select
+                class="px-4"
+                [value]="empleadoForm().persona_id"
+                (selectionChange)="
+                  selectPersona(
+                    $event.value
+                  )
+                "
+                [disabled]="
+                  savingEmpleado() ||
+                  loadingPersonas() ||
+                  modalMode() === 'edit'
+                "
+                panelClass="empleados-persona-panel"
+                placeholder="Selecciona una persona"
+              >
+
+                <!-- BUSCADOR -->
+
+                <div
+                  class="
+                    sticky
+                    top-0
+                    z-10
+                    border-b
+                    border-[#e5e8eb]
+                    bg-white
+                    px-3
+                    py-2
+                  "
+                  (click)="$event.stopPropagation()"
+                  (keydown)="$event.stopPropagation()"
+                >
+
+                  <div class="relative">
+
+                    <iconify-icon
+                      icon="lucide:search"
+                      class="
+                        pointer-events-none
+                        absolute
+                        left-2.5
+                        top-1/2
+                        -translate-y-1/2
+                        text-[14px]
+                        text-[#8b949d]
+                      "
+                    ></iconify-icon>
+
+                    <input
+                        type="text"
+                        [value]="personaSearchTerm()"
+                        (input)="personaSearchTerm.set($any($event.target).value)"
+                        placeholder="Buscar por nombre, teléfono o ID..."
+                        class="block w-full rounded-md border border-[#dfe3e7] bg-[#fafbfc] py-2 pl-9 pr-3 text-[12px] leading-5 text-[#20252b] outline-none placeholder:text-[#9aa2aa] focus:border-[#aeb7c0]"
+                    >
+
+                  </div>
+
+                </div>
+
+
+                <!-- PERSONAS -->
+
+                @if (loadingPersonas()) {
+
+                  <mat-option disabled>
+
+                    <div class="flex items-center gap-2">
+
+                      <iconify-icon
+                        icon="lucide:loader-circle"
+                        class="animate-spin text-[15px]"
+                      ></iconify-icon>
+
+                      <span>
+                        Cargando personas...
+                      </span>
+
+                    </div>
+
+                  </mat-option>
+
+                } @else {
+
+                  @for (
+                    persona of personasDisponibles();
+                    track persona.persona_id
+                  ) {
+
+                    <mat-option
+                      [value]="persona.persona_id"
+                      class="h-auto min-h-[60px] py-2"
+                    >
+
+                      <div
+                        class="
+                          flex
+                          w-full
+                          items-center
+                          gap-3
+                        "
+                      >
+
+                        <!-- INITIALS -->
+
+                        <div
+                          class="
+                            flex
+                            h-9
+                            w-9
+                            flex-shrink-0
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-black
+                            text-[10px]
+                            font-semibold
+                            text-white
+                          "
+                        >
+                          {{
+                            (
+                              persona.primer_nombre.charAt(0)
+                            ) +
+                            (
+                              persona.segundo_apellido.charAt(0)
+                            )
+                          }}
+                        </div>
+
+
+                        <!-- DATA -->
+
+                        <div class="min-w-0">
+
+                          <p
+                            class="
+                              truncate
+                              text-[13px]
+                              font-medium
+                              text-[#30363c]
+                            "
+                          >
+                            {{
+                              [
+                                persona.primer_nombre,
+                                persona.segundo_nombre,
+                                persona.primer_apellido,
+                                persona.segundo_apellido
+                              ]
+                                .filter(value => !!value)
+                                .join(' ')
+                            }}
+                          </p>
+
+                          <div
+                            class="
+                              mt-0.5
+                              flex
+                              items-center
+                              gap-2
+                              text-[10px]
+                              text-[#8b949d]
+                            "
+                          >
+
+                            <span>
+                              ID #{{ persona.persona_id }}
+                            </span>
+
+                            @if (persona.telefono) {
+
+                              <span>•</span>
+
+                              <span>
+                                {{ persona.telefono }}
+                              </span>
+
+                            }
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </mat-option>
+
+                  } @empty {
+
+                    <mat-option disabled>
+
+                      <div
+                        class="
+                          py-3
+                          text-center
+                          text-[12px]
+                          text-[#8b949d]
+                        "
+                      >
+                        @if (personaSearchTerm()) {
+                          No se encontraron personas con esa búsqueda.
+                        } @else {
+                          No hay personas disponibles para registrar.
+                        }
+                      </div>
+
+                    </mat-option>
+
+                  }
+
+                }
+
+              </mat-select>
+
+            </mat-form-field>
+
+
+            @if (modalMode() === 'edit') {
+
+              <p
+                class="
+                  mt-1
+                  text-[11px]
+                  leading-4
+                  text-[#8b949d]
+                "
+              >
+                La persona asociada no puede modificarse desde la edición del empleado.
+              </p>
+
+            } @else {
+
+              <p
+                class="
+                  mt-1
+                  text-[11px]
+                  leading-4
+                  text-[#8b949d]
+                "
+              >
+                Selecciona una persona registrada. El empleado utilizará su ID de persona.
+              </p>
+
+            }
+
+          </div>
+
+
+          <!-- ===================================================
+               CARGO
+          ==================================================== -->
+
+          <div class="mb-4">
+
+            <label
+              class="
+                mb-1.5
+                block
+                text-[12px]
+                font-medium
+                text-[#4d5863]
+              "
+            >
+              Cargo
+              <span class="text-[#b64d4d]">*</span>
+            </label>
+
+            <input
+              type="text"
+              [value]="empleadoForm().cargo"
+              (input)="
+                updateForm(
+                  'cargo',
+                  $any($event.target).value
+                )
+              "
+              placeholder="Ej. Contador"
+              [disabled]="savingEmpleado()"
+              class="
+                w-full
+                rounded-md
+                border
+                border-[#dfe3e7]
+                bg-white
+                px-3
+                py-2.5
+                text-[13px]
+                text-[#20252b]
+                outline-none
+                transition
+                placeholder:text-[#a0a7ae]
+                focus:border-[#9aa5af]
+                focus:ring-2
+                focus:ring-[#17324d]/5
+                disabled:cursor-not-allowed
+                disabled:bg-[#f4f5f6]
+              "
+            >
+
+          </div>
+
+
+          <!-- ===================================================
+               FECHA + SALARIO
+          ==================================================== -->
+
+          <div
+            class="
+              mb-4
+              grid
+              grid-cols-1
+              gap-4
+              sm:grid-cols-2
+            "
+          >
+
+            <!-- FECHA -->
+
+            <div>
+
+              <label
+                class="
+                  mb-1.5
+                  block
+                  text-[12px]
+                  font-medium
+                  text-[#4d5863]
+                "
+              >
+                Fecha de ingreso
+                <span class="text-[#b64d4d]">*</span>
+              </label>
+
+              <input
+                type="date"
+                [value]="empleadoForm().fecha_ingreso"
+                (input)="
+                  updateForm(
+                    'fecha_ingreso',
+                    $any($event.target).value
+                  )
+                "
+                [disabled]="savingEmpleado()"
+                class="
+                  w-full
+                  cursor-pointer
+                  rounded-md
+                  border
+                  border-[#dfe3e7]
+                  bg-white
+                  px-3
+                  py-2.5
+                  text-[13px]
+                  text-[#20252b]
+                  outline-none
+                  transition
+                  focus:border-[#9aa5af]
+                  focus:ring-2
+                  focus:ring-[#17324d]/5
+                  disabled:cursor-not-allowed
+                  disabled:bg-[#f4f5f6]
+                "
+              >
+
+            </div>
+
+
+            <!-- SALARIO -->
+
+            <div>
+
+              <label
+                class="
+                  mb-1.5
+                  block
+                  text-[12px]
+                  font-medium
+                  text-[#4d5863]
+                "
+              >
+                Salario base
+              </label>
+
+              <div class="relative">
+
+                <span
+                  class="
+                    pointer-events-none
+                    absolute
+                    left-3
+                    top-1/2
+                    -translate-y-1/2
+                    text-[12px]
+                    text-[#8b949d]
+                  "
+                >
+                  C$
+                </span>
+
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  [value]="empleadoForm().salario_base"
+                  (input)="
+                    updateForm(
+                      'salario_base',
+                      +$any($event.target).value
+                    )
+                  "
+                  [disabled]="savingEmpleado()"
+                  class="
+                    w-full
+                    rounded-md
+                    border
+                    border-[#dfe3e7]
+                    bg-white
+                    py-2.5
+                    pl-9
+                    pr-3
+                    text-[13px]
+                    text-[#20252b]
+                    outline-none
+                    transition
+                    focus:border-[#9aa5af]
+                    focus:ring-2
+                    focus:ring-[#17324d]/5
+                    disabled:cursor-not-allowed
+                    disabled:bg-[#f4f5f6]
+                  "
+                >
+
+              </div>
+
+              <p
+                class="
+                  mt-1.5
+                  text-[11px]
+                  text-[#8b949d]
+                "
+              >
+                Dato administrativo del empleado.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <!-- ===================================================
+               ESTADO
+          ==================================================== -->
+
+          <label
+            class="
+              flex
+              cursor-pointer
+              items-start
+              gap-3
+              rounded-md
+              border
+              border-[#e3e6e9]
+              p-3
+              transition
+              hover:bg-[#fafbfc]
+            "
+            [class.cursor-not-allowed]="savingEmpleado()"
+          >
+
+            <input
+              type="checkbox"
+              [checked]="empleadoForm().estado"
+              (change)="
+                updateForm(
+                  'estado',
+                  $any($event.target).checked
+                )
+              "
+              [disabled]="savingEmpleado()"
+              class="
+                mt-0.5
+                h-4
+                w-4
+                cursor-pointer
+                accent-[#17324d]
+                disabled:cursor-not-allowed
+                disabled:opacity-50
+              "
+            >
+
+            <span>
+
+              <span
+                class="
+                  block
+                  text-[12px]
+                  font-medium
+                  text-[#4d5863]
+                "
+              >
+                Empleado activo
+              </span>
+
+              <span
+                class="
+                  mt-0.5
+                  block
+                  text-[11px]
+                  leading-4
+                  text-[#8b949d]
+                "
+              >
+                Define si el empleado se encuentra actualmente activo en la organización.
+              </span>
+
+            </span>
+
+          </label>
+
+
+          <!-- ===================================================
+               ASOCIACIÓN
+          ==================================================== -->
+
+          @if (modalMode() === 'edit') {
+
+            <div
+              class="
+                mt-4
+                rounded-md
+                border
+                border-[#e5e8eb]
+                bg-[#fafbfc]
+                px-4
+                py-3
+              "
+            >
+
+              <div class="flex items-start gap-3">
+
+                <iconify-icon
+                  icon="lucide:link"
+                  class="
+                    mt-0.5
+                    flex-shrink-0
+                    text-[15px]
+                    text-[#7b848d]
+                  "
+                ></iconify-icon>
+
+                <div>
+
+                  <p
+                    class="
+                      text-[11px]
+                      font-semibold
+                      text-[#59636d]
+                    "
+                  >
+                    Asociación del empleado
+                  </p>
+
+                  <p
+                    class="
+                      mt-1
+                      text-[11px]
+                      leading-5
+                      text-[#8b949d]
+                    "
+                  >
+                    Este registro pertenece a
+                    <span class="font-medium text-[#59636d]">
+                      {{ getPersonaNameById(empleadoForm().persona_id) || 'la persona seleccionada' }}
+                    </span>
+                    <span>
+                      (Persona #{{ empleadoForm().persona_id }}).
+                    </span>
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+
+        <!-- =====================================================
+             FOOTER
+        ====================================================== -->
+
+        <div
+          class="
+            flex
+            flex-col-reverse
+            gap-2
+            border-t
+            border-[#e8eaed]
+            bg-[#fafbfc]
+            px-5
+            py-4
+            sm:flex-row
+            sm:justify-end
+          "
+        >
+
+          <button
+            type="button"
+            (click)="closeModal()"
+            [disabled]="savingEmpleado()"
+            class="
+              cursor-pointer
+              rounded-md
+              border
+              border-[#dfe3e7]
+              bg-white
+              px-4
+              py-2.5
+              text-[12px]
+              font-medium
+              text-[#59636d]
+              transition-all
+              duration-200
+              hover:bg-[#f4f5f6]
+              active:scale-[0.98]
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="button"
+            (click)="saveEmpleado()"
+            [disabled]="
+              !isFormValid() ||
+              savingEmpleado()
+            "
+            class="
+              inline-flex
+              cursor-pointer
+              items-center
+              justify-center
+              gap-2
+              rounded-md
+              bg-[#17324d]
+              px-4
+              py-2.5
+              text-[12px]
+              font-medium
+              text-white
+              shadow-sm
+              transition-all
+              duration-200
+              hover:-translate-y-[1px]
+              hover:bg-[#214766]
+              hover:shadow-md
+              active:translate-y-0
+              active:scale-[0.98]
+              disabled:cursor-not-allowed
+              disabled:translate-y-0
+              disabled:scale-100
+              disabled:opacity-45
+              disabled:shadow-none
+            "
+          >
+
+            <iconify-icon
+              [icon]="
+                savingEmpleado()
+                  ? 'lucide:loader-circle'
+                  : 'lucide:save'
+              "
+              class="text-[14px]"
+              [class.animate-spin]="savingEmpleado()"
+            ></iconify-icon>
+
+            @if (savingEmpleado()) {
+
+              Guardando...
+
+            } @else if (modalMode() === 'edit') {
+
+              Guardar cambios
+
+            } @else {
+
+              Registrar empleado
+
+            }
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+    @if (deleteTarget(); as empleado) {
+
+    <div
+        class="
+            fixed
+            inset-0
+            z-[100]
+            flex
+            items-center
+            justify-center
+            bg-black/40
+            px-4
+        "
+    >
+
+        <div
+            class="
+                w-full
+                max-w-md
+                overflow-hidden
+                rounded-xl
+                border
+                border-[#e5e7eb]
+                bg-white
+                shadow-2xl
+            "
+        >
+
+            <!-- HEADER -->
+
+            <div class="px-6 pt-6">
+
+                <div
+                    class="
+                        flex
+                        h-11
+                        w-11
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-red-50
+                        text-red-600
+                    "
+                >
+
+                    <iconify-icon
+                        icon="lucide:trash-2"
+                        width="20"
+                        height="20"
+                    ></iconify-icon>
+
+                </div>
+
+                <h3
+                    class="
+                        mt-4
+                        text-lg
+                        font-semibold
+                        text-[#111827]
+                    "
+                >
+                    Eliminar empleado
+                </h3>
+
+                <p
+                    class="
+                        mt-2
+                        text-sm
+                        leading-6
+                        text-[#6b7280]
+                    "
+                >
+                    ¿Estás seguro de que deseas eliminar a
+                    <span
+                        class="
+                            font-medium
+                            text-[#111827]
+                        "
+                    >
+                        {{ getPersonaName(empleado) }}
+                    </span>?
+                </p>
+
+                <p
+                    class="
+                        mt-2
+                        text-xs
+                        text-[#9ca3af]
+                    "
+                >
+                    Esta acción no se puede deshacer.
+                </p>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+
+            <div
+                class="
+                    mt-6
+                    flex
+                    justify-end
+                    gap-3
+                    border-t
+                    border-[#edf0f2]
+                    bg-[#fafbfc]
+                    px-6
+                    py-4
+                "
+            >
+
+                <button
+                    type="button"
+                    [disabled]="actionLoading()"
+                    (click)="cancelDelete()"
+                    class="
+                        cursor-pointer
+                        rounded-lg
+                        border
+                        border-[#d1d5db]
+                        bg-white
+                        px-4
+                        py-2
+                        text-sm
+                        font-medium
+                        text-[#374151]
+                        transition
+                        hover:bg-[#f9fafb]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
+                    "
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="button"
+                    [disabled]="actionLoading()"
+                    (click)="confirmDelete()"
+                    class="
+                        cursor-pointer
+                        inline-flex
+                        min-w-[100px]
+                        items-center
+                        justify-center
+                        gap-2
+                        rounded-lg
+                        bg-red-600
+                        px-4
+                        py-2
+                        text-sm
+                        font-medium
+                        text-white
+                        transition
+                        hover:bg-red-700
+                        disabled:cursor-not-allowed
+                        disabled:opacity-70
+                    "
+                >
+
+                    @if (
+                        isActionLoading(
+                            empleado.empleado_id,
+                            'delete'
+                        )
+                    ) {
+
+                        <iconify-icon
+                            icon="lucide:loader-2"
+                            width="16"
+                            height="16"
+                            class="animate-spin"
+                        ></iconify-icon>
+
+                        <span>
+                            Eliminando...
+                        </span>
+
+                    } @else {
+
+                        <iconify-icon
+                            icon="lucide:trash-2"
+                            width="16"
+                            height="16"
+                        ></iconify-icon>
+
+                        <span>
+                            Eliminar
+                        </span>
+
+                    }
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+}
+
+</section>

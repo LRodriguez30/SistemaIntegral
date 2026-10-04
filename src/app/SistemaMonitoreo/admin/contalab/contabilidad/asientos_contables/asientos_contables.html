@@ -1,163 +1,174 @@
 <section
-  class="min-h-full bg-[#f5f6f8] px-4 py-5 text-[#20252b] md:px-6 md:py-6"
+  class="accounting-page-enter min-h-full bg-[#f5f6f8] px-3 py-4 text-[#20252b] sm:px-4 sm:py-5 md:px-6 md:py-6"
 >
 
-  <div class="mx-auto max-w-[1400px] space-y-6">
-
+  <div class="mx-auto max-w-[1400px] space-y-5">
 
     <!-- =========================================================
          HEADER
          ========================================================= -->
 
     <header
-      class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+      class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"
     >
 
-      <div>
+      <div class="min-w-0">
 
-        <div
-          class="mb-2 flex items-center gap-2 text-xs text-[#7b838c]"
-        >
-
-          <iconify-icon
-            icon="lucide:book-open"
-            class="text-[14px]"
-          ></iconify-icon>
+        <div class="mb-2 flex items-center gap-2 text-xs font-medium text-[#7b828b]">
 
           <span>Contabilidad</span>
 
           <iconify-icon
             icon="lucide:chevron-right"
-            class="text-[13px]"
+            width="13"
+            height="13"
           ></iconify-icon>
 
-          <span class="text-[#20252b]">
+          <span class="text-[#4f565e]">
             Asientos contables
           </span>
 
         </div>
 
+        <div class="flex items-start gap-3">
 
-        <h1
-          class="text-2xl font-semibold tracking-tight text-[#17202a]"
-        >
-          Asientos contables
-        </h1>
+          <div
+            class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#e1e4e8] bg-white text-[#30363d] shadow-sm"
+          >
 
-        <p
-          class="mt-1 text-sm text-[#7b838c]"
-        >
-          Registro y control de las operaciones contables.
-        </p>
+            <iconify-icon
+              icon="lucide:book-open"
+              width="19"
+              height="19"
+            ></iconify-icon>
+
+          </div>
+
+          <div class="min-w-0">
+
+            <h1
+              class="text-xl font-semibold tracking-[-0.02em] text-[#20252b] sm:text-2xl"
+            >
+              Asientos contables
+            </h1>
+
+            <p
+              class="mt-1 max-w-2xl text-sm leading-5 text-[#747b84]"
+            >
+              Registro y control de las operaciones contables.
+            </p>
+
+          </div>
+
+        </div>
 
       </div>
 
 
-      <div class="flex items-center gap-2">
+      <!-- =======================================================
+           ACCIONES
+           ======================================================= -->
 
-        <!-- =========================================================
-            ACCIONES SECUNDARIAS
-            ========================================================= -->
+      <div class="flex flex-wrap items-center gap-2">
 
-        <div
-          class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-sm"
+        <button
+          type="button"
+          (click)="loadAccountingEntries()"
+          [disabled]="loadingAsientos()"
+          class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 ease-out hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:text-[#20252b] hover:shadow active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
         >
 
-          <!-- Actualizar -->
+          <iconify-icon
+            icon="lucide:refresh-cw"
+            width="15"
+            height="15"
+            class="transition-transform duration-300 group-hover:rotate-45"
+            [class.animate-spin]="loading()"
+          ></iconify-icon>
+
+          <span>
+            {{ loading() ? 'Actualizando...' : 'Actualizar' }}
+          </span>
+
+        </button>
+
+
+        @if (!hasAsientos() && !loading()) {
+
           <button
             type="button"
-            (click)="loadAccountingEntries()"
+            (click)="generateBaseEntries()"
             [disabled]="loadingAsientos()"
-            class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:text-[#20252b] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
 
             <iconify-icon
-              icon="lucide:refresh-cw"
-              class="text-[16px]"
-              [class.animate-spin]="loadingAsientos()"
+              icon="lucide:layout-template"
+              width="15"
+              height="15"
+              class="transition-transform duration-200 group-hover:scale-110"
             ></iconify-icon>
 
-            Actualizar
+            <span>Plantilla base</span>
 
           </button>
 
 
-          @if (!hasAsientos()) {
-
-            <!-- Plantilla base -->
-            <button
-              type="button"
-              (click)="generateBaseEntries()"
-              [disabled]="loadingAsientos()"
-              class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-
-              <iconify-icon
-                icon="lucide:file-plus-2"
-                class="text-[16px]"
-              ></iconify-icon>
-
-              Plantilla base
-
-            </button>
-
-
-            <!-- Plantilla completa -->
-            <button
-              type="button"
-              (click)="generateFullBaseEntries()"
-              [disabled]="loadingAsientos()"
-              class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-
-              <iconify-icon
-                icon="lucide:layers-3"
-                class="text-[16px]"
-              ></iconify-icon>
-
-              Plantilla completa
-
-            </button>
-
-          }
-
-
-          <!-- Eliminar todo -->
           <button
             type="button"
-            (click)="deleteAllEntries()"
-            [disabled]="loadingAsientos() || !hasAsientos()"
-            class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-md px-3 text-sm font-medium text-red-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+            (click)="generateFullBaseEntries()"
+            [disabled]="loadingAsientos()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:text-[#20252b] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
 
             <iconify-icon
-              icon="lucide:trash-2"
-              class="text-[16px]"
+              icon="lucide:layers-3"
+              width="15"
+              height="15"
+              class="transition-transform duration-200 group-hover:scale-110"
             ></iconify-icon>
 
-            Limpiar Registros
+            <span>Plantilla completa</span>
 
           </button>
 
-        </div>
+        }
 
 
-        <!-- =========================================================
-            ACCIÓN PRINCIPAL
-            ========================================================= -->
+        <button
+          type="button"
+          (click)="openDeleteAllConfirmation()"
+          [disabled]="loadingAsientos() || !hasAsientos()"
+          class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#f0d7d7] bg-white px-3 text-sm font-medium text-[#b13a3a] shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#e6bebe] hover:bg-[#fffafa] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+        >
+
+          <iconify-icon
+            icon="lucide:trash-2"
+            width="15"
+            height="15"
+            class="transition-transform duration-200 group-hover:scale-110"
+          ></iconify-icon>
+
+          <span>Eliminar todo</span>
+
+        </button>
+
 
         <button
           type="button"
           (click)="createEntry()"
-          class="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#17324d] px-4 text-sm font-medium text-white shadow-sm transition hover:bg-[#214663]"
+          [disabled]="loadingAsientos()"
+          class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#20252b] px-3.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
 
           <iconify-icon
             icon="lucide:plus"
-            class="text-[17px]"
+            width="16"
+            height="16"
+            class="transition-transform duration-200 group-hover:rotate-90"
           ></iconify-icon>
 
-          Nuevo asiento
+          <span>Nuevo asiento</span>
 
         </button>
 
@@ -166,47 +177,157 @@
     </header>
 
 
+    <!-- =========================================================
+         ERROR
+         ========================================================= -->
+
+    @if (errorMessage()) {
+
+      <div
+        class="status-pulse flex items-start gap-3 rounded-xl border border-[#f0d7d7] bg-white px-4 py-3 shadow-sm"
+      >
+
+        <div
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff1f1] text-[#b13a3a]"
+        >
+
+          <iconify-icon
+            icon="lucide:triangle-alert"
+            width="16"
+            height="16"
+          ></iconify-icon>
+
+        </div>
+
+        <div class="min-w-0">
+
+          <p class="text-sm font-semibold text-[#343a40]">
+            No fue posible completar la operación
+          </p>
+
+          <p class="mt-0.5 text-xs text-[#777e86]">
+            {{ errorMessage() }}
+          </p>
+
+        </div>
+
+      </div>
+
+    }
+
 
     <!-- =========================================================
          RESUMEN
          ========================================================= -->
 
-    <div
-      class="grid grid-cols-1 gap-4 sm:grid-cols-2"
-    >
+    @if (loading()) {
 
-      <!-- Total -->
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
 
-      <div
-        class="rounded-xl border border-[#e2e5e8] bg-white p-5"
-      >
+        @for (item of [1, 2]; track item) {
 
-        <div class="flex items-center justify-between">
+          <div
+            class="summary-card-enter rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm"
+          >
 
-          <div>
+            <div class="flex items-center justify-between">
 
-            <p
-              class="text-xs font-medium uppercase tracking-wide text-[#858d96]"
-            >
-              Total asientos
-            </p>
+              <div class="space-y-2">
 
-            <p
-              class="mt-2 text-2xl font-semibold text-[#17202a]"
-            >
-              {{ totalAsientos() }}
-            </p>
+                <div class="skeleton h-3 w-24 rounded"></div>
+
+                <div class="skeleton h-7 w-16 rounded"></div>
+
+              </div>
+
+              <div
+                class="skeleton h-10 w-10 rounded-xl"
+              ></div>
+
+            </div>
 
           </div>
 
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef2f5] text-[#17324d]"
-          >
+        }
 
-            <iconify-icon
-              icon="lucide:book-open"
-              class="text-[19px]"
-            ></iconify-icon>
+      </div>
+
+    } @else {
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+
+        <div
+          class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <div>
+
+              <p
+                class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]"
+              >
+                Total asientos
+              </p>
+
+              <p
+                class="mt-1 text-2xl font-semibold tracking-[-0.03em] text-[#20252b]"
+              >
+                {{ totalAsientos() }}
+              </p>
+
+            </div>
+
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e2e5e8] bg-[#f8f9fa] text-[#555c64] transition-all duration-200 group-hover:scale-105 group-hover:bg-white"
+            >
+
+              <iconify-icon
+                icon="lucide:notebook-tabs"
+                width="18"
+                height="18"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+        >
+
+          <div class="flex items-center justify-between">
+
+            <div>
+
+              <p
+                class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]"
+              >
+                Balanceados
+              </p>
+
+              <p
+                class="mt-1 text-2xl font-semibold tracking-[-0.03em] text-[#20252b]"
+              >
+                {{ balanceados() }}
+              </p>
+
+            </div>
+
+            <div
+              class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dce9df] bg-[#f4faf5] text-[#3c7650] transition-all duration-200 group-hover:scale-105"
+            >
+
+              <iconify-icon
+                icon="lucide:scale"
+                width="18"
+                height="18"
+              ></iconify-icon>
+
+            </div>
 
           </div>
 
@@ -214,357 +335,561 @@
 
       </div>
 
-
-      <!-- Balanceados -->
-
-      <div
-        class="rounded-xl border border-[#e2e5e8] bg-white p-5"
-      >
-
-        <div class="flex items-center justify-between">
-
-          <div>
-
-            <p
-              class="text-xs font-medium uppercase tracking-wide text-[#858d96]"
-            >
-              Balanceados
-            </p>
-
-            <p
-              class="mt-2 text-2xl font-semibold text-[#17202a]"
-            >
-              {{ balanceados() }}
-            </p>
-
-          </div>
-
-          <div
-            class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#eef6ef] text-[#3d7146]"
-          >
-
-            <iconify-icon
-              icon="lucide:scale"
-              class="text-[19px]"
-            ></iconify-icon>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
+    }
 
 
     <!-- =========================================================
-         TABLA PRINCIPAL
+         TABLA
          ========================================================= -->
 
     <section
-      class="overflow-hidden rounded-xl border border-[#e2e5e8] bg-white"
+      class="overflow-hidden rounded-xl border border-[#e1e4e8] bg-white shadow-sm"
     >
 
-      <!-- Filtros -->
+      <!-- FILTROS -->
 
       <div
-        class="border-b border-[#e7e9ec] p-4"
+        class="border-b border-[#e8eaed] px-4 py-4 md:px-5"
       >
 
         <div
-          class="flex flex-col gap-3 lg:flex-row lg:items-center"
+          class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"
         >
 
-          <!-- Search -->
+          <div>
 
-          <div class="relative min-w-0 flex-1">
+            <h2
+              class="text-sm font-semibold text-[#30363d]"
+            >
+              Registro de asientos
+            </h2>
 
-            <iconify-icon
-              icon="lucide:search"
-              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[17px] text-[#9098a1]"
-            ></iconify-icon>
-
-            <input
-              type="text"
-              [value]="searchTerm()"
-              (input)="searchTerm.set($any($event.target).value)"
-              placeholder="Buscar por concepto, ID u origen..."
-              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white pl-10 pr-3 text-sm outline-none transition placeholder:text-[#a0a7ae] focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
-            />
+            <p
+              class="mt-0.5 text-xs text-[#858c94]"
+            >
+              Consulta y administra las operaciones registradas.
+            </p>
 
           </div>
 
 
-          <!-- Origen -->
-
-          <select
-            [value]="selectedOrigin()"
-            (change)="selectedOrigin.set($any($event.target).value)"
-            class="h-10 cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm text-[#404850] outline-none focus:border-[#17324d]"
+          <div
+            class="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
           >
 
-            <option value="TODOS">
-              Todos los orígenes
-            </option>
+            <!-- BUSCAR -->
 
-            @for (origin of tiposOrigen; track origin) {
+            <div class="relative sm:w-[280px]">
 
-              <option [value]="origin">
-                {{ origin }}
-              </option>
+              <iconify-icon
+                icon="lucide:search"
+                width="15"
+                height="15"
+                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8a9199]"
+              ></iconify-icon>
 
-            }
+              <input
+                type="text"
+                [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value)"
+                placeholder="Buscar asiento..."
+                class="h-9 w-full rounded-lg border border-[#dfe2e6] bg-[#fafbfc] pl-9 pr-3 text-sm text-[#30363d] outline-none transition-all duration-200 placeholder:text-[#a0a6ad] focus:border-[#9ca3ab] focus:bg-white focus:ring-2 focus:ring-[#20252b]/5"
+              />
 
-          </select>
+            </div>
+
+
+            <!-- AÑO -->
+
+            <div class="relative">
+
+              <select
+                [value]="selectedYear()"
+                (change)="setSelectedYear($any($event.target).value)"
+                class="h-9 min-w-[130px] cursor-pointer appearance-none rounded-lg border border-[#dfe2e6] bg-[#fafbfc] px-3 pr-8 text-sm text-[#4c535b] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:bg-white focus:ring-2 focus:ring-[#20252b]/5"
+              >
+
+                <option value="TODOS">
+                  Todos los años
+                </option>
+
+                @for (year of years(); track year) {
+
+                  <option [value]="year">
+                    {{ year }}
+                  </option>
+
+                }
+
+              </select>
+
+              <iconify-icon
+                icon="lucide:chevron-down"
+                width="14"
+                height="14"
+                class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#858c94]"
+              ></iconify-icon>
+
+            </div>
+
+
+            <!-- ORIGEN -->
+
+            <div class="relative">
+
+              <select
+                [value]="selectedOrigin()"
+                (change)="selectedOrigin.set($any($event.target).value)"
+                class="h-9 min-w-[145px] cursor-pointer appearance-none rounded-lg border border-[#dfe2e6] bg-[#fafbfc] px-3 pr-8 text-sm text-[#4c535b] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:bg-white focus:ring-2 focus:ring-[#20252b]/5"
+              >
+
+                <option value="TODOS">
+                  Todos los orígenes
+                </option>
+
+                @for (origin of tiposOrigen; track origin) {
+
+                  <option [value]="origin">
+                    {{ origin }}
+                  </option>
+
+                }
+
+              </select>
+
+              <iconify-icon
+                icon="lucide:chevron-down"
+                width="14"
+                height="14"
+                class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#858c94]"
+              ></iconify-icon>
+
+            </div>
+
+          </div>
 
         </div>
 
       </div>
 
 
+      <!-- =======================================================
+           CARGANDO TABLA
+           ======================================================= -->
 
-      <!-- Tabla -->
+      @if (loading()) {
 
-      <div class="overflow-x-auto">
+        <div class="accounting-scroll overflow-x-auto">
 
-        <table
-          class="w-full min-w-[850px] border-collapse"
-        >
+          <table class="w-full min-w-[900px] border-collapse">
 
-          <thead>
-
-            <tr
-              class="border-b border-[#e7e9ec] bg-[#fafbfc]"
-            >
-
-              <th
-                class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                ID
-              </th>
-
-              <th
-                class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Fecha
-              </th>
-
-              <th
-                class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Concepto
-              </th>
-
-              <th
-                class="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Origen
-              </th>
-
-              <th
-                class="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Debe
-              </th>
-
-              <th
-                class="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Haber
-              </th>
-
-              <th
-                class="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
-              >
-                Acción
-              </th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody>
-
-            @for (
-              asiento of filteredAsientos();
-              track asiento.asiento_id
-            ) {
+            <thead>
 
               <tr
-                class="border-b border-[#edf0f2] transition hover:bg-[#fafbfc]"
+                class="border-b border-[#e8eaed] bg-[#fafbfc]"
               >
 
-                <!-- ID -->
+                @for (
+                  item of [
+                    'ID',
+                    'Fecha',
+                    'Concepto',
+                    'Origen',
+                    'Debe',
+                    'Haber',
+                    'Acción'
+                  ];
+                  track item
+                ) {
 
-                <td
-                  class="px-5 py-4 text-sm font-medium text-[#17324d]"
-                >
-                  #{{ asiento.asiento_id }}
-                </td>
-
-
-                <!-- Fecha -->
-
-                <td
-                  class="px-5 py-4 text-sm text-[#555e67]"
-                >
-                  {{ asiento.fecha }}
-                </td>
-
-
-                <!-- Concepto -->
-
-                <td
-                  class="max-w-[320px] px-5 py-4"
-                >
-
-                  <p
-                    class="truncate text-sm font-medium text-[#252c33]"
+                  <th
+                    class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
                   >
-                    {{ asiento.concepto }}
-                  </p>
+                    {{ item }}
+                  </th>
 
-                  <p
-                    class="mt-0.5 text-xs text-[#9098a1]"
-                  >
-                    {{ asiento.detalles.length }}
-                    {{ asiento.detalles.length === 1 ? 'detalle' : 'detalles' }}
-                  </p>
-
-                </td>
-
-
-                <!-- Origen -->
-
-                <td class="px-5 py-4">
-
-                  <span
-                    class="rounded-md bg-[#eef2f5] px-2.5 py-1 text-xs font-medium text-[#59636d]"
-                  >
-                    {{ formatOrigin(asiento.tipo_origen) }}
-                  </span>
-
-                </td>
-
-
-                <!-- Debe -->
-
-                <td
-                  class="px-5 py-4 text-right text-sm tabular-nums text-[#30373e]"
-                >
-                  {{ formatAmount(asiento.total_debe) }}
-                </td>
-
-
-                <!-- Haber -->
-
-                <td
-                  class="px-5 py-4 text-right text-sm tabular-nums text-[#30373e]"
-                >
-                  {{ formatAmount(asiento.total_haber) }}
-                </td>
-
-
-                <!-- Acción -->
-
-                <td class="px-5 py-4">
-
-                  <div
-                    class="flex items-center justify-end gap-1"
-                  >
-
-                    <button
-                      type="button"
-                      (click)="viewEntry(asiento)"
-                      title="Ver asiento"
-                      class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[#737c85] transition hover:bg-[#eef2f5] hover:text-[#17324d]"
-                    >
-
-                      <iconify-icon
-                        icon="lucide:eye"
-                        class="text-[16px]"
-                      ></iconify-icon>
-
-                    </button>
-
-
-                    <button
-                      type="button"
-                      (click)="editEntry(asiento)"
-                      title="Editar asiento"
-                      class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[#737c85] transition hover:bg-[#eef2f5] hover:text-[#17324d]"
-                    >
-
-                      <iconify-icon
-                        icon="lucide:pencil"
-                        class="text-[16px]"
-                      ></iconify-icon>
-
-                    </button>
-
-                  </div>
-
-                </td>
+                }
 
               </tr>
 
-            }
+            </thead>
 
+            <tbody>
 
-            @if (filteredAsientos().length === 0) {
+              @for (row of [1,2,3,4,5,6]; track row) {
 
-              <tr>
-
-                <td
-                  colspan="7"
-                  class="px-5 py-14 text-center"
+                <tr
+                  class="border-b border-[#f0f1f3]"
                 >
 
-                  <div class="flex flex-col items-center">
+                  <td class="px-5 py-4">
+                    <div class="skeleton h-4 w-10 rounded"></div>
+                  </td>
 
-                    <div
-                      class="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef2f5] text-[#7d8790]"
-                    >
+                  <td class="px-5 py-4">
+                    <div class="skeleton h-4 w-20 rounded"></div>
+                  </td>
 
-                      <iconify-icon
-                        icon="lucide:file-search"
-                        class="text-[21px]"
-                      ></iconify-icon>
-
+                  <td class="px-5 py-4">
+                    <div class="space-y-2">
+                      <div class="skeleton h-4 w-44 rounded"></div>
+                      <div class="skeleton h-3 w-24 rounded"></div>
                     </div>
+                  </td>
 
-                    <p
-                      class="mt-3 text-sm font-medium text-[#3d454d]"
+                  <td class="px-5 py-4">
+                    <div class="skeleton h-6 w-20 rounded-full"></div>
+                  </td>
+
+                  <td class="px-5 py-4">
+                    <div class="skeleton ml-auto h-4 w-24 rounded"></div>
+                  </td>
+
+                  <td class="px-5 py-4">
+                    <div class="skeleton ml-auto h-4 w-24 rounded"></div>
+                  </td>
+
+                  <td class="px-5 py-4">
+                    <div class="flex gap-1">
+                      <div class="skeleton h-8 w-8 rounded-lg"></div>
+                      <div class="skeleton h-8 w-8 rounded-lg"></div>
+                    </div>
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      } @else {
+
+        <!-- =====================================================
+             TABLA CON DATOS
+             ===================================================== -->
+
+        @if (filteredAsientos().length > 0) {
+
+          <div class="accounting-scroll overflow-x-auto">
+
+            <table class="w-full min-w-[900px] border-collapse">
+
+              <thead>
+
+                <tr
+                  class="border-b border-[#e8eaed] bg-[#fafbfc]"
+                >
+
+                  <th
+                    class="w-[80px] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    ID
+                  </th>
+
+                  <th
+                    class="w-[120px] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Fecha
+                  </th>
+
+                  <th
+                    class="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Concepto
+                  </th>
+
+                  <th
+                    class="w-[145px] px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Origen
+                  </th>
+
+                  <th
+                    class="w-[145px] px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Debe
+                  </th>
+
+                  <th
+                    class="w-[145px] px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Haber
+                  </th>
+
+                  <th
+                    class="w-[105px] px-5 py-3 text-center text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                  >
+                    Acción
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody>
+
+                @for (
+                  asiento of filteredAsientos();
+                  track asiento.asiento_id;
+                  let rowIndex = $index
+                ) {
+
+                  <tr
+                    class="table-row-enter border-b border-[#f0f1f3] transition-colors duration-150 hover:bg-[#fafbfc]"
+                    [style.animation-delay]="rowIndex * 25 + 'ms'"
+                  >
+
+                    <!-- ID -->
+
+                    <td class="px-5 py-4">
+
+                      <span
+                        class="font-mono text-xs font-medium text-[#69717a]"
+                      >
+                        #{{ asiento.asiento_id }}
+                      </span>
+
+                    </td>
+
+
+                    <!-- FECHA -->
+
+                    <td class="px-5 py-4">
+
+                      <span class="text-sm text-[#555d66]">
+                        {{ asiento.fecha }}
+                      </span>
+
+                    </td>
+
+
+                    <!-- CONCEPTO -->
+
+                    <td class="px-5 py-4">
+
+                      <div class="min-w-0">
+
+                        <p
+                          class="truncate text-sm font-medium text-[#30363d]"
+                        >
+                          {{ asiento.concepto }}
+                        </p>
+
+                        <p
+                          class="mt-0.5 text-xs text-[#9298a0]"
+                        >
+                          {{ asiento.detalles.length }}
+                          {{ asiento.detalles.length === 1 ? 'detalle' : 'detalles' }}
+                        </p>
+
+                      </div>
+
+                    </td>
+
+
+                    <!-- ORIGEN -->
+
+                    <td class="px-5 py-4">
+
+                      @if (asiento.tipo_origen) {
+
+                        <span
+                          class="inline-flex items-center rounded-full border border-[#e2e5e8] bg-[#f8f9fa] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-[#606870]"
+                        >
+                          {{ formatOrigin(asiento.tipo_origen) }}
+                        </span>
+
+                      } @else {
+
+                        <span class="text-sm text-[#9aa0a7]">
+                          —
+                        </span>
+
+                      }
+
+                    </td>
+
+
+                    <!-- DEBE -->
+
+                    <td
+                      class="px-5 py-4 text-right"
                     >
-                      No se encontraron asientos
-                    </p>
 
-                    <p
-                      class="mt-1 text-xs text-[#858d96]"
+                      <span
+                        class="font-mono text-sm font-medium text-[#3f4650]"
+                      >
+                        {{ formatAmount(asiento.total_debe) }}
+                      </span>
+
+                    </td>
+
+
+                    <!-- HABER -->
+
+                    <td
+                      class="px-5 py-4 text-right"
                     >
-                      Prueba con otros filtros o crea un nuevo asiento.
-                    </p>
 
-                  </div>
+                      <span
+                        class="font-mono text-sm font-medium text-[#3f4650]"
+                      >
+                        {{ formatAmount(asiento.total_haber) }}
+                      </span>
 
-                </td>
+                    </td>
 
-              </tr>
+
+                    <!-- ACCIONES -->
+
+                    <td class="px-5 py-4">
+
+                      <div
+                        class="flex items-center justify-center gap-1"
+                      >
+
+                        <button
+                          type="button"
+                          (click)="viewEntry(asiento)"
+                          [disabled]="loadingAsientos()"
+                          title="Ver asiento"
+                          class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-[#737b84] transition-all duration-150 hover:border-[#e0e3e6] hover:bg-white hover:text-[#30363d] hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+
+                          <iconify-icon
+                            icon="lucide:eye"
+                            width="15"
+                            height="15"
+                            class="transition-transform duration-150 group-hover:scale-110"
+                          ></iconify-icon>
+
+                        </button>
+
+
+                        <button
+                          type="button"
+                          (click)="editEntry(asiento)"
+                          [disabled]="loadingAsientos()"
+                          title="Editar asiento"
+                          class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-[#737b84] transition-all duration-150 hover:border-[#e0e3e6] hover:bg-white hover:text-[#30363d] hover:shadow-sm active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+
+                          <iconify-icon
+                            icon="lucide:pencil"
+                            width="15"
+                            height="15"
+                            class="transition-transform duration-150 group-hover:scale-110"
+                          ></iconify-icon>
+
+                        </button>
+
+                      </div>
+
+                    </td>
+
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+          <!-- FOOTER TABLA -->
+
+          <div
+            class="flex flex-col gap-1 border-t border-[#f0f1f3] bg-[#fcfcfd] px-5 py-3 text-xs text-[#858c94] sm:flex-row sm:items-center sm:justify-between"
+          >
+
+            <span>
+              Mostrando
+              <strong class="font-semibold text-[#555d66]">
+                {{ filteredAsientos().length }}
+              </strong>
+              de
+              <strong class="font-semibold text-[#555d66]">
+                {{ totalAsientos() }}
+              </strong>
+              asientos
+            </span>
+
+            @if (
+              searchTerm() ||
+              selectedYear() !== 'TODOS' ||
+              selectedOrigin() !== 'TODOS'
+            ) {
+
+              <span class="inline-flex items-center gap-1.5">
+
+                <iconify-icon
+                  icon="lucide:filter"
+                  width="13"
+                  height="13"
+                ></iconify-icon>
+
+                Filtros activos
+
+              </span>
 
             }
 
-          </tbody>
+          </div>
 
-        </table>
+        } @else {
 
-      </div>
+          <!-- ===================================================
+               SIN RESULTADOS
+               =================================================== -->
+
+          <div class="px-5 py-16">
+
+            <div
+              class="mx-auto flex max-w-sm flex-col items-center text-center"
+            >
+
+              <div
+                class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+              >
+
+                <iconify-icon
+                  icon="lucide:search-x"
+                  width="21"
+                  height="21"
+                ></iconify-icon>
+
+              </div>
+
+              <h3
+                class="text-sm font-semibold text-[#30363d]"
+              >
+                No encontramos asientos
+              </h3>
+
+              <p
+                class="mt-1 text-xs leading-5 text-[#858c94]"
+              >
+                No hay registros que coincidan con los filtros actuales.
+              </p>
+
+            </div>
+
+          </div>
+
+        }
+
+      }
 
     </section>
 
   </div>
-
 
 
   <!-- ===========================================================
@@ -574,46 +899,59 @@
   @if (modalMode()) {
 
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-[#111820]/45 p-4"
+      class="modal-backdrop-enter fixed inset-0 z-50 flex items-center justify-center bg-[#11161c]/45 p-3 backdrop-blur-[2px] sm:p-5"
     >
 
       <div
-        class="flex max-h-[94vh] w-full max-w-[1150px] flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
+        class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[1150px] flex-col overflow-hidden rounded-2xl border border-[#dfe2e6] bg-white shadow-2xl sm:max-h-[calc(100vh-40px)]"
       >
 
-
-        <!-- =====================================================
-             HEADER
-             ===================================================== -->
+        <!-- HEADER MODAL -->
 
         <div
-          class="flex items-start justify-between border-b border-[#e5e8eb] px-6 py-5"
+          class="flex shrink-0 items-start justify-between gap-4 border-b border-[#e7e9ec] px-5 py-4 md:px-6"
         >
 
-          <div>
+          <div class="min-w-0">
+
+            <div class="flex items-center gap-2">
+
+              <div
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f4f5] text-[#4f565e]"
+              >
+
+                <iconify-icon
+                  [icon]="
+                    modalMode() === 'create'
+                      ? 'lucide:file-plus-2'
+                      : 'lucide:file-pen'
+                  "
+                  width="16"
+                  height="16"
+                ></iconify-icon>
+
+              </div>
+
+              <h2
+                class="text-base font-semibold text-[#20252b]"
+              >
+                {{
+                  modalMode() === 'create'
+                    ? 'Nuevo asiento contable'
+                    : 'Editar asiento contable'
+                }}
+              </h2>
+
+            </div>
 
             <p
-              class="text-xs font-medium uppercase tracking-wide text-[#7c858e]"
+              class="mt-1 pl-10 text-xs text-[#858c94]"
             >
-              Contabilidad
-            </p>
-
-            <h2
-              class="mt-1 text-xl font-semibold text-[#17202a]"
-            >
-
-              @if (modalMode() === 'create') {
-                Nuevo asiento contable
-              } @else {
-                Editar asiento contable
-              }
-
-            </h2>
-
-            <p
-              class="mt-1 pb-6 text-sm text-[#7b838c]"
-            >
-              El asiento contiene un encabezado y una colección de detalles.
+              {{
+                modalMode() === 'create'
+                  ? 'Registra una nueva operación contable.'
+                  : 'Modifica la información y los movimientos del asiento.'
+              }}
             </p>
 
           </div>
@@ -622,12 +960,16 @@
           <button
             type="button"
             (click)="closeFormModal()"
-            class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-[#7b838c] transition hover:bg-[#f1f3f5] hover:text-[#20252b]"
+            [disabled]="saving()"
+            title="Cerrar"
+            class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#858c94] transition-all duration-150 hover:bg-[#f3f4f5] hover:text-[#30363d] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
 
             <iconify-icon
               icon="lucide:x"
-              class="text-[19px]"
+              width="17"
+              height="17"
+              class="transition-transform duration-150 group-hover:rotate-90"
             ></iconify-icon>
 
           </button>
@@ -635,150 +977,97 @@
         </div>
 
 
+        <!-- CONTENIDO -->
 
-        <!-- =====================================================
-             CONTENT
-             ===================================================== -->
+        <div class="accounting-scroll flex-1 overflow-y-auto">
 
-        <div
-          class="overflow-y-auto px-6 py-6"
-        >
+          <div class="space-y-5 p-5 md:p-6">
 
 
-          <!-- ===================================================
-               ESTRUCTURA
-               =================================================== -->
-
-          <div
-            class="mb-6 rounded-lg border border-[#dfe5ea] bg-[#f8fafb] p-4"
-          >
+            <!-- =================================================
+                 INFORMACIÓN
+                 ================================================= -->
 
             <div
-              class="flex items-start gap-3"
+              class="flex gap-3 rounded-xl border border-[#e2e5e8] bg-[#fafbfc] p-4"
             >
 
-              <iconify-icon
-                icon="lucide:database"
-                class="mt-0.5 text-[17px] text-[#17324d]"
-              ></iconify-icon>
+              <div
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-[#6c737b] shadow-sm"
+              >
+
+                <iconify-icon
+                  icon="lucide:info"
+                  width="16"
+                  height="16"
+                ></iconify-icon>
+
+              </div>
 
               <div>
 
                 <p
-                  class="text-sm font-semibold text-[#26313a]"
+                  class="text-xs font-semibold text-[#444b53]"
                 >
-                  Estructura del asiento
+                  Estructura contable
                 </p>
 
                 <p
-                  class="mt-1 text-xs leading-5 text-[#727c85]"
+                  class="mt-1 max-w-3xl text-xs leading-5 text-[#858c94]"
                 >
-                  Un registro de
-                  <strong>asientos_contables</strong>
-                  representa el encabezado de la operación.
-                  Debajo se administran uno o varios registros de
-                  <strong>detalles_asientos_contables</strong>
-                  pertenecientes al mismo asiento.
+                  El asiento almacena el encabezado de la operación y sus
+                  movimientos se registran como detalles. El total del Debe
+                  y el Haber debe coincidir antes de guardar.
                 </p>
 
               </div>
 
             </div>
 
-          </div>
 
+            <!-- =================================================
+                 ENCABEZADO
+                 ================================================= -->
 
-
-          <!-- ===================================================
-               1. ENCABEZADO
-               =================================================== -->
-
-          <section
-            class="rounded-xl border border-[#dfe4e8] bg-white"
-          >
-
-            <div
-              class="border-b border-[#e8ebee] bg-[#fafbfc] px-5 py-4"
+            <section
+              class="overflow-hidden rounded-xl border border-[#e3e6e9]"
             >
 
               <div
-                class="flex items-start justify-between gap-4"
+                class="border-b border-[#e8eaed] bg-[#fafbfc] px-4 py-3"
               >
 
-                <div
-                  class="flex items-start gap-3"
-                >
+                <div class="flex items-center gap-2">
 
-                  <div
-                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#17324d] text-white"
+                  <iconify-icon
+                    icon="lucide:file-text"
+                    width="15"
+                    height="15"
+                    class="text-[#737b84]"
+                  ></iconify-icon>
+
+                  <h3
+                    class="text-xs font-semibold uppercase tracking-[0.07em] text-[#555d66]"
                   >
-
-                    <iconify-icon
-                      icon="lucide:file-text"
-                      class="text-[15px]"
-                    ></iconify-icon>
-
-                  </div>
-
-                  <div>
-
-                    <p
-                      class="text-[11px] font-semibold uppercase tracking-wide text-[#7c858e]"
-                    >
-                      1 · Registro principal
-                    </p>
-
-                    <h3
-                      class="mt-0.5 text-sm font-semibold text-[#26313a]"
-                    >
-                      Encabezado del asiento
-                    </h3>
-
-                    <p
-                      class="mt-1 text-xs text-[#858d96]"
-                    >
-                      Información general que identifica la operación.
-                    </p>
-
-                  </div>
+                    Información del asiento
+                  </h3>
 
                 </div>
 
-
-                @if (
-                  modalMode() === 'edit' &&
-                  selectedAsiento()
-                ) {
-
-                  <span
-                    class="rounded-md border border-[#dfe4e8] bg-white px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-[#7b838c]"
-                  >
-                    Asiento #{{ selectedAsiento()!.asiento_id }}
-                  </span>
-
-                }
-
               </div>
 
-            </div>
 
+              <div class="grid grid-cols-1 gap-4 p-4 md:grid-cols-[170px_190px_1fr]">
 
-            <div class="p-5">
+                <!-- FECHA -->
 
-              <div
-                class="grid grid-cols-1 gap-4 md:grid-cols-2"
-              >
+                <label class="block">
 
-                <!-- Fecha -->
-
-                <div>
-
-                  <label
-                    class="mb-1.5 block text-xs font-medium text-[#59636d]"
+                  <span
+                    class="mb-1.5 block text-xs font-medium text-[#555d66]"
                   >
                     Fecha
-                    <span class="text-[#b34f4f]">*</span>
-                  </label>
+                  </span>
 
                   <input
                     type="date"
@@ -787,63 +1076,66 @@
                       ...current,
                       fecha: $any($event.target).value
                     }))"
-                    class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
+                    [disabled]="saving()"
+                    class="h-9 w-full cursor-pointer rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
                   />
 
-                </div>
+                </label>
 
 
-                <!-- Origen -->
+                <!-- ORIGEN -->
 
-                <div>
+                <label class="block">
 
-                  <label
-                    class="mb-1.5 block text-xs font-medium text-[#59636d]"
+                  <span
+                    class="mb-1.5 block text-xs font-medium text-[#555d66]"
                   >
-                    Tipo de origen
-                  </label>
+                    Origen
+                  </span>
 
-                  <select
-                    (change)="form.update(current => ({
-                      ...current,
-                      tipo_origen: $any($event.target).value || null
-                    }))"
-                    class="h-10 w-full cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
-                  >
+                  <div class="relative">
 
-                    <option
-                      value=""
-                      [selected]="!form().tipo_origen"
+                    <select
+                      [value]="form().tipo_origen"
+                      (change)="form.update(current => ({
+                        ...current,
+                        tipo_origen: $any($event.target).value || null
+                      }))"
+                      [disabled]="saving()"
+                      class="h-9 w-full cursor-pointer appearance-none rounded-lg border border-[#dfe2e6] bg-white px-3 pr-8 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
                     >
-                      Sin especificar
-                    </option>
 
-                    @for (origin of tiposOrigen; track origin) {
+                      @for (origin of tiposOrigen; track origin) {
 
-                      <option
-                        [value]="origin"
-                        [selected]="form().tipo_origen === origin"
-                      >
-                        {{ origin }}
-                      </option>
+                        <option [value]="origin">
+                          {{ origin }}
+                        </option>
 
-                    }
+                      }
 
-                  </select>
+                    </select>
 
-                </div>
+                    <iconify-icon
+                      icon="lucide:chevron-down"
+                      width="14"
+                      height="14"
+                      class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#858c94]"
+                    ></iconify-icon>
+
+                  </div>
+
+                </label>
 
 
-                <!-- Concepto -->
+                <!-- CONCEPTO -->
 
-                <div class="md:col-span-2">
+                <label class="block">
 
-                  <label
-                    class="mb-1.5 block text-xs font-medium text-[#59636d]"
+                  <span
+                    class="mb-1.5 block text-xs font-medium text-[#555d66]"
                   >
                     Concepto
-                    <span class="text-[#b34f4f]">*</span>
-                  </label>
+                  </span>
 
                   <input
                     type="text"
@@ -852,230 +1144,176 @@
                       ...current,
                       concepto: $any($event.target).value
                     }))"
-                    placeholder="Describe la operación contable..."
-                    class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none placeholder:text-[#a0a7ae] focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10"
+                    [disabled]="saving()"
+                    placeholder="Ej. Registro de compra de suministros"
+                    class="h-9 w-full rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm text-[#3f4650] outline-none transition-all duration-200 placeholder:text-[#a0a6ad] focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
                   />
 
-                </div>
+                </label>
 
               </div>
 
-            </div>
-
-          </section>
+            </section>
 
 
+            <!-- =================================================
+                 DETALLES
+                 ================================================= -->
 
-          <!-- ===================================================
-               2. DETALLES
-               =================================================== -->
-
-          <section
-            class="mt-6 rounded-xl border border-[#dfe4e8] bg-white"
-          >
-
-            <div
-              class="border-b border-[#e8ebee] bg-[#fafbfc] px-5 py-4"
+            <section
+              class="overflow-hidden rounded-xl border border-[#e3e6e9]"
             >
 
               <div
-                class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                class="flex flex-col gap-3 border-b border-[#e8eaed] bg-[#fafbfc] px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
               >
 
-                <div
-                  class="flex items-start gap-3"
-                >
+                <div>
 
-                  <div
-                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#17324d] text-white"
-                  >
+                  <div class="flex items-center gap-2">
 
                     <iconify-icon
-                      icon="lucide:list"
-                      class="text-[15px]"
+                      icon="lucide:list-tree"
+                      width="15"
+                      height="15"
+                      class="text-[#737b84]"
                     ></iconify-icon>
 
-                  </div>
-
-                  <div>
-
-                    <p
-                      class="text-[11px] font-semibold uppercase tracking-wide text-[#7c858e]"
-                    >
-                      2 · Movimientos del asiento
-                    </p>
-
                     <h3
-                      class="mt-0.5 text-sm font-semibold text-[#26313a]"
+                      class="text-xs font-semibold uppercase tracking-[0.07em] text-[#555d66]"
                     >
                       Detalles del asiento
                     </h3>
 
-                    <p
-                      class="mt-1 text-xs text-[#858d96]"
+                    <span
+                      class="rounded-full bg-[#eceef0] px-2 py-0.5 text-[10px] font-semibold text-[#626a72]"
                     >
-                      Cada detalle representa una cuenta afectada por la operación.
-                    </p>
+                      {{ detalleCount() }}
+                    </span>
 
                   </div>
 
+                  <p
+                    class="mt-1 text-xs text-[#858c94]"
+                  >
+                    Cada movimiento debe afectar únicamente Debe o Haber.
+                  </p>
+
                 </div>
 
 
-                <div
-                  class="flex items-center gap-2"
+                <button
+                  type="button"
+                  (click)="addDetail()"
+                  [disabled]="saving()"
+                  class="group inline-flex h-8 cursor-pointer items-center justify-center gap-1.5 self-start rounded-lg border border-[#dfe2e6] bg-white px-3 text-xs font-medium text-[#4c535b] shadow-sm transition-all duration-150 hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:shadow active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 sm:self-auto"
                 >
 
-                  <span
-                    class="rounded-md bg-[#eef2f5] px-2.5 py-1.5 text-xs font-medium text-[#59636d]"
-                  >
-                    {{ detalleCount() }}
-                    {{ detalleCount() === 1 ? 'detalle' : 'detalles' }}
-                  </span>
+                  <iconify-icon
+                    icon="lucide:plus"
+                    width="14"
+                    height="14"
+                    class="transition-transform duration-150 group-hover:rotate-90"
+                  ></iconify-icon>
 
-                  <button
-                    type="button"
-                    (click)="addDetail()"
-                    class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#17324d] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#214663]"
-                  >
+                  Agregar detalle
 
-                    <iconify-icon
-                      icon="lucide:plus"
-                      class="text-[15px]"
-                    ></iconify-icon>
-
-                    Agregar detalle
-
-                  </button>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-
-            <div class="p-5">
-
-
-              <!-- Ayuda -->
-
-              <div
-                class="mb-4 flex items-start gap-2 rounded-lg border border-[#e5e8eb] bg-[#fafbfc] px-3 py-2.5"
-              >
-
-                <iconify-icon
-                  icon="lucide:info"
-                  class="mt-0.5 shrink-0 text-[15px] text-[#71808d]"
-                ></iconify-icon>
-
-                <p
-                  class="text-xs leading-5 text-[#707a84]"
-                >
-                  Puedes agregar tantos detalles como requiera la operación.
-                  Los detalles existentes también pueden modificarse o eliminarse.
-                  Para guardar, el asiento debe tener al menos dos detalles y
-                  el total del Debe debe coincidir con el total del Haber.
-                </p>
+                </button>
 
               </div>
 
 
+              @if (form().detalles.length === 0) {
 
-              <!-- Sin detalles -->
-
-              @if (detalleCount() === 0) {
-
-                <div
-                  class="rounded-lg border border-dashed border-[#d9dee2] bg-[#fafbfc] px-5 py-10 text-center"
-                >
+                <div class="px-5 py-12">
 
                   <div
-                    class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#eef2f5] text-[#7d8790]"
+                    class="mx-auto flex max-w-sm flex-col items-center text-center"
                   >
 
-                    <iconify-icon
-                      icon="lucide:list-plus"
-                      class="text-[18px]"
-                    ></iconify-icon>
+                    <div
+                      class="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-[#f5f6f7] text-[#858c94]"
+                    >
+
+                      <iconify-icon
+                        icon="lucide:rows-3"
+                        width="19"
+                        height="19"
+                      ></iconify-icon>
+
+                    </div>
+
+                    <p
+                      class="text-sm font-medium text-[#444b53]"
+                    >
+                      No hay movimientos
+                    </p>
+
+                    <p
+                      class="mt-1 text-xs text-[#858c94]"
+                    >
+                      Agrega al menos dos detalles para construir el asiento.
+                    </p>
+
+                    <button
+                      type="button"
+                      (click)="addDetail()"
+                      [disabled]="saving()"
+                      class="mt-4 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-[#20252b] px-3 text-xs font-medium text-white transition-all duration-150 hover:bg-[#171b20] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+
+                      <iconify-icon
+                        icon="lucide:plus"
+                        width="14"
+                        height="14"
+                      ></iconify-icon>
+
+                      Agregar detalle
+
+                    </button>
 
                   </div>
-
-                  <p
-                    class="mt-3 text-sm font-medium text-[#3d454d]"
-                  >
-                    Este asiento no tiene detalles
-                  </p>
-
-                  <p
-                    class="mt-1 text-xs text-[#858d96]"
-                  >
-                    Agrega los movimientos que forman parte de la operación.
-                  </p>
-
-                  <button
-                    type="button"
-                    (click)="addDetail()"
-                    class="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[#17324d] px-3 py-2 text-xs font-medium text-white transition hover:bg-[#214663]"
-                  >
-
-                    <iconify-icon
-                      icon="lucide:plus"
-                      class="text-[14px]"
-                    ></iconify-icon>
-
-                    Agregar detalle
-
-                  </button>
 
                 </div>
 
               } @else {
 
+                <div class="accounting-scroll overflow-x-auto">
 
-                <!-- Tabla -->
-
-                <div
-                  class="overflow-x-auto rounded-lg border border-[#e1e5e8]"
-                >
-
-                  <table
-                    class="w-full min-w-[760px] border-collapse"
-                  >
+                  <table class="w-full min-w-[760px]">
 
                     <thead>
 
                       <tr
-                        class="border-b border-[#e1e5e8] bg-[#fafbfc]"
+                        class="border-b border-[#eceef0] bg-white"
                       >
 
                         <th
-                          class="w-[55px] px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                          class="w-12 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                         >
                           #
                         </th>
 
                         <th
-                          class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                          class="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                         >
-                          Cuenta contable
+                          Cuenta
                         </th>
 
                         <th
-                          class="w-[180px] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                          class="w-[190px] px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                         >
                           Debe
                         </th>
 
                         <th
-                          class="w-[180px] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                          class="w-[190px] px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                         >
                           Haber
                         </th>
 
                         <th
-                          class="w-[60px] px-4 py-3"
+                          class="w-12 px-4 py-3"
                         ></th>
 
                       </tr>
@@ -1087,51 +1325,42 @@
 
                       @for (
                         detalle of form().detalles;
-                        track $index
+                        track $index;
+                        let i = $index
                       ) {
 
                         <tr
-                          class="border-b border-[#edf0f2] last:border-b-0"
+                          class="table-row-enter border-b border-[#f0f1f3] transition-colors duration-150 hover:bg-[#fcfcfd]"
+                          [style.animation-delay]="i * 35 + 'ms'"
                         >
 
-                          <!-- Número -->
-
                           <td
-                            class="px-4 py-3 text-center text-xs font-medium text-[#858d96]"
+                            class="px-4 py-3 text-center"
                           >
-                            {{ $index + 1 }}
+
+                            <span
+                              class="font-mono text-[11px] font-medium text-[#9298a0]"
+                            >
+                              {{ i + 1 }}
+                            </span>
+
                           </td>
 
 
-                          <!-- Cuenta -->
+                          <!-- CUENTA -->
 
                           <td class="px-4 py-3">
 
-                                                        <select
-                              [disabled]="isDetailLocked(detalle)"
-                              (change)="updateDetailAccount(
-                                $index,
-                                $any($event.target).value
-                              )"
-                              class="h-10 w-full cursor-pointer rounded-lg border border-[#dfe3e7] bg-white px-3 text-sm outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f5f6] disabled:text-[#8b949d]"
-                            >
+                            <div class="relative">
 
-                              @if (isDetailLocked(detalle)) {
+                              <select
+                                [value]="detalle.cuenta_id ?? ''"
+                                (change)="updateDetailAccount(i, $any($event.target).value)"
+                                [disabled]="saving() || isDetailLocked(detalle)"
+                                class="h-9 w-full cursor-pointer appearance-none rounded-lg border border-[#dfe2e6] bg-white px-3 pr-8 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f3f4f5] disabled:text-[#858c94]"
+                              >
 
-                                <option
-                                  [value]="detalle.cuenta_id"
-                                  selected
-                                >
-                                  {{ getNombreCuenta(detalle.cuenta_id) }}
-                                  (inactiva)
-                                </option>
-
-                              } @else {
-
-                                <option
-                                  value=""
-                                  [selected]="detalle.cuenta_id === null"
-                                >
+                                <option value="">
                                   Seleccionar cuenta
                                 </option>
 
@@ -1142,80 +1371,122 @@
 
                                   <option
                                     [value]="cuenta.cuenta_id"
-                                    [selected]="detalle.cuenta_id === cuenta.cuenta_id"
                                   >
                                     {{ cuenta.codigo_cuenta }}
-                                    -
+                                    —
                                     {{ cuenta.nombre_cuenta }}
                                   </option>
 
                                 }
 
-                              }
+                              </select>
 
-                            </select>
+                              <iconify-icon
+                                icon="lucide:chevron-down"
+                                width="14"
+                                height="14"
+                                class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#858c94]"
+                              ></iconify-icon>
+
+                            </div>
+
+                            @if (isDetailLocked(detalle)) {
+
+                              <div
+                                class="mt-1.5 flex items-center gap-1.5 text-[10px] text-[#9a6a32]"
+                              >
+
+                                <iconify-icon
+                                  icon="lucide:lock"
+                                  width="11"
+                                  height="11"
+                                ></iconify-icon>
+
+                                Cuenta inactiva
+
+                              </div>
+
+                            }
 
                           </td>
 
 
-                          <!-- Debe -->
+                          <!-- DEBE -->
 
                           <td class="px-4 py-3">
 
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              [value]="detalle.debe"
-                              [disabled]="isDetailLocked(detalle)"
-                              (input)="updateDetailDebe(
-                                $index,
-                                $any($event.target).value
-                              )"
-                              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-right text-sm tabular-nums outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f5f6] disabled:text-[#8b949d]"
-                            />
+                            <div class="relative">
+
+                              <span
+                                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs text-[#9ba1a8]"
+                              >
+                                C$
+                              </span>
+
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                [value]="detalle.debe"
+                                (input)="updateDetailDebe(i, $any($event.target).value)"
+                                [disabled]="saving() || isDetailLocked(detalle)"
+                                class="h-9 w-full rounded-lg border border-[#dfe2e6] bg-white pl-9 pr-3 text-right font-mono text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f3f4f5] disabled:text-[#858c94]"
+                              />
+
+                            </div>
 
                           </td>
 
 
-                          <!-- Haber -->
+                          <!-- HABER -->
 
                           <td class="px-4 py-3">
 
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              [value]="detalle.haber"
-                              [disabled]="isDetailLocked(detalle)"
-                              (input)="updateDetailHaber(
-                                $index,
-                                $any($event.target).value
-                              )"
-                              class="h-10 w-full rounded-lg border border-[#dfe3e7] bg-white px-3 text-right text-sm tabular-nums outline-none focus:border-[#17324d] focus:ring-2 focus:ring-[#17324d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f5f6] disabled:text-[#8b949d]"
-                            />
+                            <div class="relative">
+
+                              <span
+                                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-xs text-[#9ba1a8]"
+                              >
+                                C$
+                              </span>
+
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                [value]="detalle.haber"
+                                (input)="updateDetailHaber(i, $any($event.target).value)"
+                                [disabled]="saving() || isDetailLocked(detalle)"
+                                class="h-9 w-full rounded-lg border border-[#dfe2e6] bg-white pl-9 pr-3 text-right font-mono text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f3f4f5] disabled:text-[#858c94]"
+                              />
+
+                            </div>
 
                           </td>
 
 
-                          <!-- Eliminar -->
+                          <!-- ELIMINAR -->
 
-                          <td
-                            class="px-4 py-3 text-center"
-                          >
+                          <td class="px-4 py-3 text-center">
 
-                            @if (detalleCount() > 2 && !isDetailLocked(detalle)) {
+                            @if (
+                              form().detalles.length > 2 &&
+                              !isDetailLocked(detalle)
+                            ) {
 
                               <button
                                 type="button"
-                                (click)="removeDetail($index)"
+                                (click)="removeDetail(i)"
+                                [disabled]="saving()"
                                 title="Eliminar detalle"
-                                class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[#858d96] transition hover:bg-[#f6eeee] hover:text-[#a44d4d]"
+                                class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[#a1a7ae] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                               >
 
                                 <iconify-icon
                                   icon="lucide:trash-2"
-                                  class="text-[15px]"
+                                  width="14"
+                                  height="14"
+                                  class="transition-transform duration-150 group-hover:scale-110"
                                 ></iconify-icon>
 
                               </button>
@@ -1231,6 +1502,8 @@
                     </tbody>
 
 
+                    <!-- TOTALES -->
+
                     <tfoot>
 
                       <tr
@@ -1239,21 +1512,21 @@
 
                         <td
                           colspan="2"
-                          class="px-4 py-3 text-right text-xs font-semibold text-[#69737c]"
+                          class="px-4 py-3 text-right text-xs font-semibold text-[#555d66]"
                         >
-                          Totales de los detalles
+                          Totales
                         </td>
 
                         <td
-                          class="px-4 py-3 text-right text-sm font-semibold tabular-nums text-[#29323a]"
+                          class="px-4 py-3 text-right font-mono text-sm font-semibold text-[#30363d]"
                         >
-                          {{ formatAmount(totalDebe()) }}
+                          C$ {{ formatAmount(totalDebe()) }}
                         </td>
 
                         <td
-                          class="px-4 py-3 text-right text-sm font-semibold tabular-nums text-[#29323a]"
+                          class="px-4 py-3 text-right font-mono text-sm font-semibold text-[#30363d]"
                         >
-                          {{ formatAmount(totalHaber()) }}
+                          C$ {{ formatAmount(totalHaber()) }}
                         </td>
 
                         <td></td>
@@ -1266,153 +1539,93 @@
 
                 </div>
 
-
-                <!-- Agregar otro -->
-
-                <div
-                  class="mt-3 flex items-center justify-between"
-                >
-
-                  <p
-                    class="text-xs text-[#858d96]"
-                  >
-                    {{ detalleCount() }}
-                    {{ detalleCount() === 1 ? 'detalle registrado' : 'detalles registrados' }}
-                  </p>
-
-                  <button
-                    type="button"
-                    (click)="addDetail()"
-                    class="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-[#17324d] transition hover:text-[#214663]"
-                  >
-
-                    <iconify-icon
-                      icon="lucide:plus"
-                      class="text-[14px]"
-                    ></iconify-icon>
-
-                    Agregar otro detalle
-
-                  </button>
-
-                </div>
-
               }
 
-            </div>
-
-          </section>
+            </section>
 
 
+            <!-- =================================================
+                 ESTADO DEL BALANCE
+                 ================================================= -->
 
-          <!-- ===================================================
-               TOTALES
-               =================================================== -->
+            <div
+              class="status-pulse flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
+              [class.border-[#d8e8dc]]="asientoBalanceado()"
+              [class.bg-[#f7fbf8]]="asientoBalanceado()"
+              [class.border-[#ead8d8]]="!asientoBalanceado()"
+              [class.bg-[#fffafa]]="!asientoBalanceado()"
+            >
 
-          <section
-            class="mt-6 rounded-xl border border-[#dfe4e8] bg-[#fafbfc]"
-          >
+              <div class="flex items-center gap-3">
 
-            <div class="px-5 py-4">
+                <div
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                  [class.bg-[#e7f3ea]]="asientoBalanceado()"
+                  [class.text-[#3d7950]]="asientoBalanceado()"
+                  [class.bg-[#f9e9e9]]="!asientoBalanceado()"
+                  [class.text-[#b13a3a]]="!asientoBalanceado()"
+                >
 
-              <div
-                class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-              >
+                  <iconify-icon
+                    [icon]="
+                      asientoBalanceado()
+                        ? 'lucide:circle-check'
+                        : 'lucide:triangle-alert'
+                    "
+                    width="17"
+                    height="17"
+                  ></iconify-icon>
+
+                </div>
 
                 <div>
 
-                  <div
-                    class="flex items-center gap-2"
+                  <p
+                    class="text-xs font-semibold"
+                    [class.text-[#3d6849]]="asientoBalanceado()"
+                    [class.text-[#8f3b3b]]="!asientoBalanceado()"
                   >
-
-                    @if (asientoBalanceado()) {
-
-                      <iconify-icon
-                        icon="lucide:check-circle"
-                        class="text-[17px] text-[#3d7146]"
-                      ></iconify-icon>
-
-                      <p
-                        class="text-sm font-medium text-[#3d7146]"
-                      >
-                        Asiento balanceado
-                      </p>
-
-                    } @else {
-
-                      <iconify-icon
-                        icon="lucide:alert-circle"
-                        class="text-[17px] text-[#a34f4f]"
-                      ></iconify-icon>
-
-                      <p
-                        class="text-sm font-medium text-[#a34f4f]"
-                      >
-                        Asiento descuadrado
-                      </p>
-
-                    }
-
-                  </div>
+                    {{
+                      asientoBalanceado()
+                        ? 'Asiento balanceado'
+                        : 'Asiento desbalanceado'
+                    }}
+                  </p>
 
                   <p
-                    class="mt-1 text-xs text-[#7c858e]"
+                    class="mt-0.5 text-xs"
+                    [class.text-[#66806e]]="asientoBalanceado()"
+                    [class.text-[#977070]]="!asientoBalanceado()"
                   >
-                    Los totales se calculan automáticamente a partir de todos los detalles.
+                    {{
+                      asientoBalanceado()
+                        ? 'El Debe y el Haber coinciden.'
+                        : 'Los totales deben coincidir antes de guardar.'
+                    }}
                   </p>
 
                 </div>
 
-
-                <div
-                  class="grid grid-cols-3 gap-6 text-right"
-                >
-
-                  <div>
-
-                    <p class="text-xs text-[#858d96]">
-                      Total Debe
-                    </p>
-
-                    <p
-                      class="mt-1 text-sm font-semibold tabular-nums text-[#29323a]"
-                    >
-                      {{ formatAmount(totalDebe()) }}
-                    </p>
-
-                  </div>
+              </div>
 
 
-                  <div>
+              <div class="flex items-center gap-5 text-right">
 
-                    <p class="text-xs text-[#858d96]">
-                      Total Haber
-                    </p>
+                <div>
 
-                    <p
-                      class="mt-1 text-sm font-semibold tabular-nums text-[#29323a]"
-                    >
-                      {{ formatAmount(totalHaber()) }}
-                    </p>
+                  <p
+                    class="text-[10px] font-medium uppercase tracking-[0.06em] text-[#9298a0]"
+                  >
+                    Diferencia
+                  </p>
 
-                  </div>
-
-
-                  <div>
-
-                    <p class="text-xs text-[#858d96]">
-                      Diferencia
-                    </p>
-
-                    <p
-                      class="mt-1 text-sm font-semibold tabular-nums"
-                      [class.text-[#3d7146]]="asientoBalanceado()"
-                      [class.text-[#a34f4f]]="!asientoBalanceado()"
-                    >
-                      {{ formatAmount(diferenciaAbsoluta()) }}
-                    </p>
-
-                  </div>
+                  <p
+                    class="mt-0.5 font-mono text-sm font-semibold"
+                    [class.text-[#3d7950]]="asientoBalanceado()"
+                    [class.text-[#b13a3a]]="!asientoBalanceado()"
+                  >
+                    C$ {{ formatAmount(diferenciaAbsoluta()) }}
+                  </p>
 
                 </div>
 
@@ -1420,49 +1633,24 @@
 
             </div>
 
-          </section>
+          </div>
 
         </div>
 
 
-
         <!-- =====================================================
-            FOOTER
-            ===================================================== -->
+             FOOTER MODAL
+             ===================================================== -->
 
         <div
-          class="
-            flex
-            flex-col-reverse
-            gap-3
-            border-t
-            border-[#e5e8eb]
-            bg-[#fafbfc]
-            px-6
-            py-5
-            sm:flex-row
-            sm:justify-end
-            sm:items-center
-          "
+          class="flex shrink-0 flex-col-reverse gap-2 border-t border-[#e7e9ec] bg-[#fafbfc] px-5 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6"
         >
 
           <button
             type="button"
             (click)="closeFormModal()"
-            class="
-              cursor-pointer
-              rounded-lg
-              border
-              border-[#d8dde1]
-              bg-white
-              px-5
-              py-3
-              text-sm
-              font-medium
-              text-[#4f5962]
-              transition
-              hover:bg-[#f3f5f6]
-            "
+            [disabled]="saving()"
+            class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] hover:text-[#30363d] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -1471,27 +1659,36 @@
           <button
             type="button"
             (click)="saveEntry()"
-            [disabled]="!canSave()"
-            class="
-              cursor-pointer
-              rounded-lg
-              bg-[#17324d]
-              px-5
-              py-3
-              text-sm
-              font-medium
-              text-white
-              transition
-              hover:bg-[#214663]
-              disabled:cursor-not-allowed
-              disabled:opacity-40
-            "
+            [disabled]="!canSave() || saving()"
+            class="group inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#20252b] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
           >
 
-            @if (modalMode() === 'create') {
-              Guardar asiento
+            @if (saving()) {
+
+              <iconify-icon
+                icon="lucide:loader-circle"
+                width="15"
+                height="15"
+                class="animate-spin"
+              ></iconify-icon>
+
+              Guardando...
+
             } @else {
-              Guardar cambios
+
+              <iconify-icon
+                icon="lucide:save"
+                width="15"
+                height="15"
+                class="transition-transform duration-150 group-hover:scale-110"
+              ></iconify-icon>
+
+              {{
+                modalMode() === 'create'
+                  ? 'Guardar asiento'
+                  : 'Guardar cambios'
+              }}
+
             }
 
           </button>
@@ -1505,9 +1702,8 @@
   }
 
 
-
   <!-- ===========================================================
-       MODAL VER ASIENTO
+       MODAL VER
        =========================================================== -->
 
   @if (
@@ -1516,41 +1712,62 @@
   ) {
 
     <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-[#111820]/45 p-4"
+      class="modal-backdrop-enter fixed inset-0 z-50 flex items-center justify-center bg-[#11161c]/45 p-3 backdrop-blur-[2px] sm:p-5"
     >
 
       <div
-        class="flex max-h-[92vh] w-full max-w-[950px] flex-col overflow-hidden rounded-xl bg-white shadow-2xl"
+        class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[950px] flex-col overflow-hidden rounded-2xl border border-[#dfe2e6] bg-white shadow-2xl sm:max-h-[calc(100vh-40px)]"
       >
 
-
-        <!-- Header -->
+        <!-- HEADER -->
 
         <div
-          class="flex items-start justify-between border-b border-[#e5e8eb] px-6 py-5"
+          class="flex shrink-0 items-start justify-between gap-4 border-b border-[#e7e9ec] px-5 py-4 md:px-6"
         >
 
-          <div>
+          <div class="flex min-w-0 items-start gap-3">
 
-            <p
-              class="text-xs font-medium uppercase tracking-wide text-[#7c858e]"
+            <div
+              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#f3f4f5] text-[#555d66]"
             >
-              Asiento #{{ selectedAsiento()!.asiento_id }}
-            </p>
 
-            <h2
-              class="mt-1 text-xl font-semibold text-[#17202a]"
-            >
-              {{ selectedAsiento()!.concepto }}
-            </h2>
+              <iconify-icon
+                icon="lucide:receipt-text"
+                width="17"
+                height="17"
+              ></iconify-icon>
 
-            <p
-              class="mt-1 text-sm text-[#7b838c]"
-            >
-              {{ selectedAsiento()!.fecha }}
-              ·
-              {{ formatOrigin(selectedAsiento()!.tipo_origen) }}
-            </p>
+            </div>
+
+            <div class="min-w-0">
+
+              <div class="flex flex-wrap items-center gap-2">
+
+                <h2
+                  class="text-base font-semibold text-[#20252b]"
+                >
+                  Asiento #{{ selectedAsiento()!.asiento_id }}
+                </h2>
+
+                @if (selectedAsiento()!.tipo_origen) {
+
+                  <span
+                    class="rounded-full border border-[#e2e5e8] bg-[#f8f9fa] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.04em] text-[#69717a]"
+                  >
+                    {{ formatOrigin(selectedAsiento()!.tipo_origen) }}
+                  </span>
+
+                }
+
+              </div>
+
+              <p
+                class="mt-1 truncate text-xs text-[#858c94]"
+              >
+                {{ selectedAsiento()!.concepto }}
+              </p>
+
+            </div>
 
           </div>
 
@@ -1558,12 +1775,15 @@
           <button
             type="button"
             (click)="closeViewModal()"
-            class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-[#7b838c] transition hover:bg-[#f1f3f5] hover:text-[#20252b]"
+            title="Cerrar"
+            class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#858c94] transition-all duration-150 hover:bg-[#f3f4f5] hover:text-[#30363d] active:scale-95"
           >
 
             <iconify-icon
               icon="lucide:x"
-              class="text-[19px]"
+              width="17"
+              height="17"
+              class="transition-transform duration-150 group-hover:rotate-90"
             ></iconify-icon>
 
           </button>
@@ -1571,258 +1791,165 @@
         </div>
 
 
+        <!-- CONTENIDO -->
 
-        <!-- Content -->
+        <div class="accounting-scroll flex-1 overflow-y-auto">
 
-        <div
-          class="overflow-y-auto px-6 py-6"
-        >
+          <div class="space-y-5 p-5 md:p-6">
 
-
-          <!-- ===================================================
-               1. ENCABEZADO
-               =================================================== -->
-
-          <section
-            class="rounded-xl border border-[#dfe4e8] bg-white"
-          >
+            <!-- INFORMACIÓN -->
 
             <div
-              class="border-b border-[#e8ebee] bg-[#fafbfc] px-5 py-4"
+              class="grid grid-cols-1 gap-3 sm:grid-cols-3"
             >
 
-              <div class="flex items-center gap-3">
+              <div
+                class="rounded-xl border border-[#e3e6e9] bg-[#fafbfc] p-4"
+              >
 
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#17324d] text-white"
+                <p
+                  class="text-[10px] font-semibold uppercase tracking-[0.07em] text-[#9298a0]"
                 >
+                  ID
+                </p>
 
-                  <iconify-icon
-                    icon="lucide:file-text"
-                    class="text-[15px]"
-                  ></iconify-icon>
+                <p
+                  class="mt-1 font-mono text-sm font-semibold text-[#3f4650]"
+                >
+                  #{{ selectedAsiento()!.asiento_id }}
+                </p>
 
-                </div>
+              </div>
 
-                <div>
 
-                  <p
-                    class="text-[11px] font-semibold uppercase tracking-wide text-[#7c858e]"
-                  >
-                    1 · Registro principal
-                  </p>
+              <div
+                class="rounded-xl border border-[#e3e6e9] bg-[#fafbfc] p-4"
+              >
 
-                  <h3
-                    class="mt-0.5 text-sm font-semibold text-[#26313a]"
-                  >
-                    Encabezado del asiento
-                  </h3>
+                <p
+                  class="text-[10px] font-semibold uppercase tracking-[0.07em] text-[#9298a0]"
+                >
+                  Fecha
+                </p>
 
-                </div>
+                <p
+                  class="mt-1 text-sm font-semibold text-[#3f4650]"
+                >
+                  {{ selectedAsiento()!.fecha }}
+                </p>
+
+              </div>
+
+
+              <div
+                class="rounded-xl border border-[#e3e6e9] bg-[#fafbfc] p-4"
+              >
+
+                <p
+                  class="text-[10px] font-semibold uppercase tracking-[0.07em] text-[#9298a0]"
+                >
+                  Usuario
+                </p>
+
+                <p
+                  class="mt-1 text-sm font-semibold text-[#3f4650]"
+                >
+                  #{{ selectedAsiento()!.usuario_id }}
+                </p>
 
               </div>
 
             </div>
 
 
-            <div class="p-5">
+            <!-- CONCEPTO -->
+
+            <div
+              class="rounded-xl border border-[#e3e6e9] bg-white p-4"
+            >
+
+              <p
+                class="text-[10px] font-semibold uppercase tracking-[0.07em] text-[#9298a0]"
+              >
+                Concepto
+              </p>
+
+              <p
+                class="mt-1 text-sm font-medium leading-6 text-[#3f4650]"
+              >
+                {{ selectedAsiento()!.concepto }}
+              </p>
+
+            </div>
+
+
+            <!-- DETALLES -->
+
+            <section
+              class="overflow-hidden rounded-xl border border-[#e3e6e9]"
+            >
 
               <div
-                class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                class="flex items-center justify-between border-b border-[#e8eaed] bg-[#fafbfc] px-4 py-3"
               >
 
-                <!-- ID -->
+                <div class="flex items-center gap-2">
 
-                <div
-                  class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
-                >
+                  <iconify-icon
+                    icon="lucide:list"
+                    width="15"
+                    height="15"
+                    class="text-[#737b84]"
+                  ></iconify-icon>
 
-                  <p class="text-xs text-[#858d96]">
-                    ID del asiento
-                  </p>
-
-                  <p
-                    class="mt-1 text-sm font-semibold text-[#17324d]"
+                  <h3
+                    class="text-xs font-semibold uppercase tracking-[0.07em] text-[#555d66]"
                   >
-                    #{{ selectedAsiento()!.asiento_id }}
-                  </p>
+                    Movimientos
+                  </h3>
 
                 </div>
-
-
-                <!-- Fecha -->
-
-                <div
-                  class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
-                >
-
-                  <p class="text-xs text-[#858d96]">
-                    Fecha
-                  </p>
-
-                  <p
-                    class="mt-1 text-sm font-medium text-[#29323a]"
-                  >
-                    {{ selectedAsiento()!.fecha }}
-                  </p>
-
-                </div>
-
-
-                <!-- Usuario -->
-
-                <div
-                  class="rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
-                >
-
-                  <p class="text-xs text-[#858d96]">
-                    Usuario
-                  </p>
-
-                  <p
-                    class="mt-1 text-sm font-medium text-[#29323a]"
-                  >
-                    #{{ selectedAsiento()!.usuario_id }}
-                  </p>
-
-                </div>
-
-              </div>
-
-
-              <!-- Concepto -->
-
-              <div
-                class="mt-4 rounded-lg border border-[#e2e5e8] bg-[#fafbfc] p-4"
-              >
-
-                <p class="text-xs text-[#858d96]">
-                  Concepto
-                </p>
-
-                <p
-                  class="mt-1 text-sm font-medium text-[#29323a]"
-                >
-                  {{ selectedAsiento()!.concepto }}
-                </p>
-
-              </div>
-
-
-              <!-- Origen -->
-
-              <div
-                class="mt-4"
-              >
 
                 <span
-                  class="rounded-md bg-[#eef2f5] px-2.5 py-1 text-xs font-medium text-[#59636d]"
+                  class="text-xs text-[#858c94]"
                 >
-                  Origen:
-                  {{ formatOrigin(selectedAsiento()!.tipo_origen) }}
+                  {{ selectedAsiento()!.detalles.length }}
+                  detalles
                 </span>
 
               </div>
 
-            </div>
 
-          </section>
+              <div class="accounting-scroll overflow-x-auto">
 
-
-
-          <!-- ===================================================
-               2. DETALLES
-               =================================================== -->
-
-          <section
-            class="mt-6 rounded-xl border border-[#dfe4e8] bg-white"
-          >
-
-            <div
-              class="border-b border-[#e8ebee] bg-[#fafbfc] px-5 py-4"
-            >
-
-              <div class="flex items-center gap-3">
-
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#17324d] text-white"
-                >
-
-                  <iconify-icon
-                    icon="lucide:list"
-                    class="text-[15px]"
-                  ></iconify-icon>
-
-                </div>
-
-                <div>
-
-                  <p
-                    class="text-[11px] font-semibold uppercase tracking-wide text-[#7c858e]"
-                  >
-                    2 · Movimientos
-                  </p>
-
-                  <h3
-                    class="mt-0.5 text-sm font-semibold text-[#26313a]"
-                  >
-                    Detalles del asiento
-                  </h3>
-
-                  <p
-                    class="mt-1 text-xs text-[#858d96]"
-                  >
-                    {{ selectedAsiento()!.detalles.length }}
-                    {{
-                      selectedAsiento()!.detalles.length === 1
-                        ? 'detalle registrado'
-                        : 'detalles registrados'
-                    }}
-                  </p>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div class="p-5">
-
-              <div
-                class="overflow-x-auto rounded-lg border border-[#e1e5e8]"
-              >
-
-                <table
-                  class="w-full min-w-[650px] border-collapse"
-                >
+                <table class="w-full min-w-[650px]">
 
                   <thead>
 
                     <tr
-                      class="border-b border-[#e1e5e8] bg-[#fafbfc]"
+                      class="border-b border-[#eceef0]"
                     >
 
                       <th
-                        class="w-[55px] px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                        class="w-14 px-4 py-3 text-center text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                       >
                         #
                       </th>
 
                       <th
-                        class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                        class="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                       >
                         Cuenta
                       </th>
 
                       <th
-                        class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                        class="w-[180px] px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                       >
                         Debe
                       </th>
 
                       <th
-                        class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-[#858d96]"
+                        class="w-[180px] px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
                       >
                         Haber
                       </th>
@@ -1836,47 +1963,57 @@
 
                     @for (
                       detalle of selectedAsiento()!.detalles;
-                      track detalle.detalle_id ?? $index
+                      track detalle.detalle_id ?? $index;
+                      let i = $index
                     ) {
 
                       <tr
-                        class="border-b border-[#edf0f2] last:border-b-0"
+                        class="table-row-enter border-b border-[#f0f1f3] hover:bg-[#fcfcfd]"
+                        [style.animation-delay]="i * 30 + 'ms'"
                       >
 
                         <td
-                          class="px-4 py-3 text-center text-xs font-medium text-[#858d96]"
+                          class="px-4 py-3 text-center font-mono text-[11px] text-[#9298a0]"
                         >
-                          {{ $index + 1 }}
+                          {{ i + 1 }}
+                        </td>
+
+                        <td class="px-4 py-3">
+
+                          <div>
+
+                            <p
+                              class="text-sm font-medium text-[#3f4650]"
+                            >
+                              {{
+                                getCuenta(detalle.cuenta_id)?.codigo_cuenta
+                                ?? '—'
+                              }}
+                            </p>
+
+                            <p
+                              class="mt-0.5 text-xs text-[#858c94]"
+                            >
+                              {{
+                                getCuenta(detalle.cuenta_id)?.nombre_cuenta
+                                ?? 'Cuenta no disponible'
+                              }}
+                            </p>
+
+                          </div>
+
                         </td>
 
                         <td
-                          class="px-4 py-3 text-sm text-[#343c44]"
+                          class="px-4 py-3 text-right font-mono text-sm text-[#444b53]"
                         >
-                          {{ getNombreCuenta(detalle.cuenta_id) }}
+                          {{ formatAmount(detalle.debe) }}
                         </td>
 
                         <td
-                          class="px-4 py-3 text-right text-sm tabular-nums text-[#343c44]"
+                          class="px-4 py-3 text-right font-mono text-sm text-[#444b53]"
                         >
-
-                          @if (detalle.debe > 0) {
-                            {{ formatAmount(detalle.debe) }}
-                          } @else {
-                            —
-                          }
-
-                        </td>
-
-                        <td
-                          class="px-4 py-3 text-right text-sm tabular-nums text-[#343c44]"
-                        >
-
-                          @if (detalle.haber > 0) {
-                            {{ formatAmount(detalle.haber) }}
-                          } @else {
-                            —
-                          }
-
+                          {{ formatAmount(detalle.haber) }}
                         </td>
 
                       </tr>
@@ -1888,27 +2025,25 @@
 
                   <tfoot>
 
-                    <tr
-                      class="bg-[#fafbfc]"
-                    >
+                    <tr class="bg-[#fafbfc]">
 
                       <td
                         colspan="2"
-                        class="px-4 py-4 text-right text-sm font-semibold text-[#29323a]"
+                        class="px-4 py-3 text-right text-xs font-semibold text-[#555d66]"
                       >
-                        Totales del asiento
+                        Totales
                       </td>
 
                       <td
-                        class="px-4 py-4 text-right text-sm font-semibold tabular-nums text-[#29323a]"
+                        class="px-4 py-3 text-right font-mono text-sm font-semibold text-[#30363d]"
                       >
-                        {{ formatAmount(selectedAsiento()!.total_debe) }}
+                        C$ {{ formatAmount(selectedAsiento()!.total_debe) }}
                       </td>
 
                       <td
-                        class="px-4 py-4 text-right text-sm font-semibold tabular-nums text-[#29323a]"
+                        class="px-4 py-3 text-right font-mono text-sm font-semibold text-[#30363d]"
                       >
-                        {{ formatAmount(selectedAsiento()!.total_haber) }}
+                        C$ {{ formatAmount(selectedAsiento()!.total_haber) }}
                       </td>
 
                     </tr>
@@ -1919,85 +2054,220 @@
 
               </div>
 
+            </section>
 
-              <!-- Estado del balance -->
+
+            <!-- BALANCE -->
+
+            <div
+              class="flex items-center gap-3 rounded-xl border border-[#d8e8dc] bg-[#f7fbf8] p-4"
+            >
 
               <div
-                class="mt-4 flex items-center justify-between rounded-lg border border-[#e2e5e8] bg-[#fafbfc] px-4 py-3"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#e7f3ea] text-[#3d7950]"
               >
 
-                <div
-                  class="flex items-center gap-2"
+                <iconify-icon
+                  icon="lucide:circle-check"
+                  width="17"
+                  height="17"
+                ></iconify-icon>
+
+              </div>
+
+              <div>
+
+                <p
+                  class="text-xs font-semibold text-[#3d6849]"
                 >
+                  Asiento balanceado
+                </p>
 
-                  @if (
-                    isBalancedAmount(
-                      selectedAsiento()!.total_debe,
-                      selectedAsiento()!.total_haber
-                    )
-                  ) {
-
-                    <iconify-icon
-                      icon="lucide:check-circle"
-                      class="text-[16px] text-[#3d7146]"
-                    ></iconify-icon>
-
-                    <span
-                      class="text-xs font-medium text-[#3d7146]"
-                    >
-                      Asiento balanceado
-                    </span>
-
-                  } @else {
-
-                    <iconify-icon
-                      icon="lucide:alert-circle"
-                      class="text-[16px] text-[#a34f4f]"
-                    ></iconify-icon>
-
-                    <span
-                      class="text-xs font-medium text-[#a34f4f]"
-                    >
-                      Asiento descuadrado
-                    </span>
-
-                  }
-
-                </div>
-
-                <span
-                  class="text-xs text-[#858d96]"
+                <p
+                  class="mt-0.5 text-xs text-[#66806e]"
                 >
-                  {{ selectedAsiento()!.detalles.length }}
-                  {{
-                    selectedAsiento()!.detalles.length === 1
-                      ? 'detalle'
-                      : 'detalles'
-                  }}
-                </span>
+                  El Debe y el Haber del asiento coinciden.
+                </p>
 
               </div>
 
             </div>
 
-          </section>
+          </div>
 
         </div>
 
 
-
-        <!-- Footer -->
+        <!-- FOOTER -->
 
         <div
-          class="flex justify-end border-t border-[#e5e8eb] bg-[#fafbfc] px-6 py-4"
+          class="flex shrink-0 justify-end border-t border-[#e7e9ec] bg-[#fafbfc] px-5 py-4 md:px-6"
         >
 
           <button
             type="button"
             (click)="closeViewModal()"
-            class="cursor-pointer rounded-lg bg-[#17324d] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#214663]"
+            class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#20252b] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98]"
           >
+
+            <iconify-icon
+              icon="lucide:x"
+              width="15"
+              height="15"
+            ></iconify-icon>
+
             Cerrar
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  }
+
+
+  <!-- ===========================================================
+       MODAL ELIMINAR TODO
+       =========================================================== -->
+
+  @if (deleteAllConfirmOpen()) {
+
+    <div
+      class="modal-backdrop-enter fixed inset-0 z-[60] flex items-center justify-center bg-[#11161c]/50 p-4 backdrop-blur-[2px]"
+    >
+
+      <div
+        class="modal-panel-enter w-full max-w-[430px] overflow-hidden rounded-2xl border border-[#e2d8d8] bg-white shadow-2xl"
+      >
+
+        <div class="p-5 sm:p-6">
+
+          <div class="flex items-start gap-4">
+
+            <div
+              class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b13a3a]"
+            >
+
+              <iconify-icon
+                icon="lucide:trash-2"
+                width="19"
+                height="19"
+              ></iconify-icon>
+
+            </div>
+
+            <div>
+
+              <h2
+                class="text-base font-semibold text-[#30363d]"
+              >
+                Eliminar todos los asientos
+              </h2>
+
+              <p
+                class="mt-1 text-xs leading-5 text-[#777e86]"
+              >
+                Esta acción eliminará todos los encabezados y sus
+                respectivos detalles contables.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="mt-5 rounded-xl border border-[#eadede] bg-[#fffafa] p-4"
+          >
+
+            <div
+              class="flex items-center justify-between"
+            >
+
+              <span
+                class="text-xs text-[#777e86]"
+              >
+                Registros afectados
+              </span>
+
+              <span
+                class="font-mono text-sm font-semibold text-[#9d3b3b]"
+              >
+                {{ totalAsientos() }}
+              </span>
+
+            </div>
+
+            <div
+              class="mt-3 flex items-start gap-2 text-[11px] leading-4 text-[#976b6b]"
+            >
+
+              <iconify-icon
+                icon="lucide:triangle-alert"
+                width="13"
+                height="13"
+                class="mt-0.5 shrink-0"
+              ></iconify-icon>
+
+              <span>
+                Verifica que realmente deseas eliminar estos registros
+                antes de continuar.
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="flex flex-col-reverse gap-2 border-t border-[#eee7e7] bg-[#fffdfd] px-5 py-4 sm:flex-row sm:justify-end"
+        >
+
+          <button
+            type="button"
+            (click)="closeDeleteAllConfirmation()"
+            [disabled]="loadingAsientos()"
+            class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+
+
+          <button
+            type="button"
+            (click)="confirmDeleteAllEntries()"
+            [disabled]="loadingAsientos()"
+            class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#b13a3a] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#9f3030] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+
+            @if (loadingAsientos()) {
+
+              <iconify-icon
+                icon="lucide:loader-circle"
+                width="15"
+                height="15"
+                class="animate-spin"
+              ></iconify-icon>
+
+              Eliminando...
+
+            } @else {
+
+              <iconify-icon
+                icon="lucide:trash-2"
+                width="15"
+                height="15"
+              ></iconify-icon>
+
+              Eliminar todo
+
+            }
+
           </button>
 
         </div>

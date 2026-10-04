@@ -110,7 +110,7 @@ export class CatalogoCuentasService {
     // DELETE RAMA BY CUENTA ID
     deleteCuentaRama(id: number) {
         return this.http.delete(
-            `${this.url}/${id}/rama`,
+            `${this.url}/rama/${id}`,
             {
                 withCredentials: true
             }

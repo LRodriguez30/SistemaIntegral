@@ -34,6 +34,8 @@ import { RefreshTokens } from './SistemaMonitoreo/admin/contalab/refresh_tokens/
 import { CatalogoCuentasComponent } from './SistemaMonitoreo/admin/contalab/contabilidad/catalogo_cuentas/catalogo_cuentas';
 import { AsientosContablesComponent } from './SistemaMonitoreo/admin/contalab/contabilidad/asientos_contables/asientos_contables';
 import { EstadosFinancierosComponent } from './SistemaMonitoreo/admin/contalab/analisis/estados_financieros/estados_financieros';
+import { EmpleadosComponent } from './SistemaMonitoreo/admin/contalab/personal/empleados/empleados';
+import { NominaComponent } from './SistemaMonitoreo/admin/contalab/personal/nomina/nomina';
 
 export const routes: Routes = [
     // Rutas Sistema Comercial
@@ -191,6 +193,18 @@ export const routes: Routes = [
                         path: 'contalab/contabilidad/asientos-contables',
                         title: 'Contalab | Contabilidad | Asientos Contables',
                         component: AsientosContablesComponent
+                    },
+
+                    {
+                        path: 'contalab/personal/empleados',
+                        title: 'Contalab | Personal | Empleados',
+                        component: EmpleadosComponent
+                    },
+
+                    {
+                        path: 'contalab/personal/nomina',
+                        title: 'Contalab | Personal | Nómina',
+                        component: NominaComponent
                     },
 
                     {

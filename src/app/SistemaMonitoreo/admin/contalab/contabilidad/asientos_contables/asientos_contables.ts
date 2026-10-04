@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
   computed,
@@ -159,7 +160,218 @@ interface AsientoForm {
     CUSTOM_ELEMENTS_SCHEMA
   ],
 
-  templateUrl: './asientos_contables.html'
+  templateUrl: './asientos_contables.html',
+
+  changeDetection: ChangeDetectionStrategy.OnPush,
+
+  styles: [`
+
+    :host {
+      display: block;
+      min-height: 100%;
+    }
+
+    /* =========================================================
+       ENTRADA DE PANTALLA
+       ========================================================= */
+
+    .accounting-page-enter {
+      animation: accounting-page-enter 360ms ease-out both;
+    }
+
+    @keyframes accounting-page-enter {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================================================
+       BACKDROP DE MODALES
+       ========================================================= */
+
+    .modal-backdrop-enter {
+      animation: modal-backdrop-enter 180ms ease-out both;
+    }
+
+    @keyframes modal-backdrop-enter {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+
+    /* =========================================================
+       PANEL DE MODAL
+       ========================================================= */
+
+    .modal-panel-enter {
+      animation: modal-panel-enter 220ms cubic-bezier(.22, 1, .36, 1) both;
+    }
+
+    @keyframes modal-panel-enter {
+      from {
+        opacity: 0;
+        transform: translateY(14px) scale(.985);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+
+    /* =========================================================
+       FILAS
+       ========================================================= */
+
+    .table-row-enter {
+      animation: table-row-enter 260ms ease-out both;
+    }
+
+    @keyframes table-row-enter {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================================================
+       RESUMEN
+       ========================================================= */
+
+    .summary-card-enter {
+      animation: summary-card-enter 320ms ease-out both;
+    }
+
+    @keyframes summary-card-enter {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+
+    /* =========================================================
+       SKELETON
+       ========================================================= */
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      background: #e9ebee;
+    }
+
+    .skeleton::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, .65),
+        transparent
+      );
+      animation: skeleton-shimmer 1.35s infinite;
+    }
+
+    @keyframes skeleton-shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+
+    /* =========================================================
+       PULSO DE ESTADO
+       ========================================================= */
+
+    .status-pulse {
+      animation: status-pulse 240ms ease-out;
+    }
+
+    @keyframes status-pulse {
+      0% {
+        transform: scale(.96);
+        opacity: .5;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+
+    /* =========================================================
+       SCROLLBAR
+       ========================================================= */
+
+    .accounting-scroll::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .accounting-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .accounting-scroll::-webkit-scrollbar-thumb {
+      background: #d5d8dc;
+      border-radius: 999px;
+    }
+
+    .accounting-scroll::-webkit-scrollbar-thumb:hover {
+      background: #bfc3c8;
+    }
+
+
+    /* =========================================================
+       REDUCE MOTION
+       ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .accounting-page-enter,
+      .modal-backdrop-enter,
+      .modal-panel-enter,
+      .table-row-enter,
+      .summary-card-enter,
+      .status-pulse,
+      .skeleton::after {
+        animation: none !important;
+      }
+
+      * {
+        scroll-behavior: auto !important;
+      }
+
+    }
+
+  `]
 
 })
 export class AsientosContablesComponent
@@ -190,6 +402,9 @@ export class AsientosContablesComponent
   readonly selectedOrigin =
     signal<TipoOrigen | 'TODOS'>('TODOS');
 
+  readonly selectedYear =
+    signal<number | 'TODOS'>('TODOS');
+
 
   /* =============================================================
      CARGA
@@ -202,15 +417,12 @@ export class AsientosContablesComponent
     signal(false);
 
 
-  /* =============================================================
-     ESTADO PARA ACCIONES DEL HEADER
-     ============================================================= */
-
   readonly loadingAsientos =
     computed(() =>
       this.loading() ||
       this.saving()
     );
+
 
   readonly hasAsientos =
     computed(() =>
@@ -238,6 +450,9 @@ export class AsientosContablesComponent
 
   readonly selectedAsiento =
     signal<AsientoContable | null>(null);
+
+  readonly deleteAllConfirmOpen =
+    signal(false);
 
 
   /* =============================================================
@@ -295,14 +510,6 @@ export class AsientosContablesComponent
 
   /* =============================================================
      CARGAR DATOS
-     -------------------------------------------------------------
-     Se cargan:
-
-     - Catálogo de cuentas
-     - Encabezados de asientos
-     - Todos los detalles
-
-     Los detalles se agrupan posteriormente por asiento_id.
      ============================================================= */
 
   private loadData(): void {
@@ -369,9 +576,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     ACTUALIZAR DATOS
-     -------------------------------------------------------------
-     Método utilizado por el botón "Actualizar" del HTML.
+     ACTUALIZAR
      ============================================================= */
 
   loadAccountingEntries(): void {
@@ -386,9 +591,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CREAR PLANTILLA BASE
-     -------------------------------------------------------------
-     POST /asientos-contables/layout
+     PLANTILLA BASE
      ============================================================= */
 
   generateBaseEntries(): void {
@@ -432,9 +635,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CREAR PLANTILLA COMPLETA
-     -------------------------------------------------------------
-     POST /asientos-contables/full-layout
+     PLANTILLA COMPLETA
      ============================================================= */
 
   generateFullBaseEntries(): void {
@@ -478,11 +679,42 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     ELIMINAR TODOS LOS REGISTROS
-     -------------------------------------------------------------
-     Primero se eliminan los detalles y después los encabezados
-     porque los detalles tienen una FK hacia los asientos.
+     ELIMINAR TODO
      ============================================================= */
+
+  openDeleteAllConfirmation(): void {
+
+    if (
+      this.loadingAsientos() ||
+      !this.hasAsientos()
+    ) {
+      return;
+    }
+
+    this.deleteAllConfirmOpen.set(true);
+
+  }
+
+
+  closeDeleteAllConfirmation(): void {
+
+    if (this.loadingAsientos()) {
+      return;
+    }
+
+    this.deleteAllConfirmOpen.set(false);
+
+  }
+
+
+  async confirmDeleteAllEntries(): Promise<void> {
+
+    this.deleteAllConfirmOpen.set(false);
+
+    await this.deleteAllEntries();
+
+  }
+
 
   deleteAllEntries(): void {
 
@@ -528,7 +760,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     ELIMINAR TODOS LOS ENCABEZADOS
+     ELIMINAR ENCABEZADOS
      ============================================================= */
 
   private deleteAllAsientos(): void {
@@ -566,7 +798,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     COMBINAR ASIENTOS + DETALLES
+     COMBINAR ASIENTOS
      ============================================================= */
 
   private combineAsientos(
@@ -647,7 +879,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     INFORMACIÓN DEL FORMULARIO
+     CUENTAS DE MOVIMIENTO
      ============================================================= */
 
   readonly cuentasMovimiento =
@@ -667,22 +899,45 @@ export class AsientosContablesComponent
   readonly tiposOrigen: TipoOrigen[] = [
 
     'VENTA',
-
     'COMPRA',
-
     'CAJA',
-
     'BANCO',
-
     'NOMINA',
-
     'AJUSTE',
-
     'DEPRECIACION',
-
     'CIERRE'
 
   ];
+
+
+  /* =============================================================
+     AÑOS
+     ============================================================= */
+
+  readonly years =
+    computed(() => {
+
+      const years =
+        this.asientos()
+          .map(
+            asiento =>
+              Number(
+                asiento.fecha.slice(0, 4)
+              )
+          )
+          .filter(
+            year =>
+              Number.isFinite(year)
+          );
+
+      return [
+        ...new Set(years)
+      ].sort(
+        (a, b) =>
+          b - a
+      );
+
+    });
 
 
   /* =============================================================
@@ -699,6 +954,9 @@ export class AsientosContablesComponent
 
       const origin =
         this.selectedOrigin();
+
+      const year =
+        this.selectedYear();
 
       return this.asientos()
         .filter(
@@ -725,9 +983,16 @@ export class AsientosContablesComponent
               origin === 'TODOS' ||
               asiento.tipo_origen === origin;
 
+            const matchesYear =
+              year === 'TODOS' ||
+              Number(
+                asiento.fecha.slice(0, 4)
+              ) === year;
+
             return (
               matchesSearch &&
-              matchesOrigin
+              matchesOrigin &&
+              matchesYear
             );
 
           }
@@ -761,7 +1026,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CANTIDAD DE DETALLES
+     DETALLES
      ============================================================= */
 
   readonly detalleCount =
@@ -771,7 +1036,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     TOTALES DEL FORMULARIO
+     TOTALES
      ============================================================= */
 
   readonly totalDebe =
@@ -829,7 +1094,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CAMBIOS RESPECTO AL ASIENTO ORIGINAL
+     CAMBIOS
      ============================================================= */
 
   readonly hasChanges =
@@ -906,7 +1171,11 @@ export class AsientosContablesComponent
         detalles.every(
           detalle => {
 
-            if (this.isDetailLocked(detalle)) {
+            if (
+              this.isDetailLocked(
+                detalle
+              )
+            ) {
               return true;
             }
 
@@ -958,7 +1227,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CREAR ASIENTO
+     CREAR
      ============================================================= */
 
   createEntry(): void {
@@ -976,7 +1245,6 @@ export class AsientosContablesComponent
       detalles: [
 
         this.createEmptyDetail(),
-
         this.createEmptyDetail()
 
       ]
@@ -991,12 +1259,16 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     EDITAR ASIENTO
+     EDITAR
      ============================================================= */
 
   editEntry(
     asiento: AsientoContable
   ): void {
+
+    if (this.loadingAsientos()) {
+      return;
+    }
 
     this.selectedAsiento.set(
       asiento
@@ -1029,20 +1301,22 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     VER ASIENTO
+     VER
      ============================================================= */
 
   viewEntry(
     asiento: AsientoContable
   ): void {
 
+    if (this.loadingAsientos()) {
+      return;
+    }
+
     this.selectedAsiento.set(
       asiento
     );
 
-    this.viewModalOpen.set(
-      true
-    );
+    this.viewModalOpen.set(true);
 
   }
 
@@ -1052,6 +1326,10 @@ export class AsientosContablesComponent
      ============================================================= */
 
   closeFormModal(): void {
+
+    if (this.saving()) {
+      return;
+    }
 
     this.modalMode.set(null);
 
@@ -1078,6 +1356,10 @@ export class AsientosContablesComponent
      ============================================================= */
 
   addDetail(): void {
+
+    if (this.saving()) {
+      return;
+    }
 
     this.form.update(
       current => ({
@@ -1106,13 +1388,16 @@ export class AsientosContablesComponent
     index: number
   ): void {
 
+    if (this.saving()) {
+      return;
+    }
+
     const current =
       this.form();
 
     if (
       index < 0 ||
-      index >=
-        current.detalles.length
+      index >= current.detalles.length
     ) {
       return;
     }
@@ -1151,6 +1436,10 @@ export class AsientosContablesComponent
     value: string
   ): void {
 
+    if (this.saving()) {
+      return;
+    }
+
     const cuentaId =
       value
         ? Number(value)
@@ -1163,7 +1452,11 @@ export class AsientosContablesComponent
       return;
     }
 
-    if (this.isDetailLocked(detalles[index])) {
+    if (
+      this.isDetailLocked(
+        detalles[index]
+      )
+    ) {
       return;
     }
 
@@ -1191,6 +1484,10 @@ export class AsientosContablesComponent
     index: number,
     value: string
   ): void {
+
+    if (this.saving()) {
+      return;
+    }
 
     const debe =
       this.parseAmount(
@@ -1233,6 +1530,10 @@ export class AsientosContablesComponent
     value: string
   ): void {
 
+    if (this.saving()) {
+      return;
+    }
+
     const haber =
       this.parseAmount(
         value
@@ -1266,7 +1567,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     GUARDAR ASIENTO
+     GUARDAR
      ============================================================= */
 
   saveEntry(): void {
@@ -1305,11 +1606,6 @@ export class AsientosContablesComponent
 
   /* =============================================================
      CREAR EN BACKEND
-     -------------------------------------------------------------
-     Primero se crea el encabezado para obtener
-     el asiento_id generado por PostgreSQL.
-
-     Después se crean todos sus detalles.
      ============================================================= */
 
   private createEntryInBackend(): void {
@@ -1404,7 +1700,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CREAR DETALLES DESPUÉS DEL ENCABEZADO
+     CREAR DETALLES
      ============================================================= */
 
   private createDetailsAfterHeader(
@@ -1455,10 +1751,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     ACTUALIZAR ASIENTO EN BACKEND
-     -------------------------------------------------------------
-     Solo se envía al encabezado lo que realmente cambió.
-     Si el encabezado no cambió, se salta directo a los detalles.
+     ACTUALIZAR ASIENTO
      ============================================================= */
 
   private updateEntryInBackend(): void {
@@ -1527,16 +1820,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     ACTUALIZAR DETALLES EN BACKEND
-     -------------------------------------------------------------
-     Existente y modificado:
-       PATCH (solo campos modificados)
-
-     Nuevo:
-       POST
-
-     Eliminado:
-       DELETE
+     ACTUALIZAR DETALLES
      ============================================================= */
 
   private updateDetailsInBackend(
@@ -1709,7 +1993,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     FINALIZAR GUARDADO
+     FINALIZAR
      ============================================================= */
 
   private finishSave(): void {
@@ -1725,9 +2009,6 @@ export class AsientosContablesComponent
 
   /* =============================================================
      ELIMINAR ASIENTO
-     -------------------------------------------------------------
-     Primero elimina sus detalles porque la FK de detalles
-     referencia al asiento.
      ============================================================= */
 
   deleteEntry(
@@ -1843,6 +2124,7 @@ export class AsientosContablesComponent
   ): boolean {
 
     return (
+
       currentForm.fecha !==
         asiento.fecha ||
 
@@ -1851,6 +2133,7 @@ export class AsientosContablesComponent
 
       currentForm.tipo_origen !==
         asiento.tipo_origen
+
     );
 
   }
@@ -1895,47 +2178,13 @@ export class AsientosContablesComponent
 
     }
 
-    const totalDebe =
-      this.roundAmount(
-        this.totalDebe()
-      );
-
-    const totalHaber =
-      this.roundAmount(
-        this.totalHaber()
-      );
-
-    if (
-      totalDebe !==
-      this.roundAmount(
-        asiento.total_debe
-      )
-    ) {
-
-      dto.total_debe =
-        totalDebe;
-
-    }
-
-    if (
-      totalHaber !==
-      this.roundAmount(
-        asiento.total_haber
-      )
-    ) {
-
-      dto.total_haber =
-        totalHaber;
-
-    }
-
     return dto;
 
   }
 
 
   /* =============================================================
-     CAMBIOS DE LOS DETALLES
+     CAMBIOS DE DETALLES
      ============================================================= */
 
   private hasDetailsChanges(
@@ -1947,7 +2196,9 @@ export class AsientosContablesComponent
       detalles.length !==
       asiento.detalles.length
     ) {
+
       return true;
+
     }
 
     return detalles.some(
@@ -1956,7 +2207,9 @@ export class AsientosContablesComponent
         if (
           detalle.detalle_id === null
         ) {
+
           return true;
+
         }
 
         const original =
@@ -1967,7 +2220,9 @@ export class AsientosContablesComponent
           );
 
         if (!original) {
+
           return true;
+
         }
 
         return (
@@ -2033,7 +2288,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     BUSCAR CUENTA
+     CUENTAS
      ============================================================= */
 
   getCuenta(
@@ -2043,7 +2298,9 @@ export class AsientosContablesComponent
     if (
       cuentaId === null
     ) {
+
       return null;
+
     }
 
     return (
@@ -2056,12 +2313,17 @@ export class AsientosContablesComponent
 
   }
 
+
   isDetailLocked(
     detalle: DetalleAsiento
   ): boolean {
 
-    if (detalle.detalle_id === null) {
+    if (
+      detalle.detalle_id === null
+    ) {
+
       return false;
+
     }
 
     const cuenta =
@@ -2069,7 +2331,10 @@ export class AsientosContablesComponent
         detalle.cuenta_id
       );
 
-    return !!cuenta && !cuenta.estado;
+    return (
+      !!cuenta &&
+      !cuenta.estado
+    );
 
   }
 
@@ -2088,7 +2353,9 @@ export class AsientosContablesComponent
       );
 
     if (!cuenta) {
+
       return 'Sin cuenta';
+
     }
 
     return `${cuenta.codigo_cuenta} - ${cuenta.nombre_cuenta}`;
@@ -2108,7 +2375,9 @@ export class AsientosContablesComponent
   ): string {
 
     if (!origin) {
+
       return '—';
+
     }
 
     return origin;
@@ -2147,17 +2416,13 @@ export class AsientosContablesComponent
 
     return {
 
-      detalle_id:
-        null,
+      detalle_id: null,
 
-      cuenta_id:
-        null,
+      cuenta_id: null,
 
-      debe:
-        0,
+      debe: 0,
 
-      haber:
-        0
+      haber: 0
 
     };
 
@@ -2165,7 +2430,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CLONAR DETALLES DEL ASIENTO
+     CLONAR DETALLES
      ============================================================= */
 
   private cloneDetailsFrom(
@@ -2174,18 +2439,12 @@ export class AsientosContablesComponent
 
     return detalles.map(
       detalle => ({
-
         ...detalle
-
       })
     );
 
   }
 
-
-  /* =============================================================
-     CLONAR DETALLES DEL FORMULARIO
-     ============================================================= */
 
   private cloneDetails():
     DetalleAsiento[] {
@@ -2194,9 +2453,7 @@ export class AsientosContablesComponent
       .detalles
       .map(
         detalle => ({
-
           ...detalle
-
         })
       );
 
@@ -2225,7 +2482,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     FECHA ACTUAL
+     FECHA
      ============================================================= */
 
   private getToday():
@@ -2282,7 +2539,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     CONVERTIR A NÚMERO
+     NÚMEROS
      ============================================================= */
 
   private toNumber(
@@ -2356,7 +2613,7 @@ export class AsientosContablesComponent
 
 
   /* =============================================================
-     VALIDAR BALANCE
+     BALANCE
      ============================================================= */
 
   isBalancedAmount(
@@ -2373,6 +2630,26 @@ export class AsientosContablesComponent
           haber
         )
       ) < 0.005
+    );
+
+  }
+
+
+  /* =============================================================
+     AÑO
+     ============================================================= */
+
+  setSelectedYear(
+    value: string
+  ): void {
+
+    this.selectedYear.set(
+      value === 'TODOS'
+        ? 'TODOS'
+        : parseInt(
+            value,
+            10
+          )
     );
 
   }
