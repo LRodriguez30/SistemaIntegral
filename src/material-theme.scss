@@ -420,3 +420,33 @@ app-root {
 .pasos-accent-border {
     border-color: #c7d2fe;
 }
+
+.contalab-mat-field {
+    width: 100%;
+}
+
+.contalab-mat-field
+    .mat-mdc-text-field-wrapper {
+    background-color: #ffffff !important;
+    border-radius: 8px !important;
+}
+
+.contalab-mat-field
+    .mat-mdc-form-field-flex {
+    background-color: #ffffff !important;
+}
+
+.contalab-mat-field
+    .mdc-notched-outline {
+    border-color: #dfe2e6 !important;
+}
+
+.contalab-mat-field:hover
+    .mdc-notched-outline {
+    border-color: #cfd3d8 !important;
+}
+
+.contalab-mat-field.mat-focused
+    .mdc-notched-outline {
+    border-color: #9ca3ab !important;
+}

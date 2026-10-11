@@ -1,0 +1,1531 @@
+<section
+    class="accounting-page-enter min-h-full bg-[#f5f6f8] px-3 py-4 text-[#20252b] sm:px-4 sm:py-5 md:px-6 md:py-6"
+>
+    <div class="mx-auto max-w-[1600px] space-y-5">
+
+        <!-- =========================================================
+             HEADER
+             ========================================================= -->
+
+        <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+
+            <div class="min-w-0">
+
+                <div class="mb-2 flex items-center gap-2 text-xs font-medium text-[#7b828b]">
+                    <span>Ventas</span>
+
+                    <iconify-icon
+                        icon="lucide:chevron-right"
+                        width="13"
+                        height="13"
+                    ></iconify-icon>
+
+                    <span class="text-[#4f565e]">Facturas</span>
+                </div>
+
+                <div class="flex items-start gap-3">
+
+                    <div
+                        class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#e1e4e8] bg-white text-[#30363d] shadow-sm"
+                    >
+                        <iconify-icon
+                            icon="lucide:file-text"
+                            width="19"
+                            height="19"
+                        ></iconify-icon>
+                    </div>
+
+                    <div class="min-w-0">
+
+                        <h1
+                            class="text-xl font-semibold tracking-[-0.02em] text-[#20252b] sm:text-2xl"
+                        >
+                            Facturas
+                        </h1>
+
+                        <p class="mt-1 max-w-2xl text-sm leading-5 text-[#747b84]">
+                            Factura los pedidos de tus clientes y controla cuánto se ha cobrado de cada una.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="flex flex-wrap items-center gap-2">
+
+                <button
+                    type="button"
+                    (click)="refreshData()"
+                    [disabled]="loadingFacturas()"
+                    class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm font-medium text-[#4b525a] shadow-sm transition-all duration-200 ease-out hover:-translate-y-px hover:border-[#cfd3d8] hover:bg-[#fafbfc] hover:text-[#20252b] hover:shadow active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                >
+                    <iconify-icon
+                        icon="lucide:refresh-cw"
+                        width="15"
+                        height="15"
+                        class="transition-transform duration-300 group-hover:rotate-45"
+                        [class.animate-spin]="loading()"
+                    ></iconify-icon>
+
+                    <span>
+                        {{ loading() ? 'Actualizando...' : 'Actualizar' }}
+                    </span>
+                </button>
+
+
+                <button
+                    type="button"
+                    (click)="openCreateFactura()"
+                    [disabled]="loadingFacturas()"
+                    class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#20252b] px-3.5 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                    <iconify-icon
+                        icon="lucide:plus"
+                        width="16"
+                        height="16"
+                        class="transition-transform duration-200 group-hover:rotate-90"
+                    ></iconify-icon>
+
+                    <span>Nueva factura</span>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================================================
+             ERROR
+             ========================================================= -->
+
+        @if (errorMessage()) {
+
+            <div
+                class="status-pulse flex items-start gap-3 rounded-xl border border-[#f0d7d7] bg-white px-4 py-3 shadow-sm"
+            >
+                <div
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff1f1] text-[#b13a3a]"
+                >
+                    <iconify-icon
+                        icon="lucide:triangle-alert"
+                        width="16"
+                        height="16"
+                    ></iconify-icon>
+                </div>
+
+                <div class="min-w-0">
+
+                    <p class="text-sm font-semibold text-[#343a40]">
+                        No fue posible completar la operación
+                    </p>
+
+                    <p class="mt-0.5 text-xs text-[#777e86]">
+                        {{ errorMessage() }}
+                    </p>
+
+                </div>
+            </div>
+
+        }
+
+
+        <!-- =========================================================
+             RESUMEN
+             ========================================================= -->
+
+        @if (loading()) {
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
+                @for (item of [1, 2, 3, 4]; track item) {
+
+                    <div
+                        class="summary-card-enter rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm"
+                    >
+                        <div class="flex items-center justify-between">
+
+                            <div class="space-y-2">
+                                <div class="skeleton h-3 w-24 rounded"></div>
+                                <div class="skeleton h-7 w-28 rounded"></div>
+                            </div>
+
+                            <div class="skeleton h-10 w-10 rounded-xl"></div>
+
+                        </div>
+                    </div>
+
+                }
+
+            </div>
+
+        } @else {
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+
+                <div
+                    class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]">
+                                Facturas
+                            </p>
+
+                            <p class="mt-1 text-2xl font-semibold tracking-[-0.03em] text-[#20252b]">
+                                {{ facturas().length }}
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e2e5e8] bg-[#f8f9fa] text-[#555c64] transition-all duration-200 group-hover:scale-105 group-hover:bg-white"
+                        >
+                            <iconify-icon
+                                icon="lucide:files"
+                                width="18"
+                                height="18"
+                            ></iconify-icon>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div
+                    class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]">
+                                Total facturado
+                            </p>
+
+                            <p class="mt-1 font-mono text-2xl font-semibold tracking-[-0.03em] text-[#20252b]">
+                                C$ {{ formatAmount(totalFacturado()) }}
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dde6f0] bg-[#f5f9fd] text-[#3b6288] transition-all duration-200 group-hover:scale-105"
+                        >
+                            <iconify-icon
+                                icon="lucide:receipt"
+                                width="18"
+                                height="18"
+                            ></iconify-icon>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div
+                    class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]">
+                                Total cobrado
+                            </p>
+
+                            <p class="mt-1 font-mono text-2xl font-semibold tracking-[-0.03em] text-[#20252b]">
+                                C$ {{ formatAmount(totalCobrado()) }}
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#dce9df] bg-[#f4faf5] text-[#3c7650] transition-all duration-200 group-hover:scale-105"
+                        >
+                            <iconify-icon
+                                icon="lucide:trending-up"
+                                width="18"
+                                height="18"
+                            ></iconify-icon>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div
+                    class="summary-card-enter group rounded-xl border border-[#e3e6e9] bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-px hover:border-[#d8dce0] hover:shadow-md"
+                >
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <p class="text-xs font-medium uppercase tracking-[0.08em] text-[#858c94]">
+                                Por cobrar
+                            </p>
+
+                            <p class="mt-1 font-mono text-2xl font-semibold tracking-[-0.03em] text-[#20252b]">
+                                C$ {{ formatAmount(totalPorCobrar()) }}
+                            </p>
+
+                        </div>
+
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-[#e2e5e8] bg-[#20252b] text-white transition-all duration-200 group-hover:scale-105"
+                        >
+                            <iconify-icon
+                                icon="lucide:wallet"
+                                width="18"
+                                height="18"
+                            ></iconify-icon>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+        }
+
+
+        <!-- =========================================================
+             LISTADO DE FACTURAS
+             ========================================================= -->
+
+        <section
+            class="overflow-hidden rounded-xl border border-[#e1e4e8] bg-white shadow-sm"
+        >
+
+            <div
+                class="flex flex-col gap-3 border-b border-[#e8eaed] px-4 py-3 md:px-5 xl:flex-row xl:items-center xl:justify-between"
+            >
+
+                <div class="relative xl:w-[320px]">
+
+                    <iconify-icon
+                        icon="lucide:search"
+                        width="15"
+                        height="15"
+                        class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#8a9199]"
+                    ></iconify-icon>
+
+                    <input
+                        type="text"
+                        [value]="searchTerm()"
+                        (input)="searchTerm.set($any($event.target).value)"
+                        placeholder="Buscar por número, cliente o pedido..."
+                        class="h-9 w-full rounded-lg border border-[#dfe2e6] bg-[#fafbfc] pl-9 pr-3 text-sm text-[#30363d] outline-none transition-all duration-200 placeholder:text-[#a0a6ad] focus:border-[#9ca3ab] focus:bg-white focus:ring-2 focus:ring-[#20252b]/5"
+                    />
+
+                </div>
+
+
+                <div
+                    class="accounting-scroll inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-lg border border-[#e3e6e9] bg-[#f6f7f8] p-1"
+                >
+
+                    @for (filtro of filtros; track filtro.id) {
+
+                        <button
+                            type="button"
+                            (click)="setFiltro(filtro.id)"
+                            class="inline-flex h-7 shrink-0 cursor-pointer items-center rounded-md px-3 text-xs font-medium transition-all duration-150"
+                            [class]="
+                                filtroEstado() === filtro.id
+                                    ? 'bg-white text-[#20252b] shadow-sm'
+                                    : 'text-[#69717a] hover:text-[#30363d]'
+                            "
+                        >
+                            {{ filtro.label }}
+                        </button>
+
+                    }
+
+                </div>
+
+            </div>
+
+
+            <div class="accounting-scroll max-h-[calc(100vh-360px)] min-h-[340px] overflow-auto">
+
+                <table class="w-full min-w-[1150px] border-collapse">
+
+                    <thead>
+
+                        <tr class="border-b border-[#e8eaed] bg-[#fafbfc]">
+
+                            @for (
+                                titulo of [
+                                    'Factura',
+                                    'Fecha',
+                                    'Cliente',
+                                    'Pedido',
+                                    'Total',
+                                    'Cobrado',
+                                    'Saldo',
+                                    'Estado',
+                                    'Acciones'
+                                ];
+                                track titulo
+                            ) {
+
+                                <th
+                                    class="sticky top-0 z-10 bg-[#fafbfc] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#858c94]"
+                                    [class]="
+                                        titulo === 'Total' ||
+                                        titulo === 'Cobrado' ||
+                                        titulo === 'Saldo'
+                                            ? 'text-right'
+                                            : 'text-left'
+                                    "
+                                >
+                                    {{ titulo }}
+                                </th>
+
+                            }
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        @if (loading()) {
+
+                            @for (row of [1, 2, 3, 4, 5, 6]; track row) {
+
+                                <tr class="border-b border-[#f0f1f3]">
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton h-4 w-14 rounded"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton h-4 w-24 rounded"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+
+                                        <div class="flex items-center gap-3">
+
+                                            <div class="skeleton h-9 w-9 shrink-0 rounded-full"></div>
+
+                                            <div class="skeleton h-4 w-36 rounded"></div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton h-4 w-14 rounded"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton ml-auto h-4 w-24 rounded"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton ml-auto h-4 w-24 rounded"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton ml-auto h-4 w-24 rounded"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+                                        <div class="skeleton h-6 w-20 rounded-full"></div>
+                                    </td>
+
+                                    <td class="px-5 py-4">
+
+                                        <div class="flex gap-1">
+                                            <div class="skeleton h-8 w-8 rounded-lg"></div>
+                                            <div class="skeleton h-8 w-8 rounded-lg"></div>
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        } @else {
+
+                            @for (
+                                factura of facturasFiltradas();
+                                track factura.factura_id;
+                                let i = $index
+                            ) {
+
+                                <tr
+                                    class="table-row-enter border-b border-[#f0f1f3] transition-colors duration-150 hover:bg-[#fafbfc]"
+                                    [class.opacity-60]="normalizeEstado(factura.estado) === 'ANULADA'"
+                                    [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                                >
+
+                                    <td class="px-5 py-3">
+                                        <span class="font-mono text-xs font-medium text-[#69717a]">
+                                            #{{ factura.factura_id }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-5 py-3">
+                                        <span class="text-sm text-[#555d66]">
+                                            {{ formatDate(factura.fecha) }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-5 py-3">
+
+                                        <div class="flex items-center gap-3">
+
+                                            <div
+                                                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-[11px] font-semibold text-white"
+                                            >
+                                                {{ getClienteIniciales(factura.cliente_id) }}
+                                            </div>
+
+                                            <div class="min-w-0">
+
+                                                <p class="truncate text-sm font-medium text-[#30363d]">
+                                                    {{ getClienteNombre(factura.cliente_id) }}
+                                                </p>
+
+                                                @if (getClienteEmpresa(factura.cliente_id)) {
+
+                                                    <p class="mt-0.5 truncate text-xs text-[#9298a0]">
+                                                        {{ getClienteEmpresa(factura.cliente_id) }}
+                                                    </p>
+
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="px-5 py-3">
+                                        <span class="font-mono text-xs text-[#69717a]">
+                                            #{{ factura.pedido_id }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-5 py-3 text-right">
+                                        <span class="font-mono text-sm font-medium text-[#3f4650]">
+                                            C$ {{ formatAmount(getResumen(factura.factura_id).total) }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-5 py-3">
+
+                                        <div class="ml-auto w-[130px]">
+
+                                            <p class="text-right font-mono text-sm text-[#555d66]">
+                                                C$ {{ formatAmount(getResumen(factura.factura_id).pagado) }}
+                                            </p>
+
+                                            <div class="mt-1.5 h-1 overflow-hidden rounded-full bg-[#eceef0]">
+
+                                                <div
+                                                    class="h-full rounded-full bg-[#4d8c5c] transition-all duration-500"
+                                                    [style.width.%]="getPorcentajeCobrado(factura.factura_id)"
+                                                ></div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td class="px-5 py-3 text-right">
+
+                                        <span
+                                            class="font-mono text-sm font-semibold"
+                                            [class]="
+                                                getResumen(factura.factura_id).saldo > 0.005
+                                                    ? 'text-[#9d3b3b]'
+                                                    : 'text-[#477553]'
+                                            "
+                                        >
+                                            C$ {{ formatAmount(getResumen(factura.factura_id).saldo) }}
+                                        </span>
+
+                                    </td>
+
+                                    <td class="px-5 py-3">
+
+                                        <span
+                                            class="inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium"
+                                            [class]="estadoBadgeClass(factura.estado)"
+                                        >
+                                            {{ formatEstado(factura.estado) }}
+                                        </span>
+
+                                    </td>
+
+                                    <td class="px-5 py-3">
+
+                                        <div class="flex items-center gap-1">
+
+                                            <button
+                                                type="button"
+                                                (click)="openDetalle(factura)"
+                                                title="Ver detalle"
+                                                class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-transparent text-[#737b84] transition-all duration-150 hover:border-[#e0e3e6] hover:bg-white hover:text-[#30363d] hover:shadow-sm active:scale-95"
+                                            >
+                                                <iconify-icon
+                                                    icon="lucide:eye"
+                                                    width="15"
+                                                    height="15"
+                                                    class="transition-transform duration-150 group-hover:scale-110"
+                                                ></iconify-icon>
+                                            </button>
+
+
+                                            <button
+                                                type="button"
+                                                (click)="openDeleteFactura(factura)"
+                                                [disabled]="loadingFacturas()"
+                                                title="Eliminar factura"
+                                                class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-[#a1a7ae] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                                            >
+                                                <iconify-icon
+                                                    icon="lucide:trash-2"
+                                                    width="15"
+                                                    height="15"
+                                                    class="transition-transform duration-150 group-hover:scale-110"
+                                                ></iconify-icon>
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            } @empty {
+
+                                <tr>
+
+                                    <td colspan="9" class="px-5 py-16">
+
+                                        <div class="mx-auto flex max-w-sm flex-col items-center text-center">
+
+                                            <div
+                                                class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]"
+                                            >
+                                                <iconify-icon
+                                                    icon="lucide:file-x"
+                                                    width="21"
+                                                    height="21"
+                                                ></iconify-icon>
+                                            </div>
+
+                                            <h3 class="text-sm font-semibold text-[#30363d]">
+                                                No hay facturas para mostrar
+                                            </h3>
+
+                                            <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                                                Cambia el filtro o crea una factura a partir de un pedido.
+                                            </p>
+
+                                            <button
+                                                type="button"
+                                                (click)="openCreateFactura()"
+                                                class="mt-4 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-[#20252b] px-3 text-xs font-medium text-white transition-all duration-150 hover:bg-[#171b20] active:scale-[.98]"
+                                            >
+                                                <iconify-icon
+                                                    icon="lucide:plus"
+                                                    width="14"
+                                                    height="14"
+                                                ></iconify-icon>
+
+                                                Nueva factura
+                                            </button>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            }
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- BARRA DE ESTADO -->
+
+            <div
+                class="flex items-center justify-between border-t border-[#d9dde1] bg-[#eceef0] px-4 py-2.5 text-[11px] text-[#7b828b]"
+            >
+
+                <span>
+
+                    {{ facturasFiltradas().length }}
+
+                    {{ facturasFiltradas().length === 1 ? 'factura' : 'facturas' }}
+
+                    @if (facturasFiltradas().length !== facturas().length) {
+                        de {{ facturas().length }}
+                    }
+
+                </span>
+
+
+                <span class="hidden items-center gap-1.5 sm:inline-flex">
+
+                    <span class="h-1.5 w-1.5 rounded-full bg-[#4d8c5c]"></span>
+
+                    Totales calculados desde los detalles de factura y cobro
+
+                </span>
+
+            </div>
+
+        </section>
+
+    </div>
+</section>
+
+
+<!-- ===========================================================
+     MODAL NUEVA FACTURA
+     (reemplaza el bloque completo @if (createModalOpen()) { ... }
+      que está antes de "MODAL DETALLE DE FACTURA")
+     =========================================================== -->
+
+@if (createModalOpen()) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-50 flex items-center justify-center bg-[#11161c]/45 p-3 backdrop-blur-[2px] sm:p-5">
+
+    <div class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[680px] flex-col overflow-hidden rounded-2xl border border-[#dfe2e6] bg-white shadow-2xl sm:max-h-[calc(100vh-40px)]">
+
+      <!-- HEADER -->
+
+      <div class="flex shrink-0 items-start justify-between gap-4 border-b border-[#e7e9ec] px-5 py-4 md:px-6">
+
+        <div class="min-w-0">
+
+          <div class="flex items-center gap-2">
+
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f4f5] text-[#4f565e]">
+              <iconify-icon icon="lucide:file-plus-2" width="16" height="16"></iconify-icon>
+            </div>
+
+            <h2 class="text-base font-semibold text-[#20252b]">Nueva factura</h2>
+
+          </div>
+
+          <p class="mt-1 pl-10 text-xs text-[#858c94]">
+            Genera una factura a partir de un pedido existente.
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          (click)="closeCreateFactura()"
+          [disabled]="saving()"
+          title="Cerrar"
+          class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#858c94] transition-all duration-150 hover:bg-[#f3f4f5] hover:text-[#30363d] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <iconify-icon icon="lucide:x" width="17" height="17" class="transition-transform duration-150 group-hover:rotate-90"></iconify-icon>
+        </button>
+
+      </div>
+
+
+      <!-- BODY -->
+
+      <div class="accounting-scroll flex-1 overflow-y-auto">
+
+        <div class="space-y-4 p-5 md:p-6">
+
+          @if (loading() && pedidos().length === 0) {
+
+            <!-- SKELETON -->
+
+            <div class="space-y-2">
+              <div class="skeleton h-3 w-14 rounded"></div>
+              <div class="skeleton h-11 w-full rounded-lg"></div>
+            </div>
+
+            <div class="skeleton h-20 w-full rounded-xl"></div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div class="skeleton h-9 w-full rounded-lg"></div>
+              <div class="skeleton h-9 w-full rounded-lg"></div>
+            </div>
+
+            <div class="skeleton h-32 w-full rounded-xl"></div>
+
+          } @else if (pedidosDisponibles().length === 0) {
+
+            <!-- SIN PEDIDOS -->
+
+            <div class="mx-auto flex max-w-sm flex-col items-center py-8 text-center">
+
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#e4e6e9] bg-[#f8f9fa] text-[#858c94]">
+                <iconify-icon icon="lucide:file-x" width="21" height="21"></iconify-icon>
+              </div>
+
+              <h3 class="text-sm font-semibold text-[#30363d]">
+                No hay pedidos disponibles
+              </h3>
+
+              <p class="mt-1 text-xs leading-5 text-[#858c94]">
+                No existen pedidos pendientes de facturación.
+                Un pedido solo puede facturarse una vez.
+              </p>
+
+            </div>
+
+          } @else {
+
+            <!-- PEDIDO -->
+
+            <div class="block">
+
+              <span class="mb-1.5 block text-xs font-medium text-[#555d66]">Pedido</span>
+
+              <mat-form-field appearance="outline" class="contalab-mat-field w-full">
+
+                <mat-select
+                  class="px-5"
+                  placeholder="Seleccionar pedido"
+                  [value]="facturaForm().pedido_id"
+                  (selectionChange)="onPedidoChange($event)"
+                  [disabled]="saving()"
+                >
+
+                  @for (pedido of pedidosDisponibles(); track pedido.pedido_id) {
+
+                    <mat-option [value]="pedido.pedido_id">
+                      Pedido #{{ pedido.pedido_id }}
+                      · {{ getClienteNombre(pedido.cliente_id) }}
+                      · C$ {{ formatAmount(getTotalPedido(pedido.pedido_id)) }}
+                    </mat-option>
+
+                  }
+
+                </mat-select>
+
+              </mat-form-field>
+
+            </div>
+
+
+            @if (facturaForm().pedido_id !== null) {
+
+              <!-- CLIENTE -->
+
+              <div class="rounded-xl border border-[#e3e6e9] bg-[#fafbfc] p-4">
+
+                <div class="mb-3 flex items-center justify-between gap-3">
+
+                  <div class="flex items-center gap-2">
+                    <iconify-icon icon="lucide:user" width="14" height="14" class="text-[#737b84]"></iconify-icon>
+                    <h3 class="text-xs font-semibold text-[#30363d]">Cliente</h3>
+                  </div>
+
+                  <span class="rounded-full bg-white px-2.5 py-1 font-mono text-[11px] font-medium text-[#69717a]">
+                    Pedido #{{ facturaForm().pedido_id }}
+                  </span>
+
+                </div>
+
+                @if (facturaForm().cliente_id !== null) {
+
+                  <div class="flex items-center gap-3">
+
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black text-[11px] font-semibold text-white">
+                      {{ getClienteIniciales(facturaForm().cliente_id!) }}
+                    </div>
+
+                    <div class="min-w-0">
+
+                      <p class="truncate text-sm font-medium text-[#30363d]">
+                        {{ getClienteNombre(facturaForm().cliente_id!) }}
+                      </p>
+
+                      @if (getClienteEmpresa(facturaForm().cliente_id!)) {
+                        <p class="mt-0.5 truncate text-xs text-[#9298a0]">
+                          {{ getClienteEmpresa(facturaForm().cliente_id!) }}
+                        </p>
+                      }
+
+                    </div>
+
+                  </div>
+
+                } @else {
+
+                  <p class="text-xs text-[#858c94]">
+                    No se pudo identificar el cliente del pedido.
+                  </p>
+
+                }
+
+              </div>
+
+
+              <!-- FECHA Y ESTADO -->
+
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                <label class="block">
+                  <span class="mb-1.5 block text-xs font-medium text-[#555d66]">Fecha</span>
+                  <input
+                    type="date"
+                    [value]="facturaForm().fecha"
+                    (input)="onFechaChange($event)"
+                    [disabled]="saving()"
+                    class="h-9 w-full cursor-pointer rounded-lg border border-[#dfe2e6] bg-white px-3 text-sm text-[#3f4650] outline-none transition-all duration-200 focus:border-[#9ca3ab] focus:ring-2 focus:ring-[#20252b]/5 disabled:cursor-not-allowed disabled:bg-[#f6f7f8]"
+                  />
+                </label>
+
+                <div class="block">
+                  <span class="mb-1.5 block text-xs font-medium text-[#555d66]">Estado</span>
+                  <div class="flex h-9 items-center gap-2 rounded-lg border border-[#f0e3c8] bg-[#fffaf0] px-3">
+                    <span class="h-1.5 w-1.5 rounded-full bg-[#d99a2b]"></span>
+                    <span class="text-sm font-medium text-[#8a6a2b]">Pendiente</span>
+                  </div>
+                </div>
+
+              </div>
+
+
+              <!-- PRODUCTOS -->
+
+              <div class="overflow-hidden rounded-xl border border-[#e3e6e9]">
+
+                <div class="flex items-center justify-between border-b border-[#e8eaed] bg-[#fafbfc] px-4 py-2.5">
+                  <span class="text-xs font-semibold text-[#30363d]">Productos del pedido</span>
+                  <span class="text-[11px] text-[#858c94]">
+                    {{ lineasPedidoFacturables().length }}
+                    {{ lineasPedidoFacturables().length === 1 ? 'línea' : 'líneas' }}
+                  </span>
+                </div>
+
+                <div class="accounting-scroll max-h-[220px] overflow-auto">
+
+                  @for (linea of lineasPedidoFacturables(); track linea.detalle_pedido_id) {
+
+                    <div class="table-row-enter flex items-center justify-between gap-4 border-b border-[#f3f4f6] px-4 py-2.5 last:border-b-0">
+
+                      <div class="min-w-0">
+                        <p class="truncate text-sm text-[#3f4650]">
+                          {{ getProductoNombre(linea.producto_id) }}
+                        </p>
+                        <p class="mt-0.5 font-mono text-xs text-[#9298a0]">
+                          {{ linea.cantidad }} × C$ {{ formatAmount(linea.precio_unitario) }}
+                        </p>
+                      </div>
+
+                      <span class="shrink-0 font-mono text-sm font-medium text-[#3f4650]">
+                        C$ {{ formatAmount(toNumber(linea.cantidad) * toNumber(linea.precio_unitario)) }}
+                      </span>
+
+                    </div>
+
+                  } @empty {
+
+                    <div class="px-4 py-8 text-center">
+                      <iconify-icon icon="lucide:package-x" width="20" height="20" class="mx-auto text-[#a0a6ad]"></iconify-icon>
+                      <p class="mt-2 text-xs text-[#858c94]">
+                        El pedido no tiene productos facturables.
+                      </p>
+                    </div>
+
+                  }
+
+                </div>
+
+                <div class="flex items-center justify-between border-t border-[#d9dde1] bg-[#eceef0] px-4 py-2.5">
+                  <span class="text-xs font-semibold uppercase tracking-[0.06em] text-[#555d66]">Total de la factura</span>
+                  <span class="font-mono text-sm font-semibold text-[#20252b]">C$ {{ formatAmount(totalNuevaFactura()) }}</span>
+                </div>
+
+              </div>
+
+
+              @if (lineasSinProducto() > 0) {
+
+                <div class="flex items-start gap-2 rounded-xl border border-[#f0e3c8] bg-[#fffaf0] p-3 text-xs leading-5 text-[#8a6a2b]">
+                  <iconify-icon icon="lucide:info" width="14" height="14" class="mt-0.5 shrink-0"></iconify-icon>
+                  {{ lineasSinProducto() }}
+                  {{ lineasSinProducto() === 1 ? 'línea del pedido no tiene' : 'líneas del pedido no tienen' }}
+                  producto asignado y no se incluirá en la factura.
+                </div>
+
+              }
+
+            }
+
+          }
+
+        </div>
+
+      </div>
+
+
+      <!-- FOOTER -->
+
+      <div class="flex shrink-0 flex-col-reverse gap-2 border-t border-[#e7e9ec] bg-[#fafbfc] px-5 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6">
+
+        <button
+          type="button"
+          (click)="closeCreateFactura()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] hover:text-[#30363d] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        @if (pedidosDisponibles().length > 0) {
+
+          <button
+            type="button"
+            (click)="saveFactura()"
+            [disabled]="!isFormValid() || saving()"
+            class="group inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#20252b] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#171b20] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+          >
+
+            @if (saving()) {
+
+              <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+
+              Creando...
+
+            } @else {
+
+              <iconify-icon icon="lucide:save" width="15" height="15" class="transition-transform duration-150 group-hover:scale-110"></iconify-icon>
+
+              Crear factura
+
+            }
+
+          </button>
+
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- ===========================================================
+     MODAL DETALLE DE FACTURA
+     =========================================================== -->
+
+@if (detalleTarget(); as factura) {
+
+    <div
+        class="modal-backdrop-enter fixed inset-0 z-50 flex items-center justify-center bg-[#11161c]/45 p-3 backdrop-blur-[2px] sm:p-5"
+    >
+
+        <div
+            class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[760px] flex-col overflow-hidden rounded-2xl border border-[#dfe2e6] bg-white shadow-2xl sm:max-h-[calc(100vh-40px)]"
+        >
+
+            <!-- HEADER -->
+
+            <div
+                class="flex shrink-0 items-start justify-between gap-4 border-b border-[#e7e9ec] px-5 py-4 md:px-6"
+            >
+
+                <div class="min-w-0">
+
+                    <div class="flex items-center gap-2">
+
+                        <div
+                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f3f4f5] text-[#4f565e]"
+                        >
+                            <iconify-icon
+                                icon="lucide:file-text"
+                                width="16"
+                                height="16"
+                            ></iconify-icon>
+                        </div>
+
+                        <h2 class="text-base font-semibold text-[#20252b]">
+                            Factura #{{ factura.factura_id }}
+                        </h2>
+
+                        <span
+                            class="inline-flex items-center rounded-full px-2 py-1 text-[11px] font-medium"
+                            [class]="estadoBadgeClass(factura.estado)"
+                        >
+                            {{ formatEstado(factura.estado) }}
+                        </span>
+
+                    </div>
+
+                    <p class="mt-1 pl-10 text-xs text-[#858c94]">
+                        {{ getClienteNombre(factura.cliente_id) }}
+                        · Pedido #{{ factura.pedido_id }}
+                        · {{ formatDate(factura.fecha) }}
+                    </p>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    (click)="closeDetalle()"
+                    title="Cerrar"
+                    class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#858c94] transition-all duration-150 hover:bg-[#f3f4f5] hover:text-[#30363d] active:scale-95"
+                >
+                    <iconify-icon
+                        icon="lucide:x"
+                        width="17"
+                        height="17"
+                        class="transition-transform duration-150 group-hover:rotate-90"
+                    ></iconify-icon>
+                </button>
+
+            </div>
+
+
+            <!-- CONTENIDO -->
+
+            <div class="accounting-scroll flex-1 overflow-y-auto">
+
+                <div class="space-y-5 p-5 md:p-6">
+
+                    <!-- RESUMEN -->
+
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+                        <div class="rounded-xl border border-[#e3e6e9] bg-[#fafbfc] p-3.5">
+
+                            <p class="text-[11px] font-medium text-[#858c94]">
+                                Total
+                            </p>
+
+                            <p class="mt-1 font-mono text-lg font-semibold text-[#20252b]">
+                                C$ {{ formatAmount(getResumen(factura.factura_id).total) }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="rounded-xl border border-[#dce9df] bg-[#f4faf5] p-3.5">
+
+                            <p class="text-[11px] font-medium text-[#6b8a76]">
+                                Cobrado
+                            </p>
+
+                            <p class="mt-1 font-mono text-lg font-semibold text-[#3c7650]">
+                                C$ {{ formatAmount(getResumen(factura.factura_id).pagado) }}
+                            </p>
+
+                        </div>
+
+
+                        <div class="rounded-xl border border-[#eadede] bg-[#fffafa] p-3.5">
+
+                            <p class="text-[11px] font-medium text-[#a07a7a]">
+                                Saldo
+                            </p>
+
+                            <p class="mt-1 font-mono text-lg font-semibold text-[#9d3b3b]">
+                                C$ {{ formatAmount(getResumen(factura.factura_id).saldo) }}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PRODUCTOS -->
+
+                    <div>
+
+                        <h3 class="mb-2 text-xs font-semibold text-[#30363d]">
+                            Productos facturados
+                        </h3>
+
+                        <div class="overflow-hidden rounded-xl border border-[#e3e6e9]">
+
+                            <div class="accounting-scroll max-h-[240px] overflow-auto">
+
+                                <table class="w-full min-w-[520px] border-collapse">
+
+                                    <thead>
+
+                                        <tr class="border-b border-[#e8eaed] bg-[#fafbfc]">
+
+                                            <th
+                                                class="sticky top-0 bg-[#fafbfc] px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
+                                            >
+                                                Producto
+                                            </th>
+
+                                            <th
+                                                class="sticky top-0 bg-[#fafbfc] px-4 py-2.5 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
+                                            >
+                                                Cant.
+                                            </th>
+
+                                            <th
+                                                class="sticky top-0 bg-[#fafbfc] px-4 py-2.5 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
+                                            >
+                                                Precio
+                                            </th>
+
+                                            <th
+                                                class="sticky top-0 bg-[#fafbfc] px-4 py-2.5 text-right text-[10px] font-semibold uppercase tracking-[0.08em] text-[#9298a0]"
+                                            >
+                                                Subtotal
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+
+                                    <tbody>
+
+                                        @for (
+                                            linea of detalleLineas();
+                                            track linea.detalle.detalle_factura_id
+                                        ) {
+
+                                            <tr class="border-b border-[#f3f4f6]">
+
+                                                <td class="px-4 py-2.5">
+
+                                                    <p class="text-sm text-[#3f4650]">
+                                                        {{ linea.producto }}
+                                                    </p>
+
+                                                    <p class="font-mono text-[10px] text-[#9298a0]">
+                                                        {{ linea.codigo }}
+                                                    </p>
+
+                                                </td>
+
+
+                                                <td class="px-4 py-2.5 text-right font-mono text-sm text-[#555d66]">
+                                                    {{ linea.detalle.cantidad }}
+                                                </td>
+
+
+                                                <td class="px-4 py-2.5 text-right font-mono text-sm text-[#555d66]">
+                                                    {{ formatAmount(linea.detalle.precio_unitario) }}
+                                                </td>
+
+
+                                                <td class="px-4 py-2.5 text-right font-mono text-sm font-medium text-[#3f4650]">
+                                                    {{ formatAmount(linea.subtotal) }}
+                                                </td>
+
+                                            </tr>
+
+                                        } @empty {
+
+                                            <tr>
+
+                                                <td
+                                                    colspan="4"
+                                                    class="px-4 py-8 text-center text-xs text-[#858c94]"
+                                                >
+                                                    Esta factura no tiene líneas registradas.
+                                                </td>
+
+                                            </tr>
+
+                                        }
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- COBROS -->
+
+                    <div>
+
+                        <h3 class="mb-2 text-xs font-semibold text-[#30363d]">
+                            Cobros aplicados
+                        </h3>
+
+                        <div class="overflow-hidden rounded-xl border border-[#e3e6e9]">
+
+                            @for (
+                                item of detalleCobros();
+                                track item.detalle.detalle_cobro_id
+                            ) {
+
+                                <div
+                                    class="flex items-center justify-between gap-3 border-b border-[#f3f4f6] px-4 py-2.5 last:border-b-0"
+                                >
+
+                                    <div class="min-w-0">
+
+                                        <p class="text-sm text-[#3f4650]">
+
+                                            Cobro #{{ item.detalle.cobro_id }}
+
+                                            @if (item.cobro) {
+
+                                                <span class="text-[#9298a0]">
+                                                    · {{ formatDate(item.cobro.fecha_cobro) }}
+                                                    · {{ formatEstado(item.cobro.metodo_pago) }}
+                                                </span>
+
+                                            }
+
+                                        </p>
+
+                                    </div>
+
+
+                                    <span class="font-mono text-sm font-medium text-[#3c7650]">
+                                        C$ {{ formatAmount(item.detalle.monto_aplicado) }}
+                                    </span>
+
+                                </div>
+
+                            } @empty {
+
+                                <p class="px-4 py-6 text-center text-xs text-[#858c94]">
+                                    Todavía no se han aplicado cobros a esta factura.
+                                </p>
+
+                            }
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div
+                class="flex shrink-0 justify-end border-t border-[#e7e9ec] bg-[#fafbfc] px-5 py-4 md:px-6"
+            >
+
+                <button
+                    type="button"
+                    (click)="closeDetalle()"
+                    class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] hover:text-[#30363d] active:scale-[.98]"
+                >
+                    Cerrar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+}
+
+
+<!-- ===========================================================
+     MODAL ELIMINAR FACTURA
+     =========================================================== -->
+
+@if (deleteTarget(); as factura) {
+
+    <div
+        class="modal-backdrop-enter fixed inset-0 z-[60] flex items-center justify-center bg-[#11161c]/50 p-4 backdrop-blur-[2px]"
+    >
+
+        <div
+            class="modal-panel-enter w-full max-w-[460px] overflow-hidden rounded-2xl border border-[#e2d8d8] bg-white shadow-2xl"
+        >
+
+            <div class="p-5 sm:p-6">
+
+                <div class="flex items-start gap-4">
+
+                    <div
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b13a3a]"
+                    >
+                        <iconify-icon
+                            icon="lucide:trash-2"
+                            width="19"
+                            height="19"
+                        ></iconify-icon>
+                    </div>
+
+
+                    <div>
+
+                        <h2 class="text-base font-semibold text-[#30363d]">
+                            Eliminar factura
+                        </h2>
+
+                        <p class="mt-1 text-xs leading-5 text-[#777e86]">
+                            Se eliminará la factura junto con sus líneas. Esta acción no puede deshacerse.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-5 rounded-xl border border-[#eadede] bg-[#fffafa] p-4">
+
+                    <div class="flex items-center justify-between gap-3">
+
+                        <span class="text-xs text-[#777e86]">
+                            Factura
+                        </span>
+
+                        <span class="text-right text-sm font-semibold text-[#9d3b3b]">
+                            #{{ factura.factura_id }} · {{ getClienteNombre(factura.cliente_id) }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="mt-2 flex items-center justify-between">
+
+                        <span class="text-xs text-[#777e86]">
+                            Líneas
+                        </span>
+
+                        <span class="font-mono text-sm font-semibold text-[#9d3b3b]">
+                            {{ lineasDeEliminar() }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="mt-2 flex items-center justify-between">
+
+                        <span class="text-xs text-[#777e86]">
+                            Total
+                        </span>
+
+                        <span class="font-mono text-sm font-semibold text-[#9d3b3b]">
+                            C$ {{ formatAmount(getResumen(factura.factura_id).total) }}
+                        </span>
+
+                    </div>
+
+
+                    <div class="mt-2 flex items-center justify-between">
+
+                        <span class="text-xs text-[#777e86]">
+                            Cobros aplicados
+                        </span>
+
+                        <span class="font-mono text-sm font-semibold text-[#9d3b3b]">
+                            {{ cobrosDeEliminar() }}
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                @if (!puedeEliminar()) {
+
+                    <div
+                        class="mt-3 flex items-start gap-2 rounded-xl border border-[#f0e3c8] bg-[#fffaf0] p-3 text-xs leading-5 text-[#8a6a2b]"
+                    >
+
+                        <iconify-icon
+                            icon="lucide:info"
+                            width="14"
+                            height="14"
+                            class="mt-0.5 shrink-0"
+                        ></iconify-icon>
+
+                        Esta factura tiene cobros aplicados. Elimina esos cobros desde la sección de Cobros antes de eliminarla.
+
+                    </div>
+
+                }
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div
+                class="flex flex-col-reverse gap-2 border-t border-[#eee7e7] bg-[#fffdfd] px-5 py-4 sm:flex-row sm:justify-end"
+            >
+
+                <button
+                    type="button"
+                    (click)="closeDeleteFactura()"
+                    [disabled]="saving()"
+                    class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#dfe2e6] bg-white px-4 text-sm font-medium text-[#555d66] shadow-sm transition-all duration-150 hover:bg-[#f8f9fa] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    Cancelar
+                </button>
+
+
+                <button
+                    type="button"
+                    (click)="confirmDeleteFactura()"
+                    [disabled]="saving() || !puedeEliminar()"
+                    class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#b13a3a] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#9f3030] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                >
+
+                    @if (saving()) {
+
+                        <iconify-icon
+                            icon="lucide:loader-circle"
+                            width="15"
+                            height="15"
+                            class="animate-spin"
+                        ></iconify-icon>
+
+                        Eliminando...
+
+                    } @else {
+
+                        <iconify-icon
+                            icon="lucide:trash-2"
+                            width="15"
+                            height="15"
+                        ></iconify-icon>
+
+                        Eliminar factura
+
+                    }
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+}

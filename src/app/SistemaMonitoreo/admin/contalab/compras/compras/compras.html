@@ -1,0 +1,878 @@
+<section
+  class="accounting-page-enter min-h-full bg-[#f3f3f1] px-3 py-4 text-[#171717] sm:px-4 sm:py-5 md:px-6 md:py-6"
+>
+
+  <div class="mx-auto max-w-[1700px] space-y-4">
+
+    <!-- ENCABEZADO -->
+    <header class="overflow-hidden rounded-2xl bg-[#171717] text-[#f5f5f5] shadow-lg">
+
+      <div class="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between md:px-6">
+
+        <div class="min-w-0">
+
+          <div class="mb-2 flex items-center gap-2 text-xs font-medium text-[#888888]">
+            <span>Compras</span>
+            <iconify-icon icon="lucide:chevron-right" width="13" height="13"></iconify-icon>
+            <span class="text-[#d4d4d4]">Órdenes de compra</span>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F5C400] text-[#171717]">
+              <iconify-icon icon="lucide:shopping-cart" width="20" height="20"></iconify-icon>
+            </div>
+            <div class="min-w-0">
+              <h1 class="text-xl font-semibold tracking-[-0.02em] sm:text-2xl">Compras</h1>
+              <p class="mt-1 max-w-xl text-sm leading-5 text-[#999999]">
+                Lo que le compras a cada proveedor y cuánto falta por pagar.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+
+          <button
+            type="button"
+            (click)="refreshData()"
+            [disabled]="loadingAny()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#363636] bg-[#242424] px-3 text-sm font-medium text-[#cccccc] transition-all duration-200 hover:border-[#4a4a4a] hover:bg-[#2d2d2d] hover:text-white active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:refresh-cw" width="15" height="15" class="transition-transform duration-300 group-hover:rotate-45" [class.animate-spin]="loading()"></iconify-icon>
+            <span>{{ loading() ? 'Actualizando...' : 'Actualizar' }}</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="openCreate()"
+            [disabled]="loadingAny()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#F5C400] px-3.5 text-sm font-semibold text-[#171717] shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#FFD52E] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:plus" width="16" height="16" class="transition-transform duration-200 group-hover:rotate-90"></iconify-icon>
+            <span>Nueva compra</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- INDICADORES -->
+      <div class="grid grid-cols-2 border-t border-[#303030] lg:grid-cols-4">
+
+        @if (loading()) {
+
+          @for (item of [1, 2, 3, 4]; track item) {
+            <div class="space-y-2 border-[#303030] px-5 py-4 lg:border-r">
+              <div class="h-3 w-20 animate-pulse rounded bg-[#303030]"></div>
+              <div class="h-7 w-16 animate-pulse rounded bg-[#303030]"></div>
+            </div>
+          }
+
+        } @else {
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 lg:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Pendientes</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#F5C400]">{{ totalPendientes() }}</p>
+          </div>
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 lg:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Pago parcial</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#8DB4DB]">{{ totalParciales() }}</p>
+          </div>
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 lg:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Pagadas</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#83C995]">{{ totalPagadas() }}</p>
+          </div>
+
+          <div class="summary-card-enter px-5 py-4">
+            <p class="text-[11px] font-medium text-[#888888]">Saldo por pagar</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums" [class]="saldoPorPagar() > 0 ? 'text-[#FF9185]' : 'text-[#F5F5F5]'">
+              C$ {{ formatAmount(saldoPorPagar()) }}
+            </p>
+          </div>
+
+        }
+
+      </div>
+
+    </header>
+
+
+    <!-- ERROR -->
+    @if (errorMessage()) {
+
+      <div class="status-pulse flex items-start gap-3 rounded-xl border border-[#e9c9c4] bg-white px-4 py-3 shadow-sm">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff1f1] text-[#b13a3a]">
+          <iconify-icon icon="lucide:triangle-alert" width="16" height="16"></iconify-icon>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-[#343a40]">No fue posible completar la operación</p>
+          <p class="mt-0.5 text-xs text-[#777e86]">{{ errorMessage() }}</p>
+        </div>
+      </div>
+
+    }
+
+
+    <!-- BÚSQUEDA Y FILTRO -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+      <div class="relative sm:w-[340px]">
+        <iconify-icon icon="lucide:search" width="15" height="15" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+          placeholder="Buscar por número o proveedor..."
+          class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-[#F8F8F6] pl-9 pr-3 text-sm text-[#171717] outline-none transition-all duration-200 placeholder:text-[#777777] focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20"
+        />
+      </div>
+
+      <div class="accounting-scroll inline-flex w-fit max-w-full items-center gap-1 overflow-x-auto rounded-lg border border-[#D1D1CD] bg-[#EBEBE8] p-1">
+
+        <button
+          type="button"
+          (click)="filtroEstado.set('TODOS')"
+          class="inline-flex h-7 shrink-0 cursor-pointer items-center rounded-md px-3 text-xs font-medium transition-all duration-150"
+          [class]="filtroEstado() === 'TODOS' ? 'bg-[#171717] text-white shadow-sm' : 'text-[#4A4A4A] hover:text-[#171717]'"
+        >
+          Todas
+        </button>
+
+        @for (estado of estados; track estado.id) {
+          <button
+            type="button"
+            (click)="filtroEstado.set(estado.id)"
+            class="inline-flex h-7 shrink-0 cursor-pointer items-center rounded-md px-3 text-xs font-medium transition-all duration-150"
+            [class]="filtroEstado() === estado.id ? 'bg-[#171717] text-white shadow-sm' : 'text-[#4A4A4A] hover:text-[#171717]'"
+          >
+            {{ estado.label }}
+          </button>
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- LISTA -->
+    <section class="overflow-hidden rounded-xl border border-[#D6D6D2] bg-white shadow-sm">
+
+      <div class="accounting-scroll max-h-[calc(100vh-380px)] min-h-[340px] overflow-auto">
+
+        <table class="w-full min-w-[1000px] border-collapse">
+
+          <thead>
+            <tr class="border-b border-[#DADAD6] bg-[#EBEBE8]">
+              @for (titulo of ['Compra', 'Proveedor', 'Fecha', 'Estado', 'Productos', 'Total', 'Pagado', 'Saldo', 'Acciones']; track titulo) {
+                <th
+                  class="sticky top-0 z-10 bg-[#EBEBE8] px-4 py-3 text-[11px] font-semibold text-[#666666]"
+                  [class]="['Total', 'Pagado', 'Saldo'].includes(titulo) ? 'text-right' : 'text-left'"
+                >
+                  {{ titulo }}
+                </th>
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @if (loading()) {
+
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr class="border-b border-[#E6E6E2]">
+                  @for (col of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track col) {
+                    <td class="px-4 py-4"><div class="skeleton h-4 w-16 rounded"></div></td>
+                  }
+                </tr>
+              }
+
+            } @else {
+
+              @for (compra of comprasFiltradas(); track compra.compra_id; let i = $index) {
+
+                <tr
+                  (click)="openCompra(compra)"
+                  class="table-row-enter cursor-pointer border-b border-[#E6E6E2] transition-colors duration-150 hover:bg-[#FAFAF7]"
+                  [class.bg-[#FFF8D8]]="selectedId() === compra.compra_id"
+                  [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                >
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-[13px] font-semibold">#{{ compra.compra_id }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <p class="max-w-[240px] truncate text-sm font-medium">{{ getProveedorNombre(compra.proveedor_id) }}</p>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-xs text-[#4A4A4A]">{{ formatDate(compra.fecha) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold" [class]="getEstado(compra.estado).chip">
+                      <iconify-icon [icon]="getEstado(compra.estado).icon" width="12" height="12"></iconify-icon>
+                      {{ getEstado(compra.estado).label }}
+                    </span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-xs text-[#4A4A4A]">{{ getLineas(compra.compra_id).length }}</span>
+                  </td>
+
+                  <td class="px-4 py-3 text-right">
+                    <span class="font-mono text-sm font-semibold">C$ {{ formatAmount(getTotalCompra(compra.compra_id)) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3 text-right">
+                    <span class="font-mono text-sm text-[#3c7650]">C$ {{ formatAmount(getAplicado(compra.compra_id)) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3 text-right">
+                    <span class="font-mono text-sm font-semibold" [class]="getSaldo(compra.compra_id) > 0 ? 'text-[#9d3b3b]' : 'text-[#777777]'">
+                      C$ {{ formatAmount(getSaldo(compra.compra_id)) }}
+                    </span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <button
+                      type="button"
+                      (click)="openDelete(compra); $event.stopPropagation()"
+                      [disabled]="loadingAny()"
+                      title="Eliminar compra"
+                      class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <iconify-icon icon="lucide:trash-2" width="14" height="14"></iconify-icon>
+                    </button>
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <tr>
+                  <td colspan="9" class="px-5 py-16 text-center">
+                    <iconify-icon icon="lucide:shopping-cart" width="22" height="22" class="text-[#999999]"></iconify-icon>
+                    <h3 class="mt-2 text-sm font-semibold">No hay compras para mostrar</h3>
+                    <p class="mt-1 text-xs text-[#777777]">Prueba con otro filtro o registra una compra nueva.</p>
+                  </td>
+                </tr>
+
+              }
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+
+<!-- PANEL DE LA COMPRA -->
+@if (compraSeleccionada(); as compra) {
+
+  <div class="fixed inset-0 z-50 flex justify-end">
+
+    <div class="modal-backdrop-enter absolute inset-0 bg-[#111111]/45 backdrop-blur-[2px]" (click)="closeCompra()"></div>
+
+    <aside class="drawer-enter relative flex h-full w-full max-w-[560px] flex-col bg-[#F3F3F1] shadow-2xl">
+
+      <div class="shrink-0 bg-[#171717] px-5 py-4 text-[#F5F5F5]">
+
+        <div class="flex items-start justify-between gap-3">
+
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-mono text-lg font-semibold">Compra #{{ compra.compra_id }}</span>
+              <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold" [class]="getEstado(compra.estado).chip">
+                <iconify-icon [icon]="getEstado(compra.estado).icon" width="12" height="12"></iconify-icon>
+                {{ getEstado(compra.estado).label }}
+              </span>
+            </div>
+            <p class="mt-1 truncate text-sm text-[#D0D0D0]">
+              {{ getProveedorNombre(compra.proveedor_id) }}
+              <span class="font-mono text-xs text-[#888888]">· {{ formatDate(compra.fecha) }}</span>
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="closeCompra()"
+            title="Cerrar"
+            class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#888888] transition-all duration-150 hover:bg-[#292929] hover:text-white active:scale-95"
+          >
+            <iconify-icon icon="lucide:x" width="17" height="17" class="transition-transform duration-150 group-hover:rotate-90"></iconify-icon>
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="accounting-scroll flex-1 space-y-5 overflow-y-auto p-5">
+
+        <!-- RESUMEN -->
+        <section class="grid grid-cols-3 overflow-hidden rounded-xl border border-[#D6D6D2] bg-white">
+
+          <div class="px-4 py-3">
+            <p class="text-[10px] font-medium text-[#777777]">Total</p>
+            <p class="mt-0.5 font-mono text-sm font-semibold">C$ {{ formatAmount(totalSeleccionada()) }}</p>
+          </div>
+
+          <div class="border-x border-[#E6E6E2] px-4 py-3">
+            <p class="text-[10px] font-medium text-[#777777]">Pagado</p>
+            <p class="mt-0.5 font-mono text-sm font-semibold text-[#3c7650]">C$ {{ formatAmount(aplicadoSeleccionada()) }}</p>
+          </div>
+
+          <div class="px-4 py-3">
+            <p class="text-[10px] font-medium text-[#777777]">Saldo</p>
+            <p class="mt-0.5 font-mono text-sm font-semibold" [class]="saldoSeleccionada() > 0 ? 'text-[#9d3b3b]' : 'text-[#171717]'">
+              C$ {{ formatAmount(saldoSeleccionada()) }}
+            </p>
+          </div>
+
+        </section>
+
+
+        <!-- PRODUCTOS -->
+        <section class="rounded-xl border border-[#D6D6D2] bg-white">
+
+          <div class="flex items-center justify-between border-b border-[#E6E6E2] px-4 py-2.5">
+            <h3 class="text-xs font-semibold">Productos comprados</h3>
+            <span class="text-[11px] text-[#777777]">{{ lineasSeleccionada().length }} líneas</span>
+          </div>
+
+          @if (!lineasEditables() && lineasSeleccionada().length > 0) {
+            <div class="flex items-center gap-2 border-b border-[#eee6cf] bg-[#fffaf0] px-4 py-2 text-[11px] text-[#8a6a2b]">
+              <iconify-icon icon="lucide:lock" width="12" height="12"></iconify-icon>
+              {{ aplicacionesSeleccionada().length > 0
+                  ? 'La compra ya tiene pagos aplicados; los productos no se pueden modificar.'
+                  : 'Solo se editan productos en compras pendientes.' }}
+            </div>
+          }
+
+          <div class="accounting-scroll overflow-x-auto">
+
+            <table class="w-full min-w-[460px] border-collapse">
+
+              <thead>
+                <tr class="border-b border-[#EEEEEA]">
+                  <th class="px-4 py-2 text-left text-[10px] font-semibold text-[#777777]">Producto</th>
+                  <th class="px-2 py-2 text-right text-[10px] font-semibold text-[#777777]">Cant.</th>
+                  <th class="px-2 py-2 text-right text-[10px] font-semibold text-[#777777]">Costo</th>
+                  <th class="px-4 py-2 text-right text-[10px] font-semibold text-[#777777]">Subtotal</th>
+                  <th class="w-8"></th>
+                </tr>
+              </thead>
+
+              <tbody>
+
+                @for (linea of lineasSeleccionada(); track linea.detalle_compra_id) {
+
+                  <tr class="border-b border-[#F1F1ED]">
+
+                    <td class="px-4 py-2">
+                      <p class="text-sm">{{ getProductoNombre(linea.producto_id) }}</p>
+                      <p class="font-mono text-[10px] text-[#777777]">{{ getProductoCodigo(linea.producto_id) }}</p>
+                    </td>
+
+                    <td class="px-2 py-2 text-right">
+                      @if (lineasEditables()) {
+                        <input
+                          type="number" min="1" step="1" inputmode="numeric"
+                          [value]="linea.cantidad"
+                          (change)="actualizarLinea(linea, 'cantidad', $any($event.target))"
+                          [disabled]="saving()"
+                          class="h-8 w-16 rounded-md border border-[#D1D1CD] bg-[#F8F8F6] px-2 text-right font-mono text-sm outline-none focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                        />
+                      } @else {
+                        <span class="font-mono text-sm text-[#4A4A4A]">{{ linea.cantidad }}</span>
+                      }
+                    </td>
+
+                    <td class="px-2 py-2 text-right">
+                      @if (lineasEditables()) {
+                        <input
+                          type="number" min="0.01" step="0.01"
+                          [value]="linea.costo_unitario"
+                          (change)="actualizarLinea(linea, 'costo_unitario', $any($event.target))"
+                          [disabled]="saving()"
+                          class="h-8 w-24 rounded-md border border-[#D1D1CD] bg-[#F8F8F6] px-2 text-right font-mono text-sm outline-none focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                        />
+                      } @else {
+                        <span class="font-mono text-sm text-[#4A4A4A]">{{ formatAmount(linea.costo_unitario) }}</span>
+                      }
+                    </td>
+
+                    <td class="px-4 py-2 text-right font-mono text-sm font-semibold">
+                      {{ formatAmount(linea.cantidad * linea.costo_unitario) }}
+                    </td>
+
+                    <td class="pr-2">
+                      @if (lineasEditables()) {
+                        <button
+                          type="button"
+                          (click)="eliminarLinea(linea)"
+                          [disabled]="saving()"
+                          title="Quitar producto"
+                          class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:opacity-50"
+                        >
+                          <iconify-icon icon="lucide:x" width="14" height="14"></iconify-icon>
+                        </button>
+                      }
+                    </td>
+
+                  </tr>
+
+                } @empty {
+
+                  <tr>
+                    <td colspan="5" class="px-4 py-6 text-center text-xs text-[#777777]">Esta compra todavía no tiene productos.</td>
+                  </tr>
+
+                }
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+          @if (lineasEditables()) {
+
+            <div class="flex items-center gap-2 border-t border-[#E6E6E2] bg-[#F8F8F6] px-3 py-2.5">
+
+              <div class="relative min-w-0 flex-1">
+                <select
+                  (change)="onAddProducto($any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-8 w-full cursor-pointer appearance-none rounded-md border border-[#D1D1CD] bg-white px-2.5 pr-7 text-xs outline-none focus:border-[#171717] disabled:opacity-60"
+                >
+                  <option value="" [selected]="addProducto() === null">Agregar producto...</option>
+                  @for (producto of productosActivos(); track producto.producto_id) {
+                    <option [value]="producto.producto_id" [selected]="addProducto() === producto.producto_id">
+                      {{ producto.nombre_producto }}
+                    </option>
+                  }
+                </select>
+                <iconify-icon icon="lucide:chevron-down" width="12" height="12" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+              </div>
+
+              <input
+                type="number" min="1" step="1" inputmode="numeric" title="Cantidad"
+                [value]="addCantidad()"
+                (input)="addCantidad.set($any($event.target).value)"
+                [disabled]="saving()"
+                class="h-8 w-16 rounded-md border border-[#D1D1CD] bg-white px-2 text-right font-mono text-xs outline-none focus:border-[#171717] disabled:opacity-60"
+              />
+
+              <input
+                type="number" min="0.01" step="0.01" placeholder="Costo" title="Costo unitario"
+                [value]="addCosto()"
+                (input)="addCosto.set($any($event.target).value)"
+                [disabled]="saving()"
+                class="h-8 w-24 rounded-md border border-[#D1D1CD] bg-white px-2 text-right font-mono text-xs outline-none placeholder:text-[#999999] focus:border-[#171717] disabled:opacity-60"
+              />
+
+              <button
+                type="button"
+                (click)="agregarLineaCompra()"
+                [disabled]="saving() || addProducto() === null || !addCosto()"
+                class="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md bg-[#171717] px-2.5 text-xs font-semibold text-white transition-all hover:bg-[#292929] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <iconify-icon icon="lucide:plus" width="13" height="13"></iconify-icon>
+                Agregar
+              </button>
+
+            </div>
+
+          }
+
+        </section>
+
+
+        <!-- PAGOS APLICADOS -->
+        <section class="rounded-xl border border-[#D6D6D2] bg-white">
+
+          <div class="flex items-center justify-between border-b border-[#E6E6E2] px-4 py-2.5">
+            <h3 class="text-xs font-semibold">Pagos aplicados</h3>
+            <span class="text-[11px] text-[#777777]">{{ aplicacionesSeleccionada().length }} pagos</span>
+          </div>
+
+          @for (aplicacion of aplicacionesSeleccionada(); track aplicacion.detalle_pago_id) {
+
+            <div class="flex items-center justify-between border-b border-[#F1F1ED] px-4 py-2.5 last:border-b-0">
+              <div class="flex items-center gap-2">
+                <iconify-icon icon="lucide:credit-card" width="14" height="14" class="text-[#777777]"></iconify-icon>
+                <span class="font-mono text-xs font-semibold">Pago #{{ aplicacion.pago_id }}</span>
+              </div>
+              <span class="font-mono text-sm font-semibold text-[#3c7650]">C$ {{ formatAmount(aplicacion.monto_aplicado) }}</span>
+            </div>
+
+          } @empty {
+
+            <p class="px-4 py-5 text-center text-xs text-[#777777]">
+              Aún no hay pagos. Regístralos desde la sección Pagos a proveedores.
+            </p>
+
+          }
+
+        </section>
+
+      </div>
+
+      <div class="flex shrink-0 items-center justify-between border-t border-[#D6D6D2] bg-[#EBEBE8] px-5 py-3">
+
+        <button
+          type="button"
+          (click)="openDelete(compra)"
+          [disabled]="loadingAny() || !puedeEliminar(compra)"
+          [title]="puedeEliminar(compra) ? 'Eliminar compra' : 'No se puede eliminar una compra con pagos'"
+          class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#9d3b3b] transition-all hover:bg-[#fff3f3] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <iconify-icon icon="lucide:trash-2" width="13" height="13"></iconify-icon>
+          Eliminar compra
+        </button>
+
+        <button
+          type="button"
+          (click)="closeCompra()"
+          class="inline-flex h-8 cursor-pointer items-center rounded-lg border border-[#D1D1CD] bg-white px-3 text-xs font-medium text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-[.98]"
+        >
+          Cerrar
+        </button>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+}
+
+
+<!-- MODAL NUEVA COMPRA -->
+@if (createModalOpen()) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-[55] flex items-center justify-center bg-[#111111]/50 p-3 backdrop-blur-[2px] sm:p-5">
+
+    <div class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl border border-[#D1D1CD] bg-[#F3F3F1] shadow-2xl sm:max-h-[calc(100vh-40px)]">
+
+      <div class="flex shrink-0 items-start justify-between gap-4 bg-[#171717] px-5 py-4 text-[#F5F5F5] md:px-6">
+
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F5C400] text-[#171717]">
+              <iconify-icon icon="lucide:shopping-cart" width="16" height="16"></iconify-icon>
+            </div>
+            <h2 class="text-base font-semibold">Nueva compra</h2>
+          </div>
+          <p class="mt-1 pl-10 text-xs text-[#999999]">La compra nace como "Pendiente" hasta que se le aplique un pago.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeCreate()"
+          [disabled]="saving()"
+          title="Cerrar"
+          class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#888888] transition-all duration-150 hover:bg-[#292929] hover:text-white active:scale-95 disabled:opacity-50"
+        >
+          <iconify-icon icon="lucide:x" width="17" height="17" class="transition-transform duration-150 group-hover:rotate-90"></iconify-icon>
+        </button>
+
+      </div>
+
+      <div class="accounting-scroll flex-1 overflow-y-auto">
+
+        <div class="space-y-4 p-5 md:p-6">
+
+          @if (proveedoresActivos().length === 0) {
+
+            <div class="mx-auto flex max-w-sm flex-col items-center py-8 text-center">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#D6D6D2] bg-white text-[#777777]">
+                <iconify-icon icon="lucide:truck" width="21" height="21"></iconify-icon>
+              </div>
+              <h3 class="text-sm font-semibold">Primero registra un proveedor</h3>
+              <p class="mt-1 text-xs leading-5 text-[#777777]">Las compras se hacen a un proveedor activo. Aún no tienes ninguno.</p>
+            </div>
+
+          } @else {
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              <div class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Proveedor</span>
+                <div class="relative">
+                  <select
+                    (change)="onProveedorChange($any($event.target).value)"
+                    [disabled]="saving()"
+                    class="h-9 w-full cursor-pointer appearance-none rounded-lg border border-[#D1D1CD] bg-white px-3 pr-8 text-sm outline-none transition-all duration-200 focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                  >
+                    <option value="" [selected]="compraForm().proveedor_id === null">Seleccionar proveedor</option>
+                    @for (proveedor of proveedoresActivos(); track proveedor.proveedor_id) {
+                      <option [value]="proveedor.proveedor_id" [selected]="compraForm().proveedor_id === proveedor.proveedor_id">
+                        {{ proveedor.nombre_empresa }}
+                      </option>
+                    }
+                  </select>
+                  <iconify-icon icon="lucide:chevron-down" width="14" height="14" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+                </div>
+              </div>
+
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Fecha de la compra</span>
+                <input
+                  type="date"
+                  [value]="compraForm().fecha"
+                  (input)="updateForm('fecha', $any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-9 w-full cursor-pointer rounded-lg border border-[#D1D1CD] bg-white px-3 text-sm outline-none focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                />
+              </label>
+
+            </div>
+
+            <!-- PRODUCTOS -->
+            <div class="overflow-hidden rounded-xl border border-[#D6D6D2] bg-white">
+
+              <div class="flex items-center justify-between border-b border-[#E6E6E2] px-4 py-2.5">
+                <span class="text-xs font-semibold">Productos</span>
+                <span class="text-[11px] text-[#777777]">{{ lineasNuevas().length }} agregados</span>
+              </div>
+
+              <div class="flex items-center gap-2 border-b border-[#E6E6E2] bg-[#F8F8F6] px-3 py-2.5">
+
+                <div class="relative min-w-0 flex-1">
+                  <select
+                    (change)="onAddProducto($any($event.target).value)"
+                    [disabled]="saving()"
+                    class="h-8 w-full cursor-pointer appearance-none rounded-md border border-[#D1D1CD] bg-white px-2.5 pr-7 text-xs outline-none focus:border-[#171717] disabled:opacity-60"
+                  >
+                    <option value="" [selected]="addProducto() === null">Seleccionar producto...</option>
+                    @for (producto of productosActivos(); track producto.producto_id) {
+                      <option [value]="producto.producto_id" [selected]="addProducto() === producto.producto_id">
+                        {{ producto.nombre_producto }}
+                      </option>
+                    }
+                  </select>
+                  <iconify-icon icon="lucide:chevron-down" width="12" height="12" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+                </div>
+
+                <input
+                  type="number" min="1" step="1" title="Cantidad"
+                  [value]="addCantidad()"
+                  (input)="addCantidad.set($any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-8 w-16 rounded-md border border-[#D1D1CD] bg-white px-2 text-right font-mono text-xs outline-none focus:border-[#171717] disabled:opacity-60"
+                />
+
+                <input
+                  type="number" min="0.01" step="0.01" placeholder="Costo" title="Costo unitario"
+                  [value]="addCosto()"
+                  (input)="addCosto.set($any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-8 w-24 rounded-md border border-[#D1D1CD] bg-white px-2 text-right font-mono text-xs outline-none placeholder:text-[#999999] focus:border-[#171717] disabled:opacity-60"
+                />
+
+                <button
+                  type="button"
+                  (click)="agregarLineaNueva()"
+                  [disabled]="saving() || addProducto() === null || !addCosto()"
+                  class="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md bg-[#171717] px-2.5 text-xs font-semibold text-white transition-all hover:bg-[#292929] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <iconify-icon icon="lucide:plus" width="13" height="13"></iconify-icon>
+                  Agregar
+                </button>
+
+              </div>
+
+              <div class="accounting-scroll max-h-[220px] overflow-auto">
+
+                @for (linea of lineasNuevas(); track linea.producto_id) {
+
+                  <div class="flex items-center gap-2 border-b border-[#F1F1ED] px-3 py-2 last:border-b-0">
+
+                    <p class="min-w-0 flex-1 truncate text-sm">{{ getProductoNombre(linea.producto_id) }}</p>
+
+                    <input
+                      type="number" min="1" step="1"
+                      [value]="linea.cantidad"
+                      (input)="actualizarLineaNueva(linea.producto_id, 'cantidad', $any($event.target).value)"
+                      [disabled]="saving()"
+                      class="h-8 w-16 rounded-md border border-[#D1D1CD] bg-[#F8F8F6] px-2 text-right font-mono text-sm outline-none focus:border-[#171717] focus:bg-white disabled:opacity-60"
+                    />
+
+                    <input
+                      type="number" min="0.01" step="0.01"
+                      [value]="linea.costo_unitario"
+                      (input)="actualizarLineaNueva(linea.producto_id, 'costo_unitario', $any($event.target).value)"
+                      [disabled]="saving()"
+                      class="h-8 w-24 rounded-md border border-[#D1D1CD] bg-[#F8F8F6] px-2 text-right font-mono text-sm outline-none focus:border-[#171717] focus:bg-white disabled:opacity-60"
+                    />
+
+                    <span class="w-24 text-right font-mono text-sm font-semibold">
+                      {{ formatAmount(linea.cantidad * linea.costo_unitario) }}
+                    </span>
+
+                    <button
+                      type="button"
+                      (click)="quitarLineaNueva(linea.producto_id)"
+                      [disabled]="saving()"
+                      title="Quitar"
+                      class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:opacity-50"
+                    >
+                      <iconify-icon icon="lucide:x" width="14" height="14"></iconify-icon>
+                    </button>
+
+                  </div>
+
+                } @empty {
+
+                  <p class="px-4 py-6 text-center text-xs text-[#777777]">Agrega al menos un producto a la compra.</p>
+
+                }
+
+              </div>
+
+              <div class="flex items-center justify-between border-t border-[#D6D6D2] bg-[#EBEBE8] px-4 py-2.5">
+                <span class="text-xs font-semibold text-[#4A4A4A]">Total</span>
+                <span class="font-mono text-sm font-semibold">C$ {{ formatAmount(totalNueva()) }}</span>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+      <div class="flex shrink-0 flex-col-reverse gap-2 border-t border-[#D6D6D2] bg-[#EBEBE8] px-5 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6">
+
+        <button
+          type="button"
+          (click)="closeCreate()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#D1D1CD] bg-white px-4 text-sm font-medium text-[#4A4A4A] shadow-sm transition-all duration-150 hover:bg-[#F8F8F6] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="saveCompra()"
+          [disabled]="!isFormValid() || saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#171717] px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#292929] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+        >
+          @if (saving()) {
+            <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+            Creando...
+          } @else {
+            <iconify-icon icon="lucide:shopping-cart" width="15" height="15"></iconify-icon>
+            Crear compra
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- MODAL ELIMINAR -->
+@if (deleteTarget(); as compra) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-[60] flex items-center justify-center bg-[#111111]/50 p-4 backdrop-blur-[2px]">
+
+    <div class="modal-panel-enter w-full max-w-[460px] overflow-hidden rounded-2xl border border-[#e2d8d8] bg-white shadow-2xl">
+
+      <div class="p-5 sm:p-6">
+
+        <div class="flex items-start gap-4">
+
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b13a3a]">
+            <iconify-icon icon="lucide:trash-2" width="19" height="19"></iconify-icon>
+          </div>
+
+          <div>
+            <h2 class="text-base font-semibold">Eliminar compra</h2>
+            <p class="mt-1 text-xs leading-5 text-[#777e86]">
+              Se eliminará la compra con todos sus productos. Esta acción no puede deshacerse.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mt-5 rounded-xl border border-[#eadede] bg-[#fffafa] p-4">
+
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-xs text-[#777e86]">Compra</span>
+            <span class="truncate text-sm font-semibold text-[#9d3b3b]">#{{ compra.compra_id }} · {{ getProveedorNombre(compra.proveedor_id) }}</span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-[#777e86]">Productos</span>
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">{{ getLineas(compra.compra_id).length }}</span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-[#777e86]">Total</span>
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">C$ {{ formatAmount(getTotalCompra(compra.compra_id)) }}</span>
+          </div>
+
+        </div>
+
+        @if (!puedeEliminar(compra)) {
+          <div class="mt-3 flex items-start gap-2 rounded-xl border border-[#f0e3c8] bg-[#fffaf0] p-3 text-xs leading-5 text-[#8a6a2b]">
+            <iconify-icon icon="lucide:info" width="14" height="14" class="mt-0.5 shrink-0"></iconify-icon>
+            Esta compra ya tiene pagos aplicados. Quita esos pagos primero para poder borrarla.
+          </div>
+        }
+
+      </div>
+
+      <div class="flex flex-col-reverse gap-2 border-t border-[#eee7e7] bg-[#fffdfd] px-5 py-4 sm:flex-row sm:justify-end">
+
+        <button
+          type="button"
+          (click)="closeDelete()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#D1D1CD] bg-white px-4 text-sm font-medium text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-[.98] disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="saving() || !puedeEliminar(compra)"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#b13a3a] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#9f3030] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          @if (saving()) {
+            <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+            Eliminando...
+          } @else {
+            <iconify-icon icon="lucide:trash-2" width="15" height="15"></iconify-icon>
+            Eliminar compra
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

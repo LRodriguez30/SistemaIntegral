@@ -1,0 +1,174 @@
+<div class="flex h-full min-h-[520px] flex-col overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm">
+
+  <!-- BARRA DE HERRAMIENTAS -->
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#d5dae0] bg-[#f4f6f8] px-3 py-2">
+
+    <div class="flex items-center gap-2">
+
+      <div class="inline-flex items-center gap-0.5 rounded-md border border-[#c9d0d8] bg-white p-0.5">
+
+        <button
+          type="button"
+          (click)="setMode('documento')"
+          class="inline-flex h-7 cursor-pointer items-center gap-1.5 rounded px-2.5 text-[11px] font-semibold transition-colors"
+          [class]="mode() === 'documento' ? 'bg-[#17324d] text-white' : 'text-[#52606d] hover:text-[#17324d]'"
+        >
+          <iconify-icon icon="lucide:file-text" width="13" height="13"></iconify-icon>
+          Documento
+        </button>
+
+        <button
+          type="button"
+          (click)="setMode('pdf')"
+          [disabled]="!doc()"
+          class="inline-flex h-7 cursor-pointer items-center gap-1.5 rounded px-2.5 text-[11px] font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+          [class]="mode() === 'pdf' ? 'bg-[#17324d] text-white' : 'text-[#52606d] hover:text-[#17324d]'"
+        >
+          <iconify-icon icon="lucide:file-badge" width="13" height="13"></iconify-icon>
+          Vista PDF
+        </button>
+
+      </div>
+
+      @if (mode() === 'documento') {
+
+        <div class="inline-flex items-center gap-0.5 rounded-md border border-[#c9d0d8] bg-white p-0.5">
+
+          @for (z of zoomOpciones; track z) {
+            <button
+              type="button"
+              (click)="zoom.set(z)"
+              class="h-7 cursor-pointer rounded px-2 font-mono text-[11px] font-semibold transition-colors"
+              [class]="zoom() === z ? 'bg-[#e4e9ee] text-[#17324d]' : 'text-[#68737d] hover:text-[#17324d]'"
+            >
+              {{ z }}%
+            </button>
+          }
+
+        </div>
+
+      }
+
+      @if (doc(); as d) {
+        <span class="hidden text-[11px] text-[#68737d] md:inline">
+          {{ d.sections.length }} {{ d.sections.length === 1 ? 'sección' : 'secciones' }} · {{ filas() }} filas
+        </span>
+      }
+
+    </div>
+
+    <div class="flex items-center gap-2">
+
+      <button
+        type="button"
+        (click)="imprimir()"
+        [disabled]="!doc()"
+        class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-[#c9d0d8] bg-white px-3 text-[11px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <iconify-icon icon="lucide:printer" width="14" height="14"></iconify-icon>
+        Imprimir
+      </button>
+
+      <div class="relative">
+
+        <button
+          type="button"
+          (click)="menuOpen.set(!menuOpen())"
+          [disabled]="!doc() || !!working()"
+          class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-[#17324d] px-3.5 text-[11px] font-semibold text-white shadow-sm transition-all hover:bg-[#214766] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          @if (working()) {
+            <iconify-icon icon="lucide:loader-circle" width="14" height="14" class="animate-spin"></iconify-icon>
+            Generando...
+          } @else {
+            <iconify-icon icon="lucide:download" width="14" height="14"></iconify-icon>
+            Exportar
+            <iconify-icon icon="lucide:chevron-down" width="12" height="12"></iconify-icon>
+          }
+        </button>
+
+        @if (menuOpen()) {
+
+          <div class="fixed inset-0 z-30" (click)="menuOpen.set(false)"></div>
+
+          <div class="absolute right-0 z-40 mt-1.5 w-[270px] overflow-hidden rounded-lg border border-[#c9d0d8] bg-white shadow-xl">
+
+            <p class="border-b border-[#e6e9ec] bg-[#f4f6f8] px-3 py-2 text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">
+              Descargar como
+            </p>
+
+            @for (f of formatos; track f.id) {
+
+              <button
+                type="button"
+                (click)="exportar(f.id)"
+                class="flex w-full cursor-pointer items-center gap-3 border-b border-[#f0f2f4] px-3 py-2 text-left transition-colors last:border-b-0 hover:bg-[#f4f6f8]"
+              >
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#eef1f4] text-[#17324d]">
+                  <iconify-icon [icon]="f.icon" width="16" height="16"></iconify-icon>
+                </span>
+
+                <span class="min-w-0 flex-1">
+                  <span class="block text-[12px] font-semibold text-[#17324d]">{{ f.label }}
+                    <span class="font-mono text-[10px] font-normal text-[#8b949d]">{{ f.ext }}</span>
+                  </span>
+                  <span class="block truncate text-[10px] text-[#8b949d]">{{ f.hint }}</span>
+                </span>
+              </button>
+
+            }
+
+          </div>
+
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+  @if (error()) {
+    <div class="flex items-center gap-2 border-b border-[#e9c9c4] bg-[#fdf3f2] px-4 py-2 text-xs text-[#7d2c2c]">
+      <iconify-icon icon="lucide:triangle-alert" width="13" height="13"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  <!-- VISTA PREVIA -->
+  <div class="relative min-h-0 flex-1 overflow-auto bg-[#dde1e6]">
+
+    @if (loading()) {
+
+      <div class="flex h-full min-h-[420px] flex-col items-center justify-center gap-3 text-[#52606d]">
+        <iconify-icon icon="lucide:loader-circle" width="26" height="26" class="animate-spin"></iconify-icon>
+        <p class="text-xs">Reuniendo la información de los módulos...</p>
+      </div>
+
+    } @else if (!doc()) {
+
+      <div class="flex h-full min-h-[420px] flex-col items-center justify-center gap-2 text-[#68737d]">
+        <iconify-icon icon="lucide:file-search" width="30" height="30"></iconify-icon>
+        <p class="text-sm font-medium">Selecciona un documento para ver su vista previa</p>
+      </div>
+
+    } @else if (mode() === 'documento') {
+
+      <iframe
+        title="Vista previa del documento"
+        [srcdoc]="htmlSrc()"
+        class="origin-top-left border-0"
+        [style.width.%]="10000 / zoom()"
+        [style.height.%]="10000 / zoom()"
+        [style.transform]="'scale(' + zoom() / 100 + ')'"
+      ></iframe>
+
+    } @else if (pdfSrc()) {
+
+      <iframe title="Vista previa PDF" [src]="pdfSrc()" class="h-full w-full border-0"></iframe>
+
+    }
+
+  </div>
+
+</div>

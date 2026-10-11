@@ -1,0 +1,572 @@
+<section
+  class="accounting-page-enter min-h-full bg-[#f3f3f1] px-3 py-4 text-[#171717] sm:px-4 sm:py-5 md:px-6 md:py-6"
+>
+
+  <div class="mx-auto max-w-[1700px] space-y-4">
+
+    <!-- ENCABEZADO -->
+    <header class="overflow-hidden rounded-2xl bg-[#171717] text-[#f5f5f5] shadow-lg">
+
+      <div class="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between md:px-6">
+
+        <div class="min-w-0">
+
+          <div class="mb-2 flex items-center gap-2 text-xs font-medium text-[#888888]">
+            <span>Compras</span>
+            <iconify-icon icon="lucide:chevron-right" width="13" height="13"></iconify-icon>
+            <span class="text-[#d4d4d4]">Proveedores</span>
+          </div>
+
+          <div class="flex items-start gap-3">
+
+            <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F5C400] text-[#171717]">
+              <iconify-icon icon="lucide:truck" width="20" height="20"></iconify-icon>
+            </div>
+
+            <div class="min-w-0">
+              <h1 class="text-xl font-semibold tracking-[-0.02em] sm:text-2xl">Proveedores</h1>
+              <p class="mt-1 max-w-xl text-sm leading-5 text-[#999999]">
+                Empresas a las que les compras y les pagas.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+
+          <button
+            type="button"
+            (click)="refreshData()"
+            [disabled]="loadingAny()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#363636] bg-[#242424] px-3 text-sm font-medium text-[#cccccc] transition-all duration-200 hover:border-[#4a4a4a] hover:bg-[#2d2d2d] hover:text-white active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon
+              icon="lucide:refresh-cw"
+              width="15"
+              height="15"
+              class="transition-transform duration-300 group-hover:rotate-45"
+              [class.animate-spin]="loading()"
+            ></iconify-icon>
+            <span>{{ loading() ? 'Actualizando...' : 'Actualizar' }}</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="openCreate()"
+            [disabled]="loadingAny()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#F5C400] px-3.5 text-sm font-semibold text-[#171717] shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#FFD52E] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:plus" width="16" height="16" class="transition-transform duration-200 group-hover:rotate-90"></iconify-icon>
+            <span>Nuevo proveedor</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- INDICADORES -->
+      <div class="grid grid-cols-2 border-t border-[#303030] sm:grid-cols-4">
+
+        @if (loading()) {
+
+          @for (item of [1, 2, 3, 4]; track item) {
+            <div class="space-y-2 border-[#303030] px-5 py-4 sm:border-r">
+              <div class="h-3 w-20 animate-pulse rounded bg-[#303030]"></div>
+              <div class="h-7 w-12 animate-pulse rounded bg-[#303030]"></div>
+            </div>
+          }
+
+        } @else {
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 sm:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Total</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums">{{ totalProveedores() }}</p>
+          </div>
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 sm:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Activos</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#83C995]">{{ totalActivos() }}</p>
+          </div>
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 sm:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Inactivos</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#999999]">{{ totalInactivos() }}</p>
+          </div>
+
+          <div class="summary-card-enter px-5 py-4">
+            <p class="text-[11px] font-medium text-[#888888]">Con compras</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#F5C400]">{{ totalConCompras() }}</p>
+          </div>
+
+        }
+
+      </div>
+
+    </header>
+
+
+    <!-- ERROR -->
+    @if (errorMessage()) {
+
+      <div class="status-pulse flex items-start gap-3 rounded-xl border border-[#e9c9c4] bg-white px-4 py-3 shadow-sm">
+
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff1f1] text-[#b13a3a]">
+          <iconify-icon icon="lucide:triangle-alert" width="16" height="16"></iconify-icon>
+        </div>
+
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-[#343a40]">No fue posible completar la operación</p>
+          <p class="mt-0.5 text-xs text-[#777e86]">{{ errorMessage() }}</p>
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- BÚSQUEDA Y FILTRO -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+
+      <div class="relative sm:w-[340px]">
+
+        <iconify-icon
+          icon="lucide:search"
+          width="15"
+          height="15"
+          class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#777777]"
+        ></iconify-icon>
+
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="searchTerm.set($any($event.target).value)"
+          placeholder="Buscar por empresa, RUC, correo..."
+          class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-[#F8F8F6] pl-9 pr-3 text-sm text-[#171717] outline-none transition-all duration-200 placeholder:text-[#777777] focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20"
+        />
+
+      </div>
+
+      <div class="inline-flex w-fit items-center gap-1 rounded-lg border border-[#D1D1CD] bg-[#EBEBE8] p-1">
+
+        @for (opcion of [['todos', 'Todos'], ['activos', 'Activos'], ['inactivos', 'Inactivos']]; track opcion[0]) {
+
+          <button
+            type="button"
+            (click)="filtro.set($any(opcion[0]))"
+            class="inline-flex h-7 cursor-pointer items-center rounded-md px-3 text-xs font-medium transition-all duration-150"
+            [class]="filtro() === opcion[0] ? 'bg-[#171717] text-white shadow-sm' : 'text-[#4A4A4A] hover:text-[#171717]'"
+          >
+            {{ opcion[1] }}
+          </button>
+
+        }
+
+      </div>
+
+    </div>
+
+
+    <!-- TABLA -->
+    <section class="overflow-hidden rounded-xl border border-[#D6D6D2] bg-white shadow-sm">
+
+      <div class="accounting-scroll max-h-[calc(100vh-380px)] min-h-[340px] overflow-auto">
+
+        <table class="w-full min-w-[960px] border-collapse">
+
+          <thead>
+            <tr class="border-b border-[#DADAD6] bg-[#EBEBE8]">
+              @for (titulo of ['Proveedor', 'RUC', 'Contacto', 'Compras', 'Pagos', 'Estado', 'Acciones']; track titulo) {
+                <th class="sticky top-0 z-10 bg-[#EBEBE8] px-4 py-3 text-left text-[11px] font-semibold text-[#666666]">
+                  {{ titulo }}
+                </th>
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @if (loading()) {
+
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr class="border-b border-[#E6E6E2]">
+                  @for (col of [1, 2, 3, 4, 5, 6, 7]; track col) {
+                    <td class="px-4 py-4"><div class="skeleton h-4 w-20 rounded"></div></td>
+                  }
+                </tr>
+              }
+
+            } @else {
+
+              @for (proveedor of filtrados(); track proveedor.proveedor_id; let i = $index) {
+
+                <tr
+                  class="table-row-enter border-b border-[#E6E6E2] transition-colors duration-150 hover:bg-[#FAFAF7]"
+                  [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                >
+
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                      <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#171717] text-xs font-semibold text-[#F5C400]">
+                        {{ getIniciales(proveedor.nombre_empresa) }}
+                      </span>
+                      <div class="min-w-0">
+                        <p class="truncate text-sm font-medium text-[#171717]">{{ proveedor.nombre_empresa }}</p>
+                        <p class="max-w-[260px] truncate text-xs text-[#777777]">{{ proveedor.direccion }}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-xs text-[#4A4A4A]">{{ proveedor.ruc }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <p class="text-sm text-[#171717]">{{ proveedor.correo }}</p>
+                    <p class="font-mono text-xs text-[#777777]">{{ proveedor.telefono }}</p>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-sm font-semibold text-[#171717]">{{ getTotalCompras(proveedor.proveedor_id) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-sm font-semibold text-[#171717]">{{ getTotalPagos(proveedor.proveedor_id) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <button
+                      type="button"
+                      (click)="toggleEstado(proveedor)"
+                      [disabled]="loadingAny()"
+                      [title]="proveedor.estado ? 'Desactivar' : 'Activar'"
+                      class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                      [class]="proveedor.estado ? 'bg-[#dcefe2] text-[#2c5a3d]' : 'bg-[#e6e8e4] text-[#555d56]'"
+                    >
+                      <span class="h-1.5 w-1.5 rounded-full" [class]="proveedor.estado ? 'bg-[#3c7650]' : 'bg-[#8a9189]'"></span>
+                      {{ proveedor.estado ? 'Activo' : 'Inactivo' }}
+                    </button>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-1">
+
+                      <button
+                        type="button"
+                        (click)="openEdit(proveedor)"
+                        [disabled]="loadingAny()"
+                        title="Editar"
+                        class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all duration-150 hover:bg-[#EBEBE8] hover:text-[#171717] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <iconify-icon icon="lucide:pencil" width="14" height="14"></iconify-icon>
+                      </button>
+
+                      <button
+                        type="button"
+                        (click)="openDelete(proveedor)"
+                        [disabled]="loadingAny()"
+                        title="Eliminar"
+                        class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <iconify-icon icon="lucide:trash-2" width="14" height="14"></iconify-icon>
+                      </button>
+
+                    </div>
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <tr>
+                  <td colspan="7" class="px-5 py-16 text-center">
+                    <iconify-icon icon="lucide:truck" width="22" height="22" class="text-[#999999]"></iconify-icon>
+                    <h3 class="mt-2 text-sm font-semibold text-[#171717]">No hay proveedores para mostrar</h3>
+                    <p class="mt-1 text-xs text-[#777777]">Prueba con otra búsqueda o registra un proveedor nuevo.</p>
+                  </td>
+                </tr>
+
+              }
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+
+<!-- MODAL CREAR / EDITAR -->
+@if (modalOpen()) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-[55] flex items-center justify-center bg-[#111111]/50 p-3 backdrop-blur-[2px] sm:p-5">
+
+    <div class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[620px] flex-col overflow-hidden rounded-2xl border border-[#D1D1CD] bg-[#F3F3F1] shadow-2xl sm:max-h-[calc(100vh-40px)]">
+
+      <div class="flex shrink-0 items-start justify-between gap-4 bg-[#171717] px-5 py-4 text-[#F5F5F5] md:px-6">
+
+        <div class="flex items-center gap-2">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F5C400] text-[#171717]">
+            <iconify-icon icon="lucide:truck" width="16" height="16"></iconify-icon>
+          </div>
+          <h2 class="text-base font-semibold">
+            {{ editingId() === null ? 'Nuevo proveedor' : 'Editar proveedor' }}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeModal()"
+          [disabled]="saving()"
+          title="Cerrar"
+          class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#888888] transition-all duration-150 hover:bg-[#292929] hover:text-white active:scale-95 disabled:opacity-50"
+        >
+          <iconify-icon icon="lucide:x" width="17" height="17" class="transition-transform duration-150 group-hover:rotate-90"></iconify-icon>
+        </button>
+
+      </div>
+
+      <div class="accounting-scroll flex-1 overflow-y-auto">
+
+        <div class="space-y-4 p-5 md:p-6">
+
+          <label class="block">
+            <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Nombre de la empresa</span>
+            <input
+              type="text"
+              [value]="form().nombre_empresa"
+              (input)="updateForm('nombre_empresa', $any($event.target).value)"
+              [disabled]="saving()"
+              class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-white px-3 text-sm outline-none transition-all duration-200 focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+            />
+          </label>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+            <label class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">
+                    RUC
+                </span>
+
+                <input
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="14"
+                    autocomplete="off"
+                    [value]="form().ruc"
+                    (input)="updateForm('ruc', $any($event.target).value)"
+                    [disabled]="saving()"
+                    [attr.aria-invalid]="rucInvalido()"
+                    placeholder="00000000000000"
+                    class="h-9 w-full rounded-lg border bg-white px-3 font-mono text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                    [class]="
+                    form().ruc.length > 0 && rucInvalido()
+                        ? 'border-[#c9807a]'
+                        : 'border-[#D1D1CD] focus:border-[#171717]'
+                    "
+                />
+
+                @if (form().ruc.length > 0 && rucInvalido()) {
+                    <span class="mt-1 block text-[11px] text-[#9d3b3b]">
+                    El RUC debe contener exactamente 14 dígitos numéricos.
+                    </span>
+                } @else {
+                    <span class="mt-1 block text-[11px] text-[#777777]">
+                    Introduce los 14 dígitos del RUC, sin espacios ni guiones.
+                    </span>
+                }
+                </label>
+
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Teléfono</span>
+              <input
+                type="text"
+                [value]="form().telefono"
+                (input)="updateForm('telefono', $any($event.target).value)"
+                [disabled]="saving()"
+                placeholder="+505 8888 8888"
+                class="h-9 w-full rounded-lg border bg-white px-3 font-mono text-sm outline-none transition-all duration-200 placeholder:text-[#999999] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                [class]="telefonoInvalido() ? 'border-[#c9807a]' : 'border-[#D1D1CD] focus:border-[#171717]'"
+              />
+              @if (telefonoInvalido()) {
+                <span class="mt-1 block text-[11px] text-[#9d3b3b]">Usa formato internacional, por ejemplo +50588888888.</span>
+              }
+            </label>
+
+          </div>
+
+          <label class="block">
+            <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Correo</span>
+            <input
+              type="email"
+              [value]="form().correo"
+              (input)="updateForm('correo', $any($event.target).value)"
+              [disabled]="saving()"
+              class="h-9 w-full rounded-lg border bg-white px-3 text-sm outline-none transition-all duration-200 focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+              [class]="correoInvalido() ? 'border-[#c9807a]' : 'border-[#D1D1CD] focus:border-[#171717]'"
+            />
+            @if (correoInvalido()) {
+              <span class="mt-1 block text-[11px] text-[#9d3b3b]">El correo no es válido.</span>
+            }
+          </label>
+
+          <label class="block">
+            <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Dirección</span>
+            <input
+              type="text"
+              [value]="form().direccion"
+              (input)="updateForm('direccion', $any($event.target).value)"
+              [disabled]="saving()"
+              class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-white px-3 text-sm outline-none transition-all duration-200 focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+            />
+          </label>
+
+          <button
+            type="button"
+            (click)="updateForm('estado', !form().estado)"
+            [disabled]="saving()"
+            class="flex w-full cursor-pointer items-center justify-between rounded-xl border border-[#D6D6D2] bg-white px-4 py-3 text-left transition-all hover:bg-[#FAFAF7] disabled:opacity-60"
+          >
+            <div>
+              <p class="text-sm font-medium text-[#171717]">Proveedor activo</p>
+              <p class="text-xs text-[#777777]">Solo los activos aparecen al registrar compras y pagos.</p>
+            </div>
+            <span class="relative h-5 w-9 rounded-full transition-colors" [class]="form().estado ? 'bg-[#171717]' : 'bg-[#D1D1CD]'">
+              <span class="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-all" [class]="form().estado ? 'left-[18px]' : 'left-0.5'"></span>
+            </span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="flex shrink-0 flex-col-reverse gap-2 border-t border-[#D6D6D2] bg-[#EBEBE8] px-5 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6">
+
+        <button
+          type="button"
+          (click)="closeModal()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#D1D1CD] bg-white px-4 text-sm font-medium text-[#4A4A4A] shadow-sm transition-all duration-150 hover:bg-[#F8F8F6] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="save()"
+          [disabled]="!isFormValid() || saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#171717] px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#292929] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+        >
+          @if (saving()) {
+            <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+            Guardando...
+          } @else {
+            <iconify-icon icon="lucide:save" width="15" height="15"></iconify-icon>
+            {{ editingId() === null ? 'Crear proveedor' : 'Guardar cambios' }}
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- MODAL ELIMINAR -->
+@if (deleteTarget(); as proveedor) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-[60] flex items-center justify-center bg-[#111111]/50 p-4 backdrop-blur-[2px]">
+
+    <div class="modal-panel-enter w-full max-w-[460px] overflow-hidden rounded-2xl border border-[#e2d8d8] bg-white shadow-2xl">
+
+      <div class="p-5 sm:p-6">
+
+        <div class="flex items-start gap-4">
+
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b13a3a]">
+            <iconify-icon icon="lucide:trash-2" width="19" height="19"></iconify-icon>
+          </div>
+
+          <div>
+            <h2 class="text-base font-semibold text-[#171717]">Eliminar proveedor</h2>
+            <p class="mt-1 text-xs leading-5 text-[#777e86]">
+              Esta acción no puede deshacerse. Si solo quieres dejar de usarlo, es mejor marcarlo como inactivo.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mt-5 rounded-xl border border-[#eadede] bg-[#fffafa] p-4">
+
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-xs text-[#777e86]">Proveedor</span>
+            <span class="truncate text-sm font-semibold text-[#9d3b3b]">{{ proveedor.nombre_empresa }}</span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-[#777e86]">Compras</span>
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">{{ getTotalCompras(proveedor.proveedor_id) }}</span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-[#777e86]">Pagos</span>
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">{{ getTotalPagos(proveedor.proveedor_id) }}</span>
+          </div>
+
+        </div>
+
+        @if (!puedeEliminar(proveedor)) {
+
+          <div class="mt-3 flex items-start gap-2 rounded-xl border border-[#f0e3c8] bg-[#fffaf0] p-3 text-xs leading-5 text-[#8a6a2b]">
+            <iconify-icon icon="lucide:info" width="14" height="14" class="mt-0.5 shrink-0"></iconify-icon>
+            Este proveedor tiene compras o pagos registrados, así que no se puede eliminar.
+          </div>
+
+        }
+
+      </div>
+
+      <div class="flex flex-col-reverse gap-2 border-t border-[#eee7e7] bg-[#fffdfd] px-5 py-4 sm:flex-row sm:justify-end">
+
+        <button
+          type="button"
+          (click)="closeDelete()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#D1D1CD] bg-white px-4 text-sm font-medium text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-[.98] disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="saving() || !puedeEliminar(proveedor)"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#b13a3a] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#9f3030] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          @if (saving()) {
+            <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+            Eliminando...
+          } @else {
+            <iconify-icon icon="lucide:trash-2" width="15" height="15"></iconify-icon>
+            Eliminar proveedor
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

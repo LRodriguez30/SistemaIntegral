@@ -899,21 +899,34 @@ export class Admin implements OnInit {
     }
 
 
-    if (url.includes('/admin/contalab/clientes')) {
+    if (url.includes('/admin/contalab/ventas/clientes')) {
 
       return 'Clientes';
 
     }
 
+    if (url.includes('/admin/contalab/ventas/productos')) {
 
-    if (url.includes('/admin/contalab/facturas')) {
+      return 'Productos';
+
+    }
+
+
+    if (url.includes('/admin/contalab/ventas/pedidos')) {
+
+      return 'Pedidos';
+
+    }
+
+
+    if (url.includes('/admin/contalab/ventas/facturas')) {
 
       return 'Facturas';
 
     }
 
 
-    if (url.includes('/admin/contalab/cobros')) {
+    if (url.includes('/admin/contalab/ventas/cobros')) {
 
       return 'Cobros';
 
@@ -1262,19 +1275,31 @@ export class Admin implements OnInit {
         {
           label: 'Clientes',
           icon: 'lucide:users-round',
-          route: '/admin/contalab/clientes'
+          route: '/admin/contalab/ventas/clientes'
+        },
+
+        {
+          label: 'Productos',
+          icon: 'lucide:package',
+          route: '/admin/contalab/ventas/productos'
+        },
+
+        {
+          label: 'Pedidos',
+          icon: 'lucide:shopping-bag',
+          route: '/admin/contalab/ventas/pedidos'
         },
 
         {
           label: 'Facturas',
           icon: 'lucide:file-text',
-          route: '/admin/contalab/facturas'
+          route: '/admin/contalab/ventas/facturas'
         },
 
         {
           label: 'Cobros',
           icon: 'lucide:hand-coins',
-          route: '/admin/contalab/cobros'
+          route: '/admin/contalab/ventas/cobros'
         }
 
       ]
@@ -1292,19 +1317,19 @@ export class Admin implements OnInit {
         {
           label: 'Proveedores',
           icon: 'lucide:truck',
-          route: '/admin/contalab/proveedores'
+          route: '/admin/contalab/compras/proveedores'
         },
 
         {
           label: 'Compras',
           icon: 'lucide:shopping-cart',
-          route: '/admin/contalab/compras'
+          route: '/admin/contalab/compras/compras'
         },
 
         {
           label: 'Pagos a proveedores',
           icon: 'lucide:credit-card',
-          route: '/admin/contalab/pagos-proveedores'
+          route: '/admin/contalab/compras/pagos-proveedores'
         }
 
       ]
@@ -1346,7 +1371,7 @@ export class Admin implements OnInit {
         {
           label: 'Reportes',
           icon: 'lucide:file-chart-column',
-          route: '/admin/contalab/reportes'
+          route: '/admin/contalab/analisis/reportes'
         },
 
         {
@@ -1358,7 +1383,7 @@ export class Admin implements OnInit {
         {
           label: 'Gráficas',
           icon: 'lucide:chart-pie',
-          route: '/admin/contalab/graficas'
+          route: '/admin/contalab/analisis/graficas'
         }
 
       ]

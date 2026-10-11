@@ -1,0 +1,301 @@
+<section class="min-h-full bg-[#eceff2] px-3 py-4 text-[#1c2733] md:px-6 md:py-6">
+
+  <div class="mx-auto max-w-[1700px] space-y-4">
+
+    <!-- ENCABEZADO -->
+    <header class="overflow-hidden rounded-xl border border-[#0f2438] bg-[#17324d] text-white shadow-md">
+
+      <div class="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-end lg:justify-between md:px-7">
+
+        <div>
+          <div class="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.14em] text-[#8fa6bb]">
+            <iconify-icon icon="lucide:chart-no-axes-combined" width="13" height="13"></iconify-icon>
+            Análisis
+            <iconify-icon icon="lucide:chevron-right" width="12" height="12"></iconify-icon>
+            <span class="text-[#d6e0ea]">Gráficas</span>
+          </div>
+
+          <h1 class="font-serif text-[28px] font-bold leading-none tracking-[-0.01em]">Gráficas</h1>
+          <p class="mt-2 max-w-xl text-[13px] text-[#a9bccd]">
+            Panorama visual de ventas, compras, cartera, nómina y resultados. Cada gráfica se descarga como imagen.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-end gap-3">
+
+          <label class="block">
+            <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.1em] text-[#8fa6bb]">Razón social del encabezado</span>
+            <input
+              type="text"
+              [value]="empresa()"
+              (change)="setEmpresa($any($event.target).value)"
+              class="h-9 w-[220px] rounded-md border border-[#34506b] bg-[#0f2438] px-3 text-[13px] text-white outline-none transition-colors focus:border-[#8fa6bb]"
+            />
+          </label>
+
+          <button
+            type="button"
+            (click)="cargar()"
+            [disabled]="loading()"
+            class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-[#34506b] bg-[#1f4262] px-3.5 text-[12px] font-semibold text-white transition-all hover:bg-[#27506f] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:refresh-cw" width="14" height="14" [class.animate-spin]="loading()"></iconify-icon>
+            {{ loading() ? 'Actualizando...' : 'Actualizar datos' }}
+          </button>
+
+        </div>
+
+      </div>
+
+    </header>
+
+    @if (errorMessage()) {
+      <div class="flex items-center gap-2 rounded-lg border border-[#e1c3bf] bg-[#fdf3f2] px-4 py-3 text-xs text-[#7d2c2c]">
+        <iconify-icon icon="lucide:triangle-alert" width="15" height="15"></iconify-icon>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (warnings().length) {
+      <div class="flex items-start gap-2 rounded-lg border border-[#ecd9a8] bg-[#fffaf0] px-4 py-3 text-xs text-[#7a5a14]">
+        <iconify-icon icon="lucide:info" width="15" height="15" class="mt-0.5 shrink-0"></iconify-icon>
+        <span>No se pudieron leer estos módulos: <strong>{{ warnings().join(', ') }}</strong>.</span>
+      </div>
+    }
+
+
+    <!-- FILTROS Y EXPORTACIÓN -->
+    <div class="flex flex-wrap items-end gap-3 rounded-xl border border-[#c9d0d8] bg-white px-4 py-3 shadow-sm">
+
+      <label class="block">
+        <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">Desde</span>
+        <input type="date" [value]="filtro().desde" (change)="setFiltro('desde', $any($event.target).value)"
+          class="h-8 cursor-pointer rounded-md border border-[#c9d0d8] bg-white px-2 text-xs outline-none focus:border-[#17324d]" />
+      </label>
+
+      <label class="block">
+        <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">Hasta</span>
+        <input type="date" [value]="filtro().hasta" (change)="setFiltro('hasta', $any($event.target).value)"
+          class="h-8 cursor-pointer rounded-md border border-[#c9d0d8] bg-white px-2 text-xs outline-none focus:border-[#17324d]" />
+      </label>
+
+      <div class="inline-flex items-center gap-0.5 rounded-md border border-[#c9d0d8] bg-[#f4f6f8] p-0.5">
+        @for (p of [['mes', 'Mes'], ['trimestre', 'Trimestre'], ['anio', 'Año'], ['anio-anterior', 'Año ant.']]; track p[0]) {
+          <button type="button" (click)="preset($any(p[0]))"
+            class="h-7 cursor-pointer rounded px-2.5 text-[11px] font-semibold text-[#52606d] transition-colors hover:bg-white hover:text-[#17324d]">
+            {{ p[1] }}
+          </button>
+        }
+      </div>
+
+      <div class="ml-auto flex items-center gap-2">
+
+        <button
+          type="button"
+          (click)="abrirVistaPdf()"
+          [disabled]="loading() || rangoInvalido() || pdfBuilding()"
+          class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md border border-[#c9d0d8] bg-white px-3 text-[11px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <iconify-icon icon="lucide:file-badge" width="14" height="14"></iconify-icon>
+          Informe PDF con gráficas
+        </button>
+
+        <div class="relative">
+
+          <button
+            type="button"
+            (click)="menuOpen.set(!menuOpen())"
+            [disabled]="loading() || !!working() || rangoInvalido()"
+            class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-[#17324d] px-3.5 text-[11px] font-semibold text-white shadow-sm transition-all hover:bg-[#214766] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            @if (working()) {
+              <iconify-icon icon="lucide:loader-circle" width="14" height="14" class="animate-spin"></iconify-icon>
+              Generando...
+            } @else {
+              <iconify-icon icon="lucide:download" width="14" height="14"></iconify-icon>
+              Exportar datos
+              <iconify-icon icon="lucide:chevron-down" width="12" height="12"></iconify-icon>
+            }
+          </button>
+
+          @if (menuOpen()) {
+
+            <div class="fixed inset-0 z-30" (click)="menuOpen.set(false)"></div>
+
+            <div class="absolute right-0 z-40 mt-1.5 w-[260px] overflow-hidden rounded-lg border border-[#c9d0d8] bg-white shadow-xl">
+
+              <p class="border-b border-[#e6e9ec] bg-[#f4f6f8] px-3 py-2 text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">Datos de todas las gráficas</p>
+
+              @for (f of formatos; track f.id) {
+                <button
+                  type="button"
+                  (click)="exportarDatos(f.id)"
+                  class="flex w-full cursor-pointer items-center gap-3 border-b border-[#f0f2f4] px-3 py-2 text-left transition-colors last:border-b-0 hover:bg-[#f4f6f8]"
+                >
+                  <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[#eef1f4] text-[#17324d]">
+                    <iconify-icon [icon]="f.icon" width="16" height="16"></iconify-icon>
+                  </span>
+                  <span class="text-[12px] font-semibold text-[#17324d]">{{ f.label }}
+                    <span class="font-mono text-[10px] font-normal text-[#8b949d]">{{ f.ext }}</span>
+                  </span>
+                </button>
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+
+    @if (rangoInvalido()) {
+      <div class="flex items-center gap-2 rounded-lg border border-[#e1c3bf] bg-[#fdf3f2] px-4 py-2 text-xs text-[#7d2c2c]">
+        <iconify-icon icon="lucide:triangle-alert" width="14" height="14"></iconify-icon>
+        La fecha inicial no puede ser posterior a la final.
+      </div>
+    }
+
+
+    <!-- INDICADORES -->
+    <div class="grid grid-cols-2 overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm md:grid-cols-4">
+
+      @if (loading()) {
+
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+          <div class="space-y-2 border-b border-r border-[#e6e9ec] px-5 py-4">
+            <div class="h-3 w-20 animate-pulse rounded bg-[#e6e9ec]"></div>
+            <div class="h-5 w-28 animate-pulse rounded bg-[#e6e9ec]"></div>
+          </div>
+        }
+
+      } @else {
+
+        @for (k of kpis(); track k.label) {
+          <div class="border-b border-r border-[#e6e9ec] px-5 py-3.5">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">{{ k.label }}</p>
+              <iconify-icon [icon]="k.icon" width="14" height="14" class="text-[#9aa5af]"></iconify-icon>
+            </div>
+            <p class="mt-1.5 font-mono text-[17px] font-semibold tabular-nums" [class]="k.tono">C$ {{ money(k.valor) }}</p>
+            <p class="text-[10px] text-[#8b949d]">{{ k.nota }}</p>
+          </div>
+        }
+
+      }
+
+    </div>
+
+
+    <!-- GRÁFICAS -->
+    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+
+      @if (loading()) {
+
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="h-[380px] animate-pulse rounded-xl border border-[#c9d0d8] bg-white"></div>
+        }
+
+      } @else {
+
+        @for (c of charts(); track c.id) {
+
+          <article class="overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm">
+
+            <div class="flex items-start justify-between gap-3 border-b border-[#e6e9ec] bg-[#f9fafb] px-4 py-3">
+
+              <div class="min-w-0">
+                <h2 class="font-serif text-[15px] font-bold text-[#17324d]">{{ c.title }}</h2>
+                <p class="text-[11px] text-[#68737d]">{{ c.subtitle }}</p>
+              </div>
+
+              <div class="flex shrink-0 gap-1.5">
+
+                <button type="button" (click)="descargarSvg(c)" [disabled]="c.vacio" title="Descargar como SVG (vectorial)"
+                  class="inline-flex h-7 cursor-pointer items-center gap-1 rounded-md border border-[#c9d0d8] bg-white px-2 text-[10px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">
+                  <iconify-icon icon="lucide:file-code" width="12" height="12"></iconify-icon> SVG
+                </button>
+
+                <button type="button" (click)="descargarPng(c)" [disabled]="c.vacio" title="Descargar como imagen PNG"
+                  class="inline-flex h-7 cursor-pointer items-center gap-1 rounded-md border border-[#c9d0d8] bg-white px-2 text-[10px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40">
+                  <iconify-icon icon="lucide:image" width="12" height="12"></iconify-icon> PNG
+                </button>
+
+              </div>
+
+            </div>
+
+            <div class="chart p-3" [innerHTML]="c.html"></div>
+
+          </article>
+
+        }
+
+      }
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- VISTA PREVIA DEL INFORME PDF -->
+@if (pdfModal()) {
+
+  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-[#0f2438]/60 p-3 backdrop-blur-[2px] sm:p-6">
+
+    <div class="flex h-full max-h-[900px] w-full max-w-[960px] flex-col overflow-hidden rounded-xl border border-[#0f2438] bg-white shadow-2xl">
+
+      <div class="flex items-center justify-between gap-3 bg-[#17324d] px-5 py-3 text-white">
+
+        <div>
+          <p class="font-serif text-[15px] font-bold">Vista previa del informe</p>
+          <p class="text-[11px] text-[#a9bccd]">Revisa el documento antes de descargarlo.</p>
+        </div>
+
+        <div class="flex items-center gap-2">
+
+          <button
+            type="button"
+            (click)="descargarPdf()"
+            [disabled]="pdfBuilding() || !pdfSrc()"
+            class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-white px-3.5 text-[11px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <iconify-icon icon="lucide:download" width="14" height="14"></iconify-icon>
+            Descargar PDF
+          </button>
+
+          <button
+            type="button"
+            (click)="cerrarVistaPdf()"
+            title="Cerrar"
+            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-[#a9bccd] transition-colors hover:bg-[#214766] hover:text-white"
+          >
+            <iconify-icon icon="lucide:x" width="17" height="17"></iconify-icon>
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="min-h-0 flex-1 bg-[#dde1e6]">
+
+        @if (pdfBuilding()) {
+          <div class="flex h-full flex-col items-center justify-center gap-3 text-[#52606d]">
+            <iconify-icon icon="lucide:loader-circle" width="26" height="26" class="animate-spin"></iconify-icon>
+            <p class="text-xs">Componiendo el informe...</p>
+          </div>
+        } @else if (pdfSrc()) {
+          <iframe title="Informe PDF" [src]="pdfSrc()" class="h-full w-full border-0"></iframe>
+        }
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

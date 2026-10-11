@@ -1,0 +1,880 @@
+<section
+  class="accounting-page-enter min-h-full bg-[#f3f3f1] px-3 py-4 text-[#171717] sm:px-4 sm:py-5 md:px-6 md:py-6"
+>
+
+  <div class="mx-auto max-w-[1700px] space-y-4">
+
+    <!-- ENCABEZADO -->
+    <header class="overflow-hidden rounded-2xl bg-[#171717] text-[#f5f5f5] shadow-lg">
+
+      <div class="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between md:px-6">
+
+        <div class="min-w-0">
+
+          <div class="mb-2 flex items-center gap-2 text-xs font-medium text-[#888888]">
+            <span>Compras</span>
+            <iconify-icon icon="lucide:chevron-right" width="13" height="13"></iconify-icon>
+            <span class="text-[#d4d4d4]">Pagos a proveedores</span>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <div class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F5C400] text-[#171717]">
+              <iconify-icon icon="lucide:credit-card" width="20" height="20"></iconify-icon>
+            </div>
+            <div class="min-w-0">
+              <h1 class="text-xl font-semibold tracking-[-0.02em] sm:text-2xl">Pagos a proveedores</h1>
+              <p class="mt-1 max-w-xl text-sm leading-5 text-[#999999]">
+                Registra cada pago y aplícalo a las compras que cubre.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+
+          <button
+            type="button"
+            (click)="refreshData()"
+            [disabled]="loadingAny()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg border border-[#363636] bg-[#242424] px-3 text-sm font-medium text-[#cccccc] transition-all duration-200 hover:border-[#4a4a4a] hover:bg-[#2d2d2d] hover:text-white active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:refresh-cw" width="15" height="15" class="transition-transform duration-300 group-hover:rotate-45" [class.animate-spin]="loading()"></iconify-icon>
+            <span>{{ loading() ? 'Actualizando...' : 'Actualizar' }}</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="openCreate()"
+            [disabled]="loadingAny()"
+            class="group inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#F5C400] px-3.5 text-sm font-semibold text-[#171717] shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#FFD52E] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:plus" width="16" height="16" class="transition-transform duration-200 group-hover:rotate-90"></iconify-icon>
+            <span>Nuevo pago</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- INDICADORES -->
+      <div class="grid grid-cols-2 border-t border-[#303030] lg:grid-cols-4">
+
+        @if (loading()) {
+
+          @for (item of [1, 2, 3, 4]; track item) {
+            <div class="space-y-2 border-[#303030] px-5 py-4 lg:border-r">
+              <div class="h-3 w-20 animate-pulse rounded bg-[#303030]"></div>
+              <div class="h-7 w-16 animate-pulse rounded bg-[#303030]"></div>
+            </div>
+          }
+
+        } @else {
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 lg:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Pagos registrados</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums">{{ totalPagos() }}</p>
+          </div>
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 lg:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Total pagado</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#83C995]">C$ {{ formatAmount(totalAplicado()) }}</p>
+          </div>
+
+          <div class="summary-card-enter border-[#303030] px-5 py-4 lg:border-r">
+            <p class="text-[11px] font-medium text-[#888888]">Pagado este mes</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums text-[#F5C400]">C$ {{ formatAmount(totalMes()) }}</p>
+          </div>
+
+          <div class="summary-card-enter px-5 py-4">
+            <p class="text-[11px] font-medium text-[#888888]">Sin aplicar a compras</p>
+            <p class="mt-1 font-mono text-2xl font-semibold tabular-nums" [class]="totalSinAplicar() > 0 ? 'text-[#FF9185]' : 'text-[#F5F5F5]'">
+              {{ totalSinAplicar() }}
+            </p>
+          </div>
+
+        }
+
+      </div>
+
+    </header>
+
+
+    <!-- ERROR -->
+    @if (errorMessage()) {
+
+      <div class="status-pulse flex items-start gap-3 rounded-xl border border-[#e9c9c4] bg-white px-4 py-3 shadow-sm">
+        <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#fff1f1] text-[#b13a3a]">
+          <iconify-icon icon="lucide:triangle-alert" width="16" height="16"></iconify-icon>
+        </div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-[#343a40]">No fue posible completar la operación</p>
+          <p class="mt-0.5 text-xs text-[#777e86]">{{ errorMessage() }}</p>
+        </div>
+      </div>
+
+    }
+
+
+    <!-- BÚSQUEDA -->
+    <div class="relative sm:w-[360px]">
+      <iconify-icon icon="lucide:search" width="15" height="15" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+      <input
+        type="text"
+        [value]="searchTerm()"
+        (input)="searchTerm.set($any($event.target).value)"
+        placeholder="Buscar por número, proveedor o referencia..."
+        class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-[#F8F8F6] pl-9 pr-3 text-sm text-[#171717] outline-none transition-all duration-200 placeholder:text-[#777777] focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20"
+      />
+    </div>
+
+
+    <!-- LISTA -->
+    <section class="overflow-hidden rounded-xl border border-[#D6D6D2] bg-white shadow-sm">
+
+      <div class="accounting-scroll max-h-[calc(100vh-380px)] min-h-[340px] overflow-auto">
+
+        <table class="w-full min-w-[1000px] border-collapse">
+
+          <thead>
+            <tr class="border-b border-[#DADAD6] bg-[#EBEBE8]">
+              @for (titulo of ['Pago', 'Proveedor', 'Fecha', 'Método', 'Referencia', 'Estado', 'Compras', 'Monto', 'Acciones']; track titulo) {
+                <th
+                  class="sticky top-0 z-10 bg-[#EBEBE8] px-4 py-3 text-[11px] font-semibold text-[#666666]"
+                  [class]="titulo === 'Monto' ? 'text-right' : 'text-left'"
+                >
+                  {{ titulo }}
+                </th>
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+
+            @if (loading()) {
+
+              @for (row of [1, 2, 3, 4, 5]; track row) {
+                <tr class="border-b border-[#E6E6E2]">
+                  @for (col of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track col) {
+                    <td class="px-4 py-4"><div class="skeleton h-4 w-16 rounded"></div></td>
+                  }
+                </tr>
+              }
+
+            } @else {
+
+              @for (pago of pagosFiltrados(); track pago.pago_id; let i = $index) {
+
+                <tr
+                  (click)="openPago(pago)"
+                  class="table-row-enter cursor-pointer border-b border-[#E6E6E2] transition-colors duration-150 hover:bg-[#FAFAF7]"
+                  [class.bg-[#FFF8D8]]="selectedId() === pago.pago_id"
+                  [style.animation-delay]="(i < 12 ? i : 12) * 25 + 'ms'"
+                >
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-[13px] font-semibold">#{{ pago.pago_id }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <p class="max-w-[220px] truncate text-sm font-medium">{{ getProveedorNombre(pago.proveedor_id) }}</p>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-xs text-[#4A4A4A]">{{ formatDate(pago.fecha_pago) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-1.5 text-sm text-[#4A4A4A]">
+                      <iconify-icon [icon]="getMetodo(pago.metodo_pago).icon" width="14" height="14" class="text-[#777777]"></iconify-icon>
+                      {{ getMetodoLabel(pago.metodo_pago) }}
+                    </span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-xs text-[#4A4A4A]">{{ pago.referencia || '—' }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold" [class]="getEstado(pago.estado).chip">
+                      <iconify-icon [icon]="getEstado(pago.estado).icon" width="12" height="12"></iconify-icon>
+                      {{ getEstado(pago.estado).label }}
+                    </span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <span class="font-mono text-xs text-[#4A4A4A]">{{ getAplicaciones(pago.pago_id).length }}</span>
+                  </td>
+
+                  <td class="px-4 py-3 text-right">
+                    <span class="font-mono text-sm font-semibold">C$ {{ formatAmount(getTotalPago(pago.pago_id)) }}</span>
+                  </td>
+
+                  <td class="px-4 py-3">
+                    <button
+                      type="button"
+                      (click)="openDelete(pago); $event.stopPropagation()"
+                      [disabled]="loadingAny()"
+                      title="Eliminar pago"
+                      class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all duration-150 hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <iconify-icon icon="lucide:trash-2" width="14" height="14"></iconify-icon>
+                    </button>
+                  </td>
+
+                </tr>
+
+              } @empty {
+
+                <tr>
+                  <td colspan="9" class="px-5 py-16 text-center">
+                    <iconify-icon icon="lucide:credit-card" width="22" height="22" class="text-[#999999]"></iconify-icon>
+                    <h3 class="mt-2 text-sm font-semibold">No hay pagos para mostrar</h3>
+                    <p class="mt-1 text-xs text-[#777777]">Prueba con otra búsqueda o registra un pago nuevo.</p>
+                  </td>
+                </tr>
+
+              }
+
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</section>
+
+
+<!-- PANEL DEL PAGO -->
+@if (pagoSeleccionado(); as pago) {
+
+  <div class="fixed inset-0 z-50 flex justify-end">
+
+    <div class="modal-backdrop-enter absolute inset-0 bg-[#111111]/45 backdrop-blur-[2px]" (click)="closePago()"></div>
+
+    <aside class="drawer-enter relative flex h-full w-full max-w-[560px] flex-col bg-[#F3F3F1] shadow-2xl">
+
+      <div class="shrink-0 bg-[#171717] px-5 py-4 text-[#F5F5F5]">
+
+        <div class="flex items-start justify-between gap-3">
+
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-mono text-lg font-semibold">Pago #{{ pago.pago_id }}</span>
+              <span class="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[11px] font-semibold" [class]="getEstado(pago.estado).chip">
+                <iconify-icon [icon]="getEstado(pago.estado).icon" width="12" height="12"></iconify-icon>
+                {{ getEstado(pago.estado).label }}
+              </span>
+            </div>
+            <p class="mt-1 truncate text-sm text-[#D0D0D0]">
+              {{ getProveedorNombre(pago.proveedor_id) }}
+              <span class="font-mono text-xs text-[#888888]">· {{ formatDate(pago.fecha_pago) }}</span>
+            </p>
+          </div>
+
+          <button
+            type="button"
+            (click)="closePago()"
+            title="Cerrar"
+            class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#888888] transition-all duration-150 hover:bg-[#292929] hover:text-white active:scale-95"
+          >
+            <iconify-icon icon="lucide:x" width="17" height="17" class="transition-transform duration-150 group-hover:rotate-90"></iconify-icon>
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="accounting-scroll flex-1 space-y-5 overflow-y-auto p-5">
+
+        <!-- MONTO -->
+        <section class="flex items-center justify-between rounded-xl border border-[#D6D6D2] bg-white px-4 py-3">
+          <div>
+            <p class="text-[10px] font-medium text-[#777777]">Monto del pago</p>
+            <p class="mt-0.5 font-mono text-xl font-semibold">C$ {{ formatAmount(totalSeleccionado()) }}</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 text-sm text-[#4A4A4A]">
+            <iconify-icon [icon]="getMetodo(pago.metodo_pago).icon" width="16" height="16" class="text-[#777777]"></iconify-icon>
+            {{ getMetodoLabel(pago.metodo_pago) }}
+          </span>
+        </section>
+
+
+        <!-- DATOS -->
+        <section class="rounded-xl border border-[#D6D6D2] bg-white">
+
+          <div class="flex items-center justify-between border-b border-[#E6E6E2] px-4 py-2.5">
+
+            <h3 class="text-xs font-semibold">Datos del pago</h3>
+
+            @if (!editandoDatos()) {
+              <button
+                type="button"
+                (click)="openEditDatos()"
+                [disabled]="saving()"
+                class="inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-[#4A4A4A] transition-colors hover:text-[#171717] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <iconify-icon icon="lucide:pencil" width="12" height="12"></iconify-icon>
+                Editar
+              </button>
+            }
+
+          </div>
+
+          <div class="space-y-3 p-4">
+
+            @if (editandoDatos()) {
+
+              <label class="block">
+                <span class="mb-1 block text-[10px] font-medium text-[#777777]">Estado</span>
+                <div class="relative">
+                  <select
+                    (change)="updateDatos('estado', $any($event.target).value)"
+                    [disabled]="saving()"
+                    class="h-9 w-full cursor-pointer appearance-none rounded-lg border border-[#D1D1CD] bg-[#F8F8F6] px-3 pr-8 text-sm outline-none focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                  >
+                    @for (estado of estados; track estado.id) {
+                      <option [value]="estado.id" [selected]="datosForm().estado === estado.id">{{ estado.label }}</option>
+                    }
+                  </select>
+                  <iconify-icon icon="lucide:chevron-down" width="14" height="14" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+                </div>
+              </label>
+
+              <label class="block">
+                <span class="mb-1 block text-[10px] font-medium text-[#777777]">Referencia</span>
+                <input
+                  type="text"
+                  [value]="datosForm().referencia"
+                  (input)="updateDatos('referencia', $any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-[#F8F8F6] px-3 font-mono text-sm outline-none focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                />
+              </label>
+
+              <label class="block">
+                <span class="mb-1 block text-[10px] font-medium text-[#777777]">Observaciones</span>
+                <textarea
+                  rows="3"
+                  [value]="datosForm().observaciones"
+                  (input)="updateDatos('observaciones', $any($event.target).value)"
+                  [disabled]="saving()"
+                  class="w-full resize-none rounded-lg border border-[#D1D1CD] bg-[#F8F8F6] px-3 py-2 text-sm outline-none focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                ></textarea>
+              </label>
+
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  (click)="cancelEditDatos()"
+                  [disabled]="saving()"
+                  class="inline-flex h-8 cursor-pointer items-center rounded-lg border border-[#D1D1CD] bg-white px-3 text-xs font-medium text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-[.98] disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  (click)="saveDatos()"
+                  [disabled]="saving()"
+                  class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-[#171717] px-3 text-xs font-semibold text-white transition-all hover:bg-[#292929] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <iconify-icon icon="lucide:save" width="13" height="13"></iconify-icon>
+                  Guardar
+                </button>
+              </div>
+
+            } @else {
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <p class="text-[10px] font-medium text-[#777777]">Fecha</p>
+                  <p class="mt-0.5 text-sm font-semibold">{{ formatDate(pago.fecha_pago) }}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-medium text-[#777777]">Referencia</p>
+                  <p class="mt-0.5 font-mono text-sm">{{ pago.referencia || '—' }}</p>
+                </div>
+              </div>
+
+              @if (pago.observaciones) {
+                <div>
+                  <p class="text-[10px] font-medium text-[#777777]">Observaciones</p>
+                  <p class="mt-0.5 text-sm text-[#4A4A4A]">{{ pago.observaciones }}</p>
+                </div>
+              }
+
+            }
+
+          </div>
+
+        </section>
+
+
+        <!-- COMPRAS CUBIERTAS -->
+        <section class="rounded-xl border border-[#D6D6D2] bg-white">
+
+          <div class="flex items-center justify-between border-b border-[#E6E6E2] px-4 py-2.5">
+            <h3 class="text-xs font-semibold">Compras que cubre</h3>
+            <span class="text-[11px] text-[#777777]">{{ aplicacionesSeleccionado().length }} compras</span>
+          </div>
+
+          @for (aplicacion of aplicacionesSeleccionado(); track aplicacion.detalle_pago_id) {
+
+            <div class="flex items-center gap-2 border-b border-[#F1F1ED] px-4 py-2.5">
+
+              <div class="min-w-0 flex-1">
+                <p class="font-mono text-xs font-semibold">Compra {{ getCompraResumen(aplicacion.compra_id) }}</p>
+                <p class="text-[10px] text-[#777777]">
+                  Total C$ {{ formatAmount(getTotalCompra(aplicacion.compra_id)) }} · Saldo C$ {{ formatAmount(getSaldoCompra(aplicacion.compra_id)) }}
+                </p>
+              </div>
+
+              @if (aplicacionesEditables()) {
+
+                <input
+                  type="number" min="0.01" step="0.01"
+                  [value]="aplicacion.monto_aplicado"
+                  (change)="actualizarAplicacion(aplicacion, $any($event.target))"
+                  [disabled]="saving()"
+                  class="h-8 w-28 rounded-md border border-[#D1D1CD] bg-[#F8F8F6] px-2 text-right font-mono text-sm outline-none focus:border-[#171717] focus:bg-white focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                />
+
+                <button
+                  type="button"
+                  (click)="eliminarAplicacion(aplicacion)"
+                  [disabled]="saving()"
+                  title="Quitar de este pago"
+                  class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:opacity-50"
+                >
+                  <iconify-icon icon="lucide:x" width="14" height="14"></iconify-icon>
+                </button>
+
+              } @else {
+
+                <span class="font-mono text-sm font-semibold">C$ {{ formatAmount(aplicacion.monto_aplicado) }}</span>
+
+              }
+
+            </div>
+
+          } @empty {
+
+            <p class="px-4 py-5 text-center text-xs text-[#777777]">Este pago todavía no se aplica a ninguna compra.</p>
+
+          }
+
+          @if (aplicacionesEditables()) {
+
+            <div class="flex items-center gap-2 border-t border-[#E6E6E2] bg-[#F8F8F6] px-3 py-2.5">
+
+              <div class="relative min-w-0 flex-1">
+                <select
+                  (change)="onAddCompra($any($event.target).value)"
+                  [disabled]="saving() || comprasAbiertasSeleccionado().length === 0"
+                  class="h-8 w-full cursor-pointer appearance-none rounded-md border border-[#D1D1CD] bg-white px-2.5 pr-7 text-xs outline-none focus:border-[#171717] disabled:opacity-60"
+                >
+                  <option value="" [selected]="addCompra() === null">
+                    {{ comprasAbiertasSeleccionado().length ? 'Aplicar a una compra...' : 'Sin compras con saldo' }}
+                  </option>
+                  @for (compra of comprasAbiertasSeleccionado(); track compra.compra_id) {
+                    <option [value]="compra.compra_id" [selected]="addCompra() === compra.compra_id">
+                      #{{ compra.compra_id }} · saldo C$ {{ formatAmount(getSaldoCompra(compra.compra_id)) }}
+                    </option>
+                  }
+                </select>
+                <iconify-icon icon="lucide:chevron-down" width="12" height="12" class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+              </div>
+
+              <input
+                type="number" min="0.01" step="0.01" placeholder="Monto" title="Monto a aplicar"
+                [value]="addMonto()"
+                (input)="addMonto.set($any($event.target).value)"
+                [disabled]="saving() || addCompra() === null"
+                class="h-8 w-28 rounded-md border border-[#D1D1CD] bg-white px-2 text-right font-mono text-xs outline-none placeholder:text-[#999999] focus:border-[#171717] disabled:opacity-60"
+              />
+
+              <button
+                type="button"
+                (click)="agregarAplicacion()"
+                [disabled]="saving() || addCompra() === null || !addMonto()"
+                class="inline-flex h-8 cursor-pointer items-center gap-1 rounded-md bg-[#171717] px-2.5 text-xs font-semibold text-white transition-all hover:bg-[#292929] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <iconify-icon icon="lucide:plus" width="13" height="13"></iconify-icon>
+                Aplicar
+              </button>
+
+            </div>
+
+          }
+
+          <div class="flex items-center justify-between rounded-b-xl border-t border-[#D6D6D2] bg-[#EBEBE8] px-4 py-2.5">
+            <span class="text-xs font-semibold text-[#4A4A4A]">Total aplicado</span>
+            <span class="font-mono text-sm font-semibold">C$ {{ formatAmount(totalSeleccionado()) }}</span>
+          </div>
+
+        </section>
+
+      </div>
+
+      <div class="flex shrink-0 items-center justify-between border-t border-[#D6D6D2] bg-[#EBEBE8] px-5 py-3">
+
+        <button
+          type="button"
+          (click)="openDelete(pago)"
+          [disabled]="loadingAny()"
+          class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium text-[#9d3b3b] transition-all hover:bg-[#fff3f3] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <iconify-icon icon="lucide:trash-2" width="13" height="13"></iconify-icon>
+          Eliminar pago
+        </button>
+
+        <button
+          type="button"
+          (click)="closePago()"
+          class="inline-flex h-8 cursor-pointer items-center rounded-lg border border-[#D1D1CD] bg-white px-3 text-xs font-medium text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-[.98]"
+        >
+          Cerrar
+        </button>
+
+      </div>
+
+    </aside>
+
+  </div>
+
+}
+
+
+<!-- MODAL NUEVO PAGO -->
+@if (createModalOpen()) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-[55] flex items-center justify-center bg-[#111111]/50 p-3 backdrop-blur-[2px] sm:p-5">
+
+    <div class="modal-panel-enter flex max-h-[calc(100vh-24px)] w-full max-w-[720px] flex-col overflow-hidden rounded-2xl border border-[#D1D1CD] bg-[#F3F3F1] shadow-2xl sm:max-h-[calc(100vh-40px)]">
+
+      <div class="flex shrink-0 items-start justify-between gap-4 bg-[#171717] px-5 py-4 text-[#F5F5F5] md:px-6">
+
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#F5C400] text-[#171717]">
+              <iconify-icon icon="lucide:credit-card" width="16" height="16"></iconify-icon>
+            </div>
+            <h2 class="text-base font-semibold">Nuevo pago</h2>
+          </div>
+          <p class="mt-1 pl-10 text-xs text-[#999999]">El monto del pago es la suma de lo que apliques a cada compra.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeCreate()"
+          [disabled]="saving()"
+          title="Cerrar"
+          class="group flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[#888888] transition-all duration-150 hover:bg-[#292929] hover:text-white active:scale-95 disabled:opacity-50"
+        >
+          <iconify-icon icon="lucide:x" width="17" height="17" class="transition-transform duration-150 group-hover:rotate-90"></iconify-icon>
+        </button>
+
+      </div>
+
+      <div class="accounting-scroll flex-1 overflow-y-auto">
+
+        <div class="space-y-4 p-5 md:p-6">
+
+          @if (proveedoresActivos().length === 0) {
+
+            <div class="mx-auto flex max-w-sm flex-col items-center py-8 text-center">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#D6D6D2] bg-white text-[#777777]">
+                <iconify-icon icon="lucide:truck" width="21" height="21"></iconify-icon>
+              </div>
+              <h3 class="text-sm font-semibold">Primero registra un proveedor</h3>
+              <p class="mt-1 text-xs leading-5 text-[#777777]">Los pagos se hacen a un proveedor activo. Aún no tienes ninguno.</p>
+            </div>
+
+          } @else {
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              <div class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Proveedor</span>
+                <div class="relative">
+                  <select
+                    (change)="onProveedorChange($any($event.target).value)"
+                    [disabled]="saving()"
+                    class="h-9 w-full cursor-pointer appearance-none rounded-lg border border-[#D1D1CD] bg-white px-3 pr-8 text-sm outline-none transition-all duration-200 focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                  >
+                    <option value="" [selected]="pagoForm().proveedor_id === null">Seleccionar proveedor</option>
+                    @for (proveedor of proveedoresActivos(); track proveedor.proveedor_id) {
+                      <option [value]="proveedor.proveedor_id" [selected]="pagoForm().proveedor_id === proveedor.proveedor_id">
+                        {{ proveedor.nombre_empresa }}
+                      </option>
+                    }
+                  </select>
+                  <iconify-icon icon="lucide:chevron-down" width="14" height="14" class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#777777]"></iconify-icon>
+                </div>
+              </div>
+
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Fecha del pago</span>
+                <input
+                  type="date"
+                  [value]="pagoForm().fecha_pago"
+                  (input)="updateForm('fecha_pago', $any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-9 w-full cursor-pointer rounded-lg border border-[#D1D1CD] bg-white px-3 text-sm outline-none focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                />
+              </label>
+
+            </div>
+
+            <!-- MÉTODO -->
+            <div>
+              <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">Método de pago</span>
+              <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
+                @for (metodo of metodos; track metodo.id) {
+                  <button
+                    type="button"
+                    (click)="updateForm('metodo_pago', metodo.id)"
+                    [disabled]="saving()"
+                    class="flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg border text-xs font-medium transition-all active:scale-[.98] disabled:opacity-60"
+                    [class]="pagoForm().metodo_pago === metodo.id ? 'border-[#171717] bg-[#171717] text-white' : 'border-[#D1D1CD] bg-white text-[#4A4A4A] hover:bg-[#F8F8F6]'"
+                  >
+                    <iconify-icon [icon]="metodo.icon" width="13" height="13"></iconify-icon>
+                    {{ metodo.label }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">
+                  Referencia <span class="font-normal text-[#777777]">(opcional)</span>
+                </span>
+                <input
+                  type="text"
+                  [value]="pagoForm().referencia"
+                  (input)="updateForm('referencia', $any($event.target).value)"
+                  [disabled]="saving()"
+                  placeholder="N.º de transferencia, cheque..."
+                  class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-white px-3 font-mono text-sm outline-none placeholder:font-sans placeholder:text-[#999999] focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                />
+              </label>
+
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-medium text-[#4A4A4A]">
+                  Observaciones <span class="font-normal text-[#777777]">(opcional)</span>
+                </span>
+                <input
+                  type="text"
+                  [value]="pagoForm().observaciones"
+                  (input)="updateForm('observaciones', $any($event.target).value)"
+                  [disabled]="saving()"
+                  class="h-9 w-full rounded-lg border border-[#D1D1CD] bg-white px-3 text-sm outline-none focus:border-[#171717] focus:ring-2 focus:ring-[#F5C400]/20 disabled:opacity-60"
+                />
+              </label>
+
+            </div>
+
+            <!-- COMPRAS A PAGAR -->
+            <div class="overflow-hidden rounded-xl border border-[#D6D6D2] bg-white">
+
+              <div class="flex items-center justify-between border-b border-[#E6E6E2] px-4 py-2.5">
+                <span class="text-xs font-semibold">Compras a pagar</span>
+                <span class="text-[11px] text-[#777777]">{{ comprasAbiertasNuevo().length }} con saldo</span>
+              </div>
+
+              <div class="accounting-scroll max-h-[240px] overflow-auto">
+
+                @for (compra of comprasAbiertasNuevo(); track compra.compra_id) {
+
+                  <div class="flex items-center gap-2 border-b border-[#F1F1ED] px-3 py-2 last:border-b-0">
+
+                    <div class="min-w-0 flex-1">
+                      <p class="font-mono text-xs font-semibold">Compra {{ getCompraResumen(compra.compra_id) }}</p>
+                      <p class="text-[10px] text-[#777777]">
+                        Total C$ {{ formatAmount(getTotalCompra(compra.compra_id)) }} · Saldo C$ {{ formatAmount(getSaldoCompra(compra.compra_id)) }}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      (click)="pagarSaldo(compra.compra_id)"
+                      [disabled]="saving()"
+                      class="h-7 cursor-pointer rounded-md border border-[#D1D1CD] bg-white px-2 text-[10px] font-semibold text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-95 disabled:opacity-50"
+                    >
+                      Pagar saldo
+                    </button>
+
+                    <input
+                      type="number" min="0" step="0.01" placeholder="0.00"
+                      [value]="montosNuevos()[compra.compra_id]"
+                      (input)="setMonto(compra.compra_id, $any($event.target).value)"
+                      [disabled]="saving()"
+                      class="h-8 w-28 rounded-md border bg-[#F8F8F6] px-2 text-right font-mono text-sm outline-none focus:bg-white disabled:opacity-60"
+                      [class]="(montosNuevos()[compra.compra_id]) !== '' && +(montosNuevos()[compra.compra_id]) > getSaldoCompra(compra.compra_id) ? 'border-[#c9807a]' : 'border-[#D1D1CD] focus:border-[#171717]'"
+                    />
+
+                    <button
+                      type="button"
+                      (click)="quitarMonto(compra.compra_id)"
+                      [disabled]="saving() || !montosNuevos()[compra.compra_id]"
+                      title="Limpiar"
+                      class="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-[#888888] transition-all hover:bg-[#fff3f3] hover:text-[#b13a3a] active:scale-95 disabled:opacity-30"
+                    >
+                      <iconify-icon icon="lucide:x" width="14" height="14"></iconify-icon>
+                    </button>
+
+                  </div>
+
+                } @empty {
+
+                  <p class="px-4 py-6 text-center text-xs text-[#777777]">
+                    {{ pagoForm().proveedor_id === null
+                        ? 'Selecciona un proveedor para ver sus compras con saldo.'
+                        : 'Este proveedor no tiene compras con saldo pendiente.' }}
+                  </p>
+
+                }
+
+              </div>
+
+              @if (montosExcedidos()) {
+                <div class="flex items-center gap-2 border-t border-[#e9c9c4] bg-[#fdf3f2] px-4 py-2 text-[11px] text-[#7d2c2c]">
+                  <iconify-icon icon="lucide:triangle-alert" width="12" height="12"></iconify-icon>
+                  Un monto supera el saldo de su compra.
+                </div>
+              }
+
+              <div class="flex items-center justify-between border-t border-[#D6D6D2] bg-[#EBEBE8] px-4 py-2.5">
+                <span class="text-xs font-semibold text-[#4A4A4A]">Total del pago</span>
+                <span class="font-mono text-sm font-semibold">C$ {{ formatAmount(totalNuevo()) }}</span>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+      <div class="flex shrink-0 flex-col-reverse gap-2 border-t border-[#D6D6D2] bg-[#EBEBE8] px-5 py-4 sm:flex-row sm:items-center sm:justify-end md:px-6">
+
+        <button
+          type="button"
+          (click)="closeCreate()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#D1D1CD] bg-white px-4 text-sm font-medium text-[#4A4A4A] shadow-sm transition-all duration-150 hover:bg-[#F8F8F6] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="savePago()"
+          [disabled]="!isFormValid() || saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#171717] px-4 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:-translate-y-px hover:bg-[#292929] hover:shadow-md active:translate-y-0 active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+        >
+          @if (saving()) {
+            <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+            Registrando...
+          } @else {
+            <iconify-icon icon="lucide:credit-card" width="15" height="15"></iconify-icon>
+            Registrar pago
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}
+
+
+<!-- MODAL ELIMINAR -->
+@if (deleteTarget(); as pago) {
+
+  <div class="modal-backdrop-enter fixed inset-0 z-[60] flex items-center justify-center bg-[#111111]/50 p-4 backdrop-blur-[2px]">
+
+    <div class="modal-panel-enter w-full max-w-[460px] overflow-hidden rounded-2xl border border-[#e2d8d8] bg-white shadow-2xl">
+
+      <div class="p-5 sm:p-6">
+
+        <div class="flex items-start gap-4">
+
+          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#fff0f0] text-[#b13a3a]">
+            <iconify-icon icon="lucide:trash-2" width="19" height="19"></iconify-icon>
+          </div>
+
+          <div>
+            <h2 class="text-base font-semibold">Eliminar pago</h2>
+            <p class="mt-1 text-xs leading-5 text-[#777e86]">
+              Se eliminará el pago junto con lo aplicado a cada compra. Si solo quieres invalidarlo, es mejor marcarlo como anulado.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mt-5 rounded-xl border border-[#eadede] bg-[#fffafa] p-4">
+
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-xs text-[#777e86]">Pago</span>
+            <span class="truncate text-sm font-semibold text-[#9d3b3b]">#{{ pago.pago_id }} · {{ getProveedorNombre(pago.proveedor_id) }}</span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-[#777e86]">Compras cubiertas</span>
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">{{ getAplicaciones(pago.pago_id).length }}</span>
+          </div>
+
+          <div class="mt-2 flex items-center justify-between">
+            <span class="text-xs text-[#777e86]">Monto</span>
+            <span class="font-mono text-sm font-semibold text-[#9d3b3b]">C$ {{ formatAmount(getTotalPago(pago.pago_id)) }}</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="flex flex-col-reverse gap-2 border-t border-[#eee7e7] bg-[#fffdfd] px-5 py-4 sm:flex-row sm:justify-end">
+
+        <button
+          type="button"
+          (click)="closeDelete()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center rounded-lg border border-[#D1D1CD] bg-white px-4 text-sm font-medium text-[#4A4A4A] transition-all hover:bg-[#F8F8F6] active:scale-[.98] disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          (click)="confirmDelete()"
+          [disabled]="saving()"
+          class="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#b13a3a] px-4 text-sm font-medium text-white shadow-sm transition-all duration-200 hover:bg-[#9f3030] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          @if (saving()) {
+            <iconify-icon icon="lucide:loader-circle" width="15" height="15" class="animate-spin"></iconify-icon>
+            Eliminando...
+          } @else {
+            <iconify-icon icon="lucide:trash-2" width="15" height="15"></iconify-icon>
+            Eliminar pago
+          }
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+}

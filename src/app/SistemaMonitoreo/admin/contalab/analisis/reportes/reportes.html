@@ -1,0 +1,374 @@
+<section class="min-h-full bg-[#eceff2] px-3 py-4 text-[#1c2733] md:px-6 md:py-6">
+
+  <div class="mx-auto max-w-[1700px] space-y-4">
+
+    <!-- ENCABEZADO -->
+    <header class="overflow-hidden rounded-xl border border-[#0f2438] bg-[#17324d] text-white shadow-md">
+
+      <div class="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-end lg:justify-between md:px-7">
+
+        <div>
+          <div class="mb-2 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[.14em] text-[#8fa6bb]">
+            <iconify-icon icon="lucide:chart-no-axes-combined" width="13" height="13"></iconify-icon>
+            Análisis
+            <iconify-icon icon="lucide:chevron-right" width="12" height="12"></iconify-icon>
+            <span class="text-[#d6e0ea]">Reportes</span>
+          </div>
+
+          <h1 class="font-serif text-[28px] font-bold leading-none tracking-[-0.01em]">Reportes</h1>
+          <p class="mt-2 max-w-xl text-[13px] text-[#a9bccd]">
+            Informes contables y operativos con vista previa, exportación a múltiples formatos e importación de datos.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-end gap-3">
+
+          <label class="block">
+            <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.1em] text-[#8fa6bb]">Razón social del encabezado</span>
+            <input
+              type="text"
+              [value]="empresa()"
+              (change)="setEmpresa($any($event.target).value)"
+              class="h-9 w-[230px] rounded-md border border-[#34506b] bg-[#0f2438] px-3 text-[13px] text-white outline-none transition-colors placeholder:text-[#6f879d] focus:border-[#8fa6bb]"
+            />
+          </label>
+
+          <button
+            type="button"
+            (click)="cargar()"
+            [disabled]="loading()"
+            class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border border-[#34506b] bg-[#1f4262] px-3.5 text-[12px] font-semibold text-white transition-all hover:bg-[#27506f] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <iconify-icon icon="lucide:refresh-cw" width="14" height="14" [class.animate-spin]="loading()"></iconify-icon>
+            {{ loading() ? 'Actualizando...' : 'Actualizar datos' }}
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- PESTAÑAS -->
+      <div class="flex gap-1 border-t border-[#0f2438] bg-[#12293f] px-5 pt-2 md:px-7">
+
+        @for (t of [['reportes', 'Reportes', 'lucide:file-chart-column'], ['importar', 'Importar datos', 'lucide:file-up']]; track t[0]) {
+          <button
+            type="button"
+            (click)="tab.set($any(t[0]))"
+            class="inline-flex h-9 cursor-pointer items-center gap-2 rounded-t-md px-4 text-[12px] font-semibold transition-colors"
+            [class]="tab() === t[0] ? 'bg-[#eceff2] text-[#17324d]' : 'text-[#a9bccd] hover:text-white'"
+          >
+            <iconify-icon [icon]="t[2]" width="14" height="14"></iconify-icon>
+            {{ t[1] }}
+          </button>
+        }
+
+      </div>
+
+    </header>
+
+    @if (errorMessage()) {
+      <div class="flex items-center gap-2 rounded-lg border border-[#e1c3bf] bg-[#fdf3f2] px-4 py-3 text-xs text-[#7d2c2c]">
+        <iconify-icon icon="lucide:triangle-alert" width="15" height="15"></iconify-icon>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (warnings().length) {
+      <div class="flex items-start gap-2 rounded-lg border border-[#ecd9a8] bg-[#fffaf0] px-4 py-3 text-xs text-[#7a5a14]">
+        <iconify-icon icon="lucide:info" width="15" height="15" class="mt-0.5 shrink-0"></iconify-icon>
+        <span>No se pudieron leer estos módulos, por lo que sus cifras aparecen en cero: <strong>{{ warnings().join(', ') }}</strong>.</span>
+      </div>
+    }
+
+
+    <!-- =====================================================
+         REPORTES
+         ===================================================== -->
+    @if (tab() === 'reportes') {
+
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+
+        <!-- ÍNDICE -->
+        <aside class="overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm lg:max-h-[calc(100vh-250px)] lg:overflow-y-auto">
+
+          <div class="sticky top-0 z-10 border-b border-[#e0e4e8] bg-[#f4f6f8] p-3">
+            <p class="mb-2 font-serif text-[13px] font-bold text-[#17324d]">Índice de reportes</p>
+            <div class="relative">
+              <iconify-icon icon="lucide:search" width="14" height="14" class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[#8b949d]"></iconify-icon>
+              <input
+                type="text"
+                [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value)"
+                placeholder="Buscar reporte..."
+                class="h-8 w-full rounded-md border border-[#c9d0d8] bg-white pl-8 pr-2 text-xs outline-none focus:border-[#17324d]"
+              />
+            </div>
+          </div>
+
+          @for (g of grupos(); track g.nombre) {
+
+            <p class="border-b border-[#eef0f3] bg-[#fafbfc] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[.12em] text-[#8b949d]">{{ g.nombre }}</p>
+
+            @for (item of g.items; track item.def.id) {
+
+              <button
+                type="button"
+                (click)="selectedId.set(item.def.id)"
+                class="flex w-full cursor-pointer items-start gap-3 border-b border-[#f0f2f4] px-4 py-2.5 text-left transition-colors hover:bg-[#f4f6f8]"
+                [class]="selectedId() === item.def.id ? 'bg-[#e8edf2] shadow-[inset_3px_0_0_#17324d]' : ''"
+              >
+                <span class="mt-0.5 w-5 shrink-0 text-right font-mono text-[11px] text-[#8b949d]">{{ item.num }}.</span>
+                <span class="min-w-0">
+                  <span class="block text-[12.5px] font-semibold text-[#17324d]">{{ item.def.nombre }}</span>
+                  <span class="mt-0.5 block text-[11px] leading-4 text-[#68737d]">{{ item.def.descripcion }}</span>
+                </span>
+              </button>
+
+            }
+
+          } @empty {
+            <p class="px-4 py-8 text-center text-xs text-[#8b949d]">Ningún reporte coincide con la búsqueda.</p>
+          }
+
+        </aside>
+
+
+        <!-- DOCUMENTO -->
+        <div class="flex min-w-0 flex-col gap-3">
+
+          <div class="flex flex-wrap items-end gap-3 rounded-xl border border-[#c9d0d8] bg-white px-4 py-3 shadow-sm">
+
+            <div class="mr-auto min-w-[200px]">
+              <p class="font-serif text-[16px] font-bold text-[#17324d]">{{ seleccionado()?.nombre }}</p>
+              <p class="text-[11px] text-[#68737d]">{{ seleccionado()?.descripcion }}</p>
+            </div>
+
+            @if (seleccionado()?.modo === 'rango') {
+
+              <label class="block">
+                <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">Desde</span>
+                <input type="date" [value]="filtro().desde" (change)="setFiltro('desde', $any($event.target).value)"
+                  class="h-8 cursor-pointer rounded-md border border-[#c9d0d8] bg-white px-2 text-xs outline-none focus:border-[#17324d]" />
+              </label>
+
+              <label class="block">
+                <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">Hasta</span>
+                <input type="date" [value]="filtro().hasta" (change)="setFiltro('hasta', $any($event.target).value)"
+                  class="h-8 cursor-pointer rounded-md border border-[#c9d0d8] bg-white px-2 text-xs outline-none focus:border-[#17324d]" />
+              </label>
+
+            } @else {
+
+              <label class="block">
+                <span class="mb-1 block text-[10px] font-semibold uppercase tracking-[.08em] text-[#68737d]">Fecha de corte</span>
+                <input type="date" [value]="filtro().hasta" (change)="setFiltro('hasta', $any($event.target).value)"
+                  class="h-8 cursor-pointer rounded-md border border-[#c9d0d8] bg-white px-2 text-xs outline-none focus:border-[#17324d]" />
+              </label>
+
+            }
+
+            <div class="inline-flex items-center gap-0.5 rounded-md border border-[#c9d0d8] bg-[#f4f6f8] p-0.5">
+              @for (p of [['mes', 'Mes'], ['trimestre', 'Trimestre'], ['anio', 'Año'], ['anio-anterior', 'Año ant.']]; track p[0]) {
+                <button type="button" (click)="preset($any(p[0]))"
+                  class="h-7 cursor-pointer rounded px-2.5 text-[11px] font-semibold text-[#52606d] transition-colors hover:bg-white hover:text-[#17324d]">
+                  {{ p[1] }}
+                </button>
+              }
+            </div>
+
+          </div>
+
+          @if (rangoInvalido()) {
+            <div class="flex items-center gap-2 rounded-lg border border-[#e1c3bf] bg-[#fdf3f2] px-4 py-2 text-xs text-[#7d2c2c]">
+              <iconify-icon icon="lucide:triangle-alert" width="14" height="14"></iconify-icon>
+              La fecha inicial no puede ser posterior a la final.
+            </div>
+          }
+
+          <div class="h-[calc(100vh-330px)] min-h-[520px]">
+            <app-report-viewer [doc]="rangoInvalido() ? null : doc()" [loading]="loading()" />
+          </div>
+
+        </div>
+
+      </div>
+
+    }
+
+
+    <!-- =====================================================
+         IMPORTAR
+         ===================================================== -->
+    @if (tab() === 'importar') {
+
+      <div class="grid grid-cols-1 gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
+
+        <aside class="space-y-4">
+
+          <div class="overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm">
+            <p class="border-b border-[#e0e4e8] bg-[#f4f6f8] px-4 py-2.5 font-serif text-[13px] font-bold text-[#17324d]">1. ¿Qué vas a importar?</p>
+
+            @for (ds of datasets; track ds.id) {
+              <button
+                type="button"
+                (click)="setDataset(ds.id)"
+                [disabled]="importing()"
+                class="flex w-full cursor-pointer items-center gap-3 border-b border-[#f0f2f4] px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-[#f4f6f8] disabled:cursor-not-allowed disabled:opacity-60"
+                [class]="datasetId() === ds.id ? 'bg-[#e8edf2] shadow-[inset_3px_0_0_#17324d]' : ''"
+              >
+                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#17324d] text-white">
+                  <iconify-icon [icon]="ds.icon" width="17" height="17"></iconify-icon>
+                </span>
+                <span>
+                  <span class="block text-[13px] font-semibold text-[#17324d]">{{ ds.label }}</span>
+                  <span class="block text-[11px] text-[#68737d]">{{ ds.descripcion }}</span>
+                </span>
+              </button>
+            }
+          </div>
+
+          <div class="overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm">
+            <p class="border-b border-[#e0e4e8] bg-[#f4f6f8] px-4 py-2.5 font-serif text-[13px] font-bold text-[#17324d]">Columnas esperadas</p>
+
+            <ul class="divide-y divide-[#f0f2f4]">
+              @for (f of dataset().fields; track f.key) {
+                <li class="flex items-center justify-between gap-2 px-4 py-2">
+                  <span class="font-mono text-[11px] text-[#17324d]">{{ f.key }}</span>
+                  <span class="text-[10px]" [class]="f.required ? 'font-semibold text-[#a94442]' : 'text-[#8b949d]'">{{ f.required ? 'obligatoria' : 'opcional' }}</span>
+                </li>
+              }
+            </ul>
+
+            <div class="flex gap-2 border-t border-[#e0e4e8] bg-[#fafbfc] p-3">
+              <button type="button" (click)="plantilla('xlsx')"
+                class="inline-flex h-8 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[#c9d0d8] bg-white text-[11px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-[.98]">
+                <iconify-icon icon="lucide:file-spreadsheet" width="13" height="13"></iconify-icon> Plantilla Excel
+              </button>
+              <button type="button" (click)="plantilla('csv')"
+                class="inline-flex h-8 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-md border border-[#c9d0d8] bg-white text-[11px] font-semibold text-[#17324d] transition-all hover:bg-[#eef1f4] active:scale-[.98]">
+                <iconify-icon icon="lucide:table" width="13" height="13"></iconify-icon> Plantilla CSV
+              </button>
+            </div>
+          </div>
+
+        </aside>
+
+
+        <div class="min-w-0 space-y-4">
+
+          <!-- ZONA DE CARGA -->
+          <label
+            class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed bg-white px-6 py-9 text-center shadow-sm transition-colors"
+            [class]="dragging() ? 'border-[#17324d] bg-[#eef3f8]' : 'border-[#b4bec8] hover:border-[#17324d]'"
+            (dragover)="$event.preventDefault(); dragging.set(true)"
+            (dragleave)="dragging.set(false)"
+            (drop)="onDrop($event)"
+          >
+            <input type="file" class="hidden" accept=".csv,.tsv,.txt,.json,.xlsx,.xls,.ods" (change)="onFileInput($event)" [disabled]="importing()" />
+
+            <span class="flex h-12 w-12 items-center justify-center rounded-full bg-[#17324d] text-white">
+              <iconify-icon [icon]="parsing() ? 'lucide:loader-circle' : 'lucide:file-up'" width="22" height="22" [class.animate-spin]="parsing()"></iconify-icon>
+            </span>
+
+            <p class="font-serif text-[15px] font-bold text-[#17324d]">2. Arrastra el archivo o haz clic para elegirlo</p>
+            <p class="text-[11px] text-[#68737d]">Formatos: Excel (.xlsx, .xls, .ods), CSV, TSV, TXT y JSON · la primera fila debe ser el encabezado</p>
+
+            @if (fileName()) {
+              <span class="mt-1 inline-flex items-center gap-1.5 rounded-md bg-[#e8edf2] px-2.5 py-1 font-mono text-[11px] text-[#17324d]">
+                <iconify-icon icon="lucide:paperclip" width="12" height="12"></iconify-icon>{{ fileName() }}
+              </span>
+            }
+          </label>
+
+          @if (importMessage()) {
+            <div class="flex items-center gap-2 rounded-lg border border-[#c9d0d8] bg-white px-4 py-3 text-xs text-[#17324d] shadow-sm">
+              <iconify-icon icon="lucide:info" width="14" height="14"></iconify-icon>
+              {{ importMessage() }}
+            </div>
+          }
+
+          <!-- VISTA PREVIA DE IMPORTACIÓN -->
+          @if (importRows().length) {
+
+            <div class="overflow-hidden rounded-xl border border-[#c9d0d8] bg-white shadow-sm">
+
+              <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#e0e4e8] bg-[#f4f6f8] px-4 py-3">
+
+                <div>
+                  <p class="font-serif text-[13px] font-bold text-[#17324d]">3. Revisa antes de importar</p>
+                  <p class="text-[11px] text-[#68737d]">
+                    <strong class="text-[#3c7650]">{{ validas().length }}</strong> listas ·
+                    <strong class="text-[#a94442]">{{ invalidas().length }}</strong> con error ·
+                    {{ importRows().length }} filas en total
+                    @if (importRows().length > 100) { · se muestran las primeras 100 }
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <button type="button" (click)="limpiarImport()" [disabled]="importing()"
+                    class="inline-flex h-8 cursor-pointer items-center rounded-md border border-[#c9d0d8] bg-white px-3 text-[11px] font-semibold text-[#52606d] transition-all hover:bg-[#eef1f4] disabled:opacity-50">
+                    Descartar
+                  </button>
+
+                  <button type="button" (click)="importar()" [disabled]="importing() || !validas().length || !!importadas()"
+                    class="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-[#17324d] px-3.5 text-[11px] font-semibold text-white transition-all hover:bg-[#214766] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50">
+                    @if (importing()) {
+                      <iconify-icon icon="lucide:loader-circle" width="13" height="13" class="animate-spin"></iconify-icon>
+                      Importando {{ progress() }} / {{ validas().length }}
+                    } @else {
+                      <iconify-icon icon="lucide:database-backup" width="13" height="13"></iconify-icon>
+                      Importar {{ validas().length }} registros
+                    }
+                  </button>
+                </div>
+
+              </div>
+
+              @if (importing()) {
+                <div class="h-1 bg-[#e0e4e8]"><div class="h-full bg-[#17324d] transition-all" [style.width.%]="validas().length ? progress() * 100 / validas().length : 0"></div></div>
+              }
+
+              <div class="max-h-[460px] overflow-auto">
+                <table class="w-full border-collapse text-[12px]">
+                  <thead>
+                    <tr class="border-b border-[#17324d] bg-[#f4f6f8] text-left text-[10px] font-bold uppercase tracking-[.06em] text-[#17324d]">
+                      <th class="sticky top-0 bg-[#f4f6f8] px-4 py-2">Fila</th>
+                      <th class="sticky top-0 bg-[#f4f6f8] px-4 py-2">Registro</th>
+                      <th class="sticky top-0 bg-[#f4f6f8] px-4 py-2">Estado</th>
+                      <th class="sticky top-0 bg-[#f4f6f8] px-4 py-2">Detalle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (r of preview(); track r.line) {
+                      <tr class="border-b border-[#eef0f3]">
+                        <td class="px-4 py-2 font-mono text-[11px] text-[#8b949d]">{{ r.line }}</td>
+                        <td class="px-4 py-2 text-[#17324d]">{{ r.resumen }}</td>
+                        <td class="px-4 py-2">
+                          @if (r.status === 'ok') {
+                            <span class="rounded bg-[#dcefe2] px-2 py-0.5 text-[10px] font-semibold text-[#2c5a3d]">Importada</span>
+                          } @else if (r.error || r.status === 'error') {
+                            <span class="rounded bg-[#f6e0e0] px-2 py-0.5 text-[10px] font-semibold text-[#7d2c2c]">Error</span>
+                          } @else {
+                            <span class="rounded bg-[#e8edf2] px-2 py-0.5 text-[10px] font-semibold text-[#17324d]">Lista</span>
+                          }
+                        </td>
+                        <td class="px-4 py-2 text-[11px] text-[#68737d]">{{ r.message }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+          }
+
+        </div>
+
+      </div>
+
+    }
+
+  </div>
+
+</section>

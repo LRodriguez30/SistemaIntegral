@@ -14,6 +14,9 @@ import {
 
 import { CatalogoCuentasService } from '../../../services/catalogo_cuentas.service';
 import { AsientosContablesService } from '../../../services/asientos_contables.service';
+import { ClientesService } from '../../../services/clientes.service';
+import { FacturasService } from '../../../services/facturas.service';
+import { CobrosService } from '../../../services/cobros.service';
 
 
 interface QuickAction {
@@ -67,6 +70,15 @@ export class Contalab implements OnInit {
 
   private readonly asientosContablesService =
     inject(AsientosContablesService);
+
+  private readonly clientesService = 
+    inject(ClientesService);
+
+  private readonly facturasService = 
+    inject(FacturasService);
+
+  private readonly cobrosService = 
+   inject(CobrosService);
 
 
   // =========================================================
@@ -140,6 +152,89 @@ export class Contalab implements OnInit {
 
       });
 
+    
+
+    this.clientesService
+      .getClientes()
+      .subscribe({
+
+        next: (clientes) => {
+
+          this.accountingStats.update(stats => ({
+
+            ...stats,
+
+            customers: clientes.length
+
+          }));
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error obteniendo los clientes:',
+            error
+          );
+
+        }
+
+      });
+
+    this.facturasService
+      .getFacturas()
+      .subscribe({
+
+        next: (facturas) => {
+
+          this.operationStats.update(stats => ({
+
+            ...stats,
+
+            invoices: facturas.length
+
+          }));
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error obteniendo las facturas:',
+            error
+          );
+
+        }
+
+      });
+
+    this.cobrosService
+      .getCobros()
+      .subscribe({
+
+        next: (cobros) => {
+
+          this.operationStats.update(stats => ({
+
+            ...stats,
+
+            collections: cobros.length
+
+          }));
+
+        },
+
+        error: (error) => {
+
+          console.error(
+            'Error obteniendo los cobros:',
+            error
+          );
+
+        }
+
+      });
+
   }
 
 
@@ -164,15 +259,14 @@ export class Contalab implements OnInit {
   // =========================================================
 
   readonly accountingStats = signal({
-
     accounts: 0,
-
     journalEntries: 0,
-
     customers: 0,
-
-    suppliers: 0
-
+    suppliers: 0,
+    invoices: 0,
+    collections: 0,
+    purchases: 0,
+    payments: 0
   });
 
 
@@ -180,17 +274,12 @@ export class Contalab implements OnInit {
   // DOCUMENTOS Y OPERACIONES
   // =========================================================
 
-  operationStats = {
-
+  readonly operationStats = signal({
     invoices: 0,
-
     collections: 0,
-
     purchases: 0,
-
     supplierPayments: 0
-
-  };
+  });
 
 
   // =========================================================
@@ -234,7 +323,7 @@ export class Contalab implements OnInit {
 
       icon: 'lucide:file-text',
 
-      route: '/admin/contalab/facturas'
+      route: '/admin/contalab/ventas/facturas'
 
     },
 
@@ -247,7 +336,7 @@ export class Contalab implements OnInit {
 
       icon: 'lucide:users-round',
 
-      route: '/admin/contalab/clientes'
+      route: '/admin/contalab/ventas/clientes'
 
     },
 
@@ -260,7 +349,7 @@ export class Contalab implements OnInit {
 
       icon: 'lucide:truck',
 
-      route: '/admin/contalab/proveedores'
+      route: '/admin/contalab/compras/proveedores'
 
     },
 

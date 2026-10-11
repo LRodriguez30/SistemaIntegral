@@ -36,6 +36,16 @@ import { AsientosContablesComponent } from './SistemaMonitoreo/admin/contalab/co
 import { EstadosFinancierosComponent } from './SistemaMonitoreo/admin/contalab/analisis/estados_financieros/estados_financieros';
 import { EmpleadosComponent } from './SistemaMonitoreo/admin/contalab/personal/empleados/empleados';
 import { NominaComponent } from './SistemaMonitoreo/admin/contalab/personal/nomina/nomina';
+import { ClientesComponent } from './SistemaMonitoreo/admin/contalab/Ventas/Clientes/clientes';
+import { FacturasComponent } from './SistemaMonitoreo/admin/contalab/Ventas/Facturas/facturas';
+import { CobrosComponent } from './SistemaMonitoreo/admin/contalab/Ventas/Cobros/cobros';
+import { PedidosComponent } from './SistemaMonitoreo/admin/contalab/Ventas/Pedidos/pedidos';
+import { ProductosComponent } from './SistemaMonitoreo/admin/contalab/Ventas/productos/productos';
+import { ComprasComponent } from './SistemaMonitoreo/admin/contalab/compras/compras/compras';
+import { ProveedoresComponent } from './SistemaMonitoreo/admin/contalab/compras/proveedores/proveedores';
+import { PagosProveedoresComponent } from './SistemaMonitoreo/admin/contalab/compras/pago_proveedores/pago_proveedores';
+import { ReportesComponent } from './SistemaMonitoreo/admin/contalab/analisis/reportes/reportes';
+import { GraficasComponent } from './SistemaMonitoreo/admin/contalab/analisis/graficas/graficas';
 
 export const routes: Routes = [
     // Rutas Sistema Comercial
@@ -194,6 +204,36 @@ export const routes: Routes = [
                         title: 'Contalab | Contabilidad | Asientos Contables',
                         component: AsientosContablesComponent
                     },
+                    
+                    {
+                        path: 'contalab/ventas/clientes',
+                        title: 'Contalab | Ventas | Clientes',
+                        component: ClientesComponent
+                    },
+
+                    {
+                        path: 'contalab/ventas/productos',
+                        title: 'Contalab | Ventas | Productos',
+                        component: ProductosComponent
+                    },
+
+                    {
+                        path: 'contalab/ventas/pedidos',
+                        title: 'Contalab | Ventas | Pedidos',
+                        component: PedidosComponent
+                    },
+
+                    {
+                        path: 'contalab/ventas/facturas',
+                        title: 'Contalab | Ventas | Facturas',
+                        component: FacturasComponent
+                    },
+
+                    {
+                        path: 'contalab/ventas/cobros',
+                        title: 'Contalab | Ventas | Cobros',
+                        component: CobrosComponent
+                    },
 
                     {
                         path: 'contalab/personal/empleados',
@@ -208,9 +248,39 @@ export const routes: Routes = [
                     },
 
                     {
+                        path: 'contalab/compras/compras',
+                        title: 'Contalab | Compras',
+                        component: ComprasComponent
+                    },
+
+                    {
+                        path: 'contalab/compras/proveedores',
+                        title: 'Contalab | Compras | Proveedores',
+                        component: ProveedoresComponent
+                    },
+
+                    {
+                        path: 'contalab/compras/pagos-proveedores',
+                        title: 'Contalab | Compras | Pagos a Proveedores',
+                        component: PagosProveedoresComponent
+                    },
+
+                    {
+                        path: 'contalab/analisis/reportes',
+                        title: 'Contalab | Análisis | Reportes',
+                        component: ReportesComponent
+                    },
+
+                    {
                         path: 'contalab/analisis/estados-financieros',
                         title: 'Contalab | Análisis | Estados Financieros',
                         component: EstadosFinancierosComponent
+                    },
+
+                    {
+                        path: 'contalab/analisis/graficas',
+                        title: 'Contalab | Análisis | Gráficas',
+                        component: GraficasComponent
                     },
                 ]
             },
